@@ -297,7 +297,163 @@ numbers.map({ (number: Int) -> Int in
 ```swift
 let mappedNumbers = numbers.map({ number in 3 * number})
 print(mappedNumbers)
+// Prints "[60, 57, 21, 36]"
 ```
+
+你可以用数字来引用参数，这在短的闭包中很有用。作为函数最后一个参数的闭包，可以直接放在括号后面使用。当闭包是唯一的参数的时候，可以省略括号。
+```swift
+let sortedNumbers = numbers.sorted { $0 > $1 }
+print(sortedNumbers)
+// Prints "[20, 19, 12 ,7]"
+```
+
+### 对象和类
+
+在`class`关键字后面加上类名的方式创建类。类的属性声明方式与变量和常量相同，只是它只存在于类的上下文中。同样，方法的声明跟函数的声明方式一致。
+```swift
+class Shape {
+  var numberOfSides = 0
+  func simpleDescription() -> String {
+    return "A shape with \(numberOfSides) sides."
+  }
+}
+```
+> 试一试：用`let`添加一个常量属性，添加一个使用参数的方法。
+
+用类名后面接括号的方式创建类的实例。用点号（`.`）访问实例的属性和方法。
+```swift
+var shape = Shape()
+shape.numberOfSides = 7
+var shapeDescription = shape.simpleDescription()
+```
+
+这个版本的`Shape`类缺了一个重要的东西：创建类实例的时候设置类的初始化方法。用`init`创建。
+```swift
+class NamesShape {
+  var numberOfSides: Int = 0
+  var name: String
+
+  init(name: String) {
+    self.name = name
+  }
+
+  func simpleDescription() -> String {
+    return "A shape with \(numberOfSides) sides."
+  }
+}
+```
+注意`self`是如何被用于在初始化方法中区分属性`name`和实参`name`的。创建类的实例的时候，初始化方法的实参将像函数调用一样传递。每个属性都需要被赋值——在声明中（`numberOfSides`）或初始化方法中（`name`）。
+
+如果像在对象被回收前执行一些清理工作，请使用`deinit`创建反初始化方法。
+
+子类在类名后面加上父类名，用分号（`;`）隔开。类无需继承自标准根类，所以你可以根据需要省略父类名称。
+
+子类中重写了的父类方法实现的方法，用`override`标记，如果意外重写了方法，而没有标记`override`，编译器将报错。编译器也会检测标记有`override`但实际上没有重写父类的方法。
+```swift
+class Square: NamedShape {
+    var sideLength: Double
+
+    init(sideLength: Double, name: String) {
+        self.sideLength = sideLength
+        super.init(name: name)
+        numberOfSides = 4
+    }
+
+    func area() -> Double {
+        return sideLength * sideLength
+    }
+
+    override func simpleDescription() -> String {
+        return "A square with sides of length \(sideLength)."
+    }
+}
+let test = Square(sideLength: 5.2, name: "my test square")
+test.area()
+test.simpleDescription()
+```
+> 试一试：创建一个以半径和名称为初始化参数，名为`Circle`的`NamedShape`的子类。实现`area()`和`simpleDescription()`方法。
+
+除了简单属性的储存之外，属性也可以有`getter`和`setter`方法。
+```swift
+class EquilateralTriangle: NamedShape {
+  var sideLength: Double = 0.0
+
+  init(sideLength: Double, name: String) {
+    self.sideLength = sideLength
+    self.init(name: name)
+    numberOfSides = 3
+  }
+
+  var perimeter: Double {
+    get {
+      return 3.0 * sideLength
+    }
+    set {
+      sideLength = newValue / 3.0
+    }
+  }
+
+  override func simpleDescription() -> String {
+    return "An equilateral triangle with sides of length \(sideLength)."
+  }
+}
+```
+在`perimeter`的`setter`方法中，新的值有一个隐式的名称`newValue`。你可以在`set`后面加上括号在括号中提供显式名称。
+
+注意`EquilateralTriangle`的初始化方法有三个不同步骤：
+1. 给子类声明的属性赋值
+2. 调用父类的初始化方法
+3. 改变被父类定义的属性的值。任何利用方法，`getter`或`setter`的附加设置都可以在这里进行。
+
+如果你不需要计算属性，但是仍然需要在设置属性值前后执行代码，用`willSet`和`didSet`。你提供的代码在初始化方法之外改变时会被执行。例如，下面的类确保三角形的边长与四边形的边长相等。
+```swift
+class TriangleAndSquare {
+  var triangle: EquilateralTriangle {
+    willSet {
+      square.sideLength = newValue.sideLength
+    }
+  }
+  var square: Square {
+    willSet {
+      triangle.sideLength = newValue.sideLength
+    }
+  }
+  init(size: Double, name: String) {
+    square = Square(sideLength: size, name: name)
+    triangle = EquilateralTriangle(sideLength: size, name: name)
+  }
+}
+var triangleAndSquare = TriangleAndSquare(size: 10, name: "another test shape")
+print(triangleAndSquare.square.sideLength)
+// Prints "10.0"
+print(triangleAndSquare.triangle.sideLength)
+// Prints "10.0"
+triangleAndSquare.square = Square(sideLength: 50, name: "larger square")
+print(triangleAndSquare.triangle.sideLength)
+// Prints "50.0"
+```
+
+当使用可选值时，你可以在方法，属性或角标前写上`?`。如果问号之前的值是`nil`，则问好后面的一切会被忽略，整个表达式的值也将是`nil`。否则，可选值的值将被解包，问号之后的一些运算将用解包的值。上面两种情况下，整个表达式成为一个可选值。
+```swift
+let optionalSquare: Square? = Square(sideLength: 2.5, name: "optional square")
+let sideLength = optionalSquare?.sideLength
+```
+
+### 枚举和结构体
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
