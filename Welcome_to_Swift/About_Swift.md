@@ -17,4 +17,4 @@ Swift将强大的类型推导和模式匹配与现代，轻量化的语法相结
 
 推出至今已经历数年，Swift将继续发展新的特性和功能。我们对Swift雄心勃勃。迫不及待想看看你用她创造了什么。
 
-[版本兼容>](Welcome_to_Swift/Version_Compatibility.md)
+[版本兼容>](Version_Compatibility.md)
