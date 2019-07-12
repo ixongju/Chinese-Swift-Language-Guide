@@ -33,12 +33,12 @@
 - [高级操作符](Language_Guide/Advanced_Operators.md)
 
 ### 语言参考
-- 关于
-- 词汇结构
-- 类型
-- 表达式
-- 声明
-- 属性
-- 模式
-- 通用形参和实参
-- 语法概述
+- [关于](Language_Reference/About_the_Language_Reference.md)
+- [词汇结构](Language_Reference/Lexical_Structure.md)
+- [类型](Language_Reference/Types.md)
+- [表达式](Language_Reference/Expressions.md)
+- [声明](Language_Reference/Declarations.md)
+- [属性](Language_Reference/Attributes.md)
+- [模式](Language_Reference/Patterns.md)
+- [通用形参和实参](Language_Reference/Generic_Parameters_and_Arguments.md)
+- [语法概述](Language_Reference/Summary_of_the_Grammar.md)
