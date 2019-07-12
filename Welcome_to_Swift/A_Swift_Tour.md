@@ -16,7 +16,199 @@ var myVariable = 42
 myVariable = 50
 let myConstant = 42
 ```
-一个常量或变量必须拥有与你所指定的值一致的类型。
+一个常量或变量必须拥有与你所指定的值一致的类型。但，你不必每次都指定明确指定类型。创建常量或变量的时候顺便提供一个值，编译器会推导类型。在上面的例子中，编译器或推导出`myVariable`的类型是整数型，因为初始值`42`是一个整数。
+
+如果初始值没有提供足够的信息（例如，没有设置初始值），则通过在变量后面加上类型以指定，类型与变量用冒号（:）隔开。
+```swift
+let implicitInteger = 70
+let implicitDouble = 70.0
+let explicitDouble: Double = 70
+```
+
+> 试一试：
+> 创建一个常量，显式指定为`Float`类型，值设置为`4`。
+
+一个类型的值不隐式转换为其他类型。如果你需要将一个值转换为另一个类型，显式地创建一个需要类型的实例。
+```swift
+let label = "The width is "
+let width = 94
+let widthLabel = label + String(width)
+```
+> 试一试：
+> 去掉`String`转换器，看看会报什么错？
+
+有一个简单方法在字符串中嵌入值：将值放在括号中，然后在括号前面加斜杠。例如：
+```swift
+let apples = 3
+let oranges = 5
+let appleSummary = "I have \(apples) apples."
+let fruitSummary = "I have \(apples + oranges) pieces of fruit."
+```
+
+> 试一试：
+> 使用`\()`在字符串中包含一个浮点计算，并在问候中包含人名。
+
+用连续的三个引号（"""）创建占用多行的字符串。引号中字符串的缩进被忽视，缩进与末尾的引号保持一致。例如：
+```swift
+let quotation = """
+I said "I have \(apples) apples."
+And then I said "I have \(apples + oranges) pieces of fruit."
+"""
+```
+
+用方括号（`[]`）创建数组或字典，用方括号括起索引或键的方式来访问元素。最后一个元素后面可以带上逗号（,）。
+```swift
+var shoppingList = ["catfish", "water", "tulips"]
+shoppingList[1] = "bottle of water"
+
+var occupations = [
+    "Malcolm": "Captain",
+    "Kaylee": "Mechanic",
+]
+occupations["Jayne"] = "Public Relations"
+```
+
+数组会随着元素的加入而自动增长。
+```swift
+shoppingList.append("blue paint")
+print(shoppingList)
+```
+
+用初始化语法创建空数组或字典。
+```swift
+let emptyArray = [String]()
+let emptyDictionary = [String: Float]()
+```
+
+如果类型信息可以被推断出来，你可以用[]创建空数组，用[:]创建空字典。例如，当你为变量赋新值或传递实参给函数。
+```swift
+shoppingList = []
+occupations = [:]
+```
+
+### 控制流
+用`if`和`switch`实现条件语句，使用`for-in`、`while`和`repeat-while`实现循环语句。条件或循环的括号是可选的。条件体和循环体的大括号（`{}`）是必须的。
+```swift
+let individualScores = [75, 43, 103, 87, 12]
+var teamScore = 0
+for score in individualScores {
+  if score > 50 {
+    teamScore += 3
+  } else {
+    teamScore += 1
+  }
+}
+print(teamScore)
+// Prints "11"
+```
+如果`if`语句中，条件语句必须是布尔语句，这意味着`if score { ... }`是错误的，并不会隐式地与`0`做比较。
+
+你可以用`if`和`let`来处理可能缺失的值。（可能缺失的值）以可选值的方式呈现。可选值包含一个值或`nil`，表明该值可能缺失。在类型后面写上问号（
+`?`）将值标明为可选值。
+```swift
+var optionalString: String? = "Hello"
+print(optionalString == nil)
+// Prints "false"
+
+var optionalName: String? = "John Appleseed"
+var greeting = "Hello!"
+if let name = optionalName {
+  greeting = "Hello, \(name)"
+}
+```
+
+> 试一试：将`optionalName`改成`nil`，`greeting`将得到什么？添加一个`else`语句，当`optionalName`是`nil`的时候，为`greeting`设置不同的值。
+
+如果可选值是`nil`，条件为`false`，大括号中的代码将被跳过。否则，将从可选值中解包，然后指定给`let`后面的常量，这样能使解包出来的值在代码块中能被访问。
+
+另外一个处理可选值的方法是通过`??`操作符提供默认值。如果可选值缺失，就用默认值。
+```swift
+let nickName: String? = nil
+let fullName: String = "John Appleseed"
+let informalGreeting = "Hi \(nickName ?? fullName)"
+```
+
+Switches语句支持任何类型的数据和多种比较运算 - 不仅限于整数和等式比较。
+```swift
+let vegetable = "red pepper"
+switch vegetable {
+  case "celery":
+    print("Add some raisins and make ants on a log.")
+  case "cucumber", "watercress":
+    print("That would make a good tea sandwish.")
+  case let x where x.hasSuffix("pepper"):
+    print("Is it a spicy \(x)?")
+  default:
+    print("Everything tastes good in soup.")
+}
+```
+> 试一试：去掉`default`分支，看看报什么错？
+
+注意如果在模式中用`let`如何将匹配的值赋值给常量。
+
+执行完匹配的分支之后，程序退出switch语句。不继续执行下一个分支（`case`），所以没有必要在分支后面显式地加上`break`。
+
+用`for-in`为每个键值对提供一对名称的方式遍历字典。字典是无序的集合，所以键值被随机遍历。
+```swift
+let interestingNumbers = [
+    "Prime": [2, 3, 5, 7, 11, 13],
+    "Fibonacci": [1, 1, 2, 3, 5, 8],
+    "Square": [1, 4, 9, 16, 25],
+]
+var largest = 0
+for (kind, numbers) in interestingNumbers {
+    for number in numbers {
+        if number > largest {
+            largest = number
+        }
+    }
+}
+print(largest)
+// Prints "25"
+```
+> 试一试：添加一个变量，追踪哪种数字最大，最大的数是什么。
+
+用`while`语句重复执行满足条件才会停的代码块。循环条件可以在末尾，以确保循环至少运行一次。
+```swift
+var n = 2
+while n < 100 {
+    n *= 2
+}
+print(n)
+// Prints "128"
+
+var m = 2
+repeat {
+    m *= 2
+} while m < 100
+print(m)
+// Prints "128"
+```
+可以使用`..<`操作符生成一系列索引来保持索引循环。
+```swift
+var total = 0
+for i in 0..<4 {
+  total += i
+}
+print(total)
+// Prints "6"
+```
+
+用`..<`创建一个不包含上限的范围，用`...`创建一个包含上下限的范围。
+
+### 函数和闭包
+用`func`声明函数。用函数名后面跟上括号括起的参数来调用函数。用`->`将参数和函数的返回类型隔开。
+```swift
+func greet(person: String, day: String) -> String {
+    return "Hello \(person), today is \(day)."
+}
+greet(person: "Bob", day: "Tuesday")
+```
+
+> 试一试
+> 去掉`day`参数，添加一个关于午餐问候的参数。
+
+
 
 
 [< 版本兼容](Version_Compatibility.md) || [基础 >](../Language_Guide/Basic_Operators.md)
