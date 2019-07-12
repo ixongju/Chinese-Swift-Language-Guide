@@ -17,3 +17,6 @@ myVariable = 50
 let myConstant = 42
 ```
 一个常量或变量必须拥有与你所指定的值一致的类型。
+
+
+[< 版本兼容](Version_Compatibility.md) || [基础 >](./Language_Guide/Basic_Operators.md)
