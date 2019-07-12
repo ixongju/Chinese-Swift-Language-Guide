@@ -208,6 +208,96 @@ greet(person: "Bob", day: "Tuesday")
 > 试一试
 > 去掉`day`参数，添加一个关于午餐问候的参数。
 
+默认情况下，函数用形参名作为实参的标志。可以在形参前面添加实参标签，或用下划线（`_`）标明不用实参标签。
+```swift
+func greet(_ person: String, on day: String) -> String {
+    return "Hello \(person), today is \(day)."
+}
+greet("John", on: "Wednesday")
+```
+
+用复合值更新元祖。例如，用函数返回多个值。元组的元素可以通过名称或数字访问。
+```swift
+func calculateStatistics(scores: [Int]) -> (min: Int, max: Int, sum: Int) {
+    var min = scores[0]
+    var max = scores[0]
+    var sum = 0
+
+    for score in scores {
+        if score > max {
+            max = score
+        } else if score < min {
+            min = score
+        }
+        sum += score
+    }
+
+    return (min, max, sum)
+}
+let statistics = calculateStatistics(scores: [5, 3, 100, 3, 9])
+print(statistics.sum)
+// Prints "120"
+print(statistics.2)
+// Prints "120"
+```
+
+函数可以嵌套。嵌套函数可以访问外部函数中声明的变量。你可以用嵌套函数管理（外部）函数中长或复杂的代码。
+```swift
+func returnFifteen() -> Int {
+  var y = 10
+  func add() {
+    y += 5
+  }
+  add()
+  return y
+}
+
+returnFifteen()
+```
+
+函数是头等类型（first-class type)。这意味着函数可以作为另一个函数的返回值。
+```swift
+func makeIncrementer() -> ((Int) -> Int) {
+    func addOne(number: Int) -> Int {
+        return 1 + number
+    }
+    return addOne
+}
+var increment = makeIncrementer()
+increment(7)
+```
+
+一个函数可以把另一个函数当作实参使用。
+```swift
+func hasAnyMatches(list: [Int], condition: (Int) -> Bool) -> Bool {
+    for item in list {
+        if condition(item) {
+            return true
+        }
+    }
+    return false
+}
+func lessThanTen(number: Int) -> Bool {
+    return number < 10
+}
+var numbers = [20, 19, 7, 12]
+hasAnyMatches(list: numbers, condition: lessThanTen)
+```
+
+实际上，函数是闭包的特例：一个可以稍后使用的代码块。闭包中的代码可以访问在闭包被创建的作用域中可用的变量和函数，即便闭包在不同的作用域被使用 --- 在使用嵌套函数的时候，你已经看到了这样的例子。你可以用大括号（`{}`）括起代码从而创建一个无名闭包。用`in`关键字将实参和返回值与函数体分开。
+```swift
+numbers.map({ (number: Int) -> Int in
+   let result = 3 * number
+   return result
+})
+```
+> 试一试：重写闭包，当`result`是奇数时，返回`0`。
+
+可以通过几个方式更简洁地编写闭包。当闭包的类型已知时，例如，`delegate`的回调。可以省略参数的类型、返回值或两者都省略。单个语句闭包隐式返回其唯一语句的值。
+```swift
+let mappedNumbers = numbers.map({ number in 3 * number})
+print(mappedNumbers)
+```
 
 
 
