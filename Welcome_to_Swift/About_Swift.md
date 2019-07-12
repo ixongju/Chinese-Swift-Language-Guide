@@ -16,3 +16,5 @@ Swift代码被编译和优化已适应最新的硬件。语法和标准库基于
 Swift将强大的类型推导和模式匹配与现代，轻量化的语法相结合，允许用清晰简洁的方式表达复杂的想法。所以，代码不仅变得容易编写，也容易读懂和维护。
 
 推出至今已经历数年，Swift将继续发展新的特性和功能。我们对Swift雄心勃勃。迫不及待想看看你用她创造了什么。
+
+<div style="text-align: right"><a href = "Welcome_to_Swift/Version_Compatibility.md">版本兼容 ></a></div>
