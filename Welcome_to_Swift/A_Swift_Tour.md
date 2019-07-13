@@ -440,7 +440,7 @@ let sideLength = optionalSquare?.sideLength
 ```
 
 ### 枚举和结构体
-用`enum`关键字创建枚举。与类和其他的所有类型一样，枚举可以有相关的方法。
+用`enum`关键字创建枚举。与类和其他的所有类型一样，枚举可以有相关的方法。
 ```swift
 enum Rank: Int {
   case ace = 1
@@ -467,9 +467,9 @@ let aceRawValue = ace.rawValue
 ```
 > 试一试： 写一个通过比较Rank原始值来比较Rank的函数。
 
-默认情况下，Swift从0开始制定原始值，每次增加一次，但你可以显式指定值来改变这一行为。`ace`被显式制定为1，剩下的按顺序一次被制定。你也可以使用浮点数或字符串作为枚举的原始值。用`rawValue`属性来访问枚举的原始值。
+默认情况下，Swift从0开始制定原始值，每次增加一次，但你可以显式指定值来改变这一行为。`ace`被显式制定为1，剩下的按顺序一次被制定。你也可以使用浮点数或字符串作为枚举的原始值。用`rawValue`属性来访问枚举的原始值。
 
-用`init?(rawValue:)`初始化方法从原始值创建枚举的实例。这将返回符合原始值的枚举分支，如果没有相符合的话返回`nil`。
+用`init?(rawValue:)`初始化方法从原始值创建枚举的实例。这将返回符合原始值的枚举分支，如果没有相符合的话返回`nil`。
 ```swift
 if let convertedRank = Rank(rawValue: 3) {
   let threeDescription = convertedRank.simpleDescription()
