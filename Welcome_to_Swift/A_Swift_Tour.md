@@ -300,7 +300,7 @@ print(mappedNumbers)
 // Prints "[60, 57, 21, 36]"
 ```
 
-你可以用数字来引用参数，这在短的闭包中很有用。作为函数最后一个参数的闭包，可以直接放在括号后面使用。当闭包是唯一的参数的时候，可以省略括号。
+你可以用数字来引用参数，这在短的闭包中很有用。作为函数最后一个参数的闭包，可以直接放在括号后面使用。当闭包是唯一的参数的时候，可以省略括号。
 ```swift
 let sortedNumbers = numbers.sorted { $0 > $1 }
 print(sortedNumbers)
@@ -309,7 +309,7 @@ print(sortedNumbers)
 
 ### 对象和类
 
-在`class`关键字后面加上类名的方式创建类。类的属性声明方式与变量和常量相同，只是它只存在于类的上下文中。同样，方法的声明跟函数的声明方式一致。
+在`class`关键字后面加上类名的方式创建类。类的属性声明方式与变量和常量相同，只是它只存在于类的上下文中。同样，方法的声明跟函数的声明方式一致。
 ```swift
 class Shape {
   var numberOfSides = 0
@@ -318,7 +318,7 @@ class Shape {
   }
 }
 ```
-> 试一试：用`let`添加一个常量属性，添加一个使用参数的方法。
+> 试一试：用`let`添加一个常量属性，添加一个使用参数的方法。
 
 用类名后面接括号的方式创建类的实例。用点号（`.`）访问实例的属性和方法。
 ```swift
@@ -327,7 +327,7 @@ shape.numberOfSides = 7
 var shapeDescription = shape.simpleDescription()
 ```
 
-这个版本的`Shape`类缺了一个重要的东西：创建类实例的时候设置类的初始化方法。用`init`创建。
+这个版本的`Shape`类缺了一个重要的东西：创建类实例的时候设置类的初始化方法。用`init`创建。
 ```swift
 class NamesShape {
   var numberOfSides: Int = 0
@@ -346,7 +346,7 @@ class NamesShape {
 
 如果像在对象被回收前执行一些清理工作，请使用`deinit`创建反初始化方法。
 
-子类在类名后面加上父类名，用分号（`;`）隔开。类无需继承自标准根类，所以你可以根据需要省略父类名称。
+子类在类名后面加上父类名，用分号（`;`）隔开。类无需继承自标准根类，所以你可以根据需要省略父类名称。
 
 子类中重写了的父类方法实现的方法，用`override`标记，如果意外重写了方法，而没有标记`override`，编译器将报错。编译器也会检测标记有`override`但实际上没有重写父类的方法。
 ```swift
@@ -398,14 +398,14 @@ class EquilateralTriangle: NamedShape {
   }
 }
 ```
-在`perimeter`的`setter`方法中，新的值有一个隐式的名称`newValue`。你可以在`set`后面加上括号在括号中提供显式名称。
+在`perimeter`的`setter`方法中，新的值有一个隐式的名称`newValue`。你可以在`set`后面加上括号在括号中提供显式名称。
 
 注意`EquilateralTriangle`的初始化方法有三个不同步骤：
 1. 给子类声明的属性赋值
 2. 调用父类的初始化方法
 3. 改变被父类定义的属性的值。任何利用方法，`getter`或`setter`的附加设置都可以在这里进行。
 
-如果你不需要计算属性，但是仍然需要在设置属性值前后执行代码，用`willSet`和`didSet`。你提供的代码在初始化方法之外改变时会被执行。例如，下面的类确保三角形的边长与四边形的边长相等。
+如果你不需要计算属性，但是仍然需要在设置属性值前后执行代码，用`willSet`和`didSet`。你提供的代码在初始化方法之外改变时会被执行。例如，下面的类确保三角形的边长与四边形的边长相等。
 ```swift
 class TriangleAndSquare {
   var triangle: EquilateralTriangle {
@@ -433,7 +433,7 @@ print(triangleAndSquare.triangle.sideLength)
 // Prints "50.0"
 ```
 
-当使用可选值时，你可以在方法，属性或角标前写上`?`。如果问号之前的值是`nil`，则问好后面的一切会被忽略，整个表达式的值也将是`nil`。否则，可选值的值将被解包，问号之后的一些运算将用解包的值。上面两种情况下，整个表达式成为一个可选值。
+当使用可选值时，你可以在方法，属性或角标前写上`?`。如果问号之前的值是`nil`，则问好后面的一切会被忽略，整个表达式的值也将是`nil`。否则，可选值的值将被解包，问号之后的一些运算将用解包的值。上面两种情况下，整个表达式成为一个可选值。
 ```swift
 let optionalSquare: Square? = Square(sideLength: 2.5, name: "optional square")
 let sideLength = optionalSquare?.sideLength
