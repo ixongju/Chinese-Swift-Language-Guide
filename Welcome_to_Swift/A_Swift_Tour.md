@@ -476,11 +476,111 @@ if let convertedRank = Rank(rawValue: 3) {
 }
 ```
 
+枚举的分支值就是实际值，并不是原始值的另一个书写方式。实际上，你没必要为没有意义的原始值提供一个值。
+```swift
+enum Suit {
+  case spades, hearts, diamonds, clubs
+
+    func simpleDescription() -> String {
+        switch self {
+        case .spades:
+            return "spades"
+        case .hearts:
+            return "hearts"
+        case .diamonds:
+            return "diamonds"
+        case .clubs:
+            return "clubs"
+        }
+    }
+}
+let hearts = Suit.hearts
+let heartDescription = hearts.simpleDescription()
+```
+
+> 试一试：添加一个`color()`方法，为spades和clubs返回“black”，为diamonds返回“red”。
+
+注意上面枚举中`hearts`被使用的两种方式：当给`hearts`常量赋值时，用的是枚举分支的全名`Suit.hearts`，因为该常量没有显式指定类型。在`switch`语句中，使用枚举分支的缩写`.hearts`，因为`self`指的就是`Suit`本身。你可以知道值的类型的时候使用缩写。
+
+如果枚举有原始数值，则这些值将作为声明的一部分被确定，这意味着特定枚举分支的每个实例具有相同的原始值。枚举的另一种用法是给分支设定关联值——这些值在你创建实例的时候被确定，每个分支实例的关联值可以不同。你可以将关联值理解成该枚举分支实例的储存属性。例如：考虑一下从服务器请求日出和日落时间的情况，服务器要么回复请求的信息，要么回复出错的描述。
+```swift
+enum ServerResponse {
+  case result(String, String)
+  case failure(String)
+}
+
+let success = ServerResponse.result("6:00 am", "8:09 pm")
+let failure = ServerResponse.failure("Out of cheese.")
+
+switch success {
+  case let .result(sunrise, sunset):
+    print("Sunrise is at \(sunrise) and sunset is at \(sunset)")
+  case let .failure(message):
+    print("Failure...\(message)")
+}
+// Prints "Sunrise is at 6:00 am and sunset is at 8:09 pm."
+```
+
+> 试一试：为ServerResponse和switch添加第三个分支。
+
+注意如何从`ServerResponse`中抽取`sunrise`和`sunset`的值，并作为匹配switch分支的一部分。
+
+用`struct`关键字创建结构体。结构体支持许多与类相同的行为，包括方法和初始化方法。结构体与类最大的不同在于，结构体在代码中被传递时总是会被复制，而类只传递引用。
+```swift
+struct Card {
+    var rank: Rank
+    var suit: Suit
+    func simpleDescription() -> String {
+        return "The \(rank.simpleDescription()) of \
+      (suit.simpleDescription())"
+    }
+}
+
+let threeOfSpades = Card(rank: .three, suit: .spades)
+let threeOfSpadesDescription = threeOfSpades.simpleDescription()
+```
+
+> 试一试：写一个函数，返回一个包含所有卡片的数组，每张卡片对应一个等级和套装的组合。
+
+### 协议和扩展
+用`protocol`声明一个协议。
+```swift
+protocol ExampleProtocol {
+  var simpleDescription: String { get }
+  mutating func adjust()
+}
+```
+类，枚举和结构体可以实现协议。
+```swift
+class SimpleClass: ExampleProtocol {
+    var simpleDescription: String = "A very simple class."
+    var anotherProperty: Int = 69105
+    func adjust() {
+        simpleDescription += "  Now 100% adjusted."
+    }
+}
+var a = SimpleClass()
+a.adjust()
+let aDescription = a.simpleDescription
+
+struct SimpleStructure: ExampleProtocol {
+    var simpleDescription: String = "A simple structure"
+    mutating func adjust() {
+        simpleDescription += " (adjusted)"
+    }
+}
+var b = SimpleStructure()
+b.adjust()
+let bDescription = b.simpleDescription
+```
+
+> 试一试： 给`ExampleProtocol`添加一个需求。为了实现`ExampleProtocol`协议，SimpleClass和SimpleStructure需要作出什么改变？
 
 
 
+### 错误处理
 
-
+### 泛型
 
 
 
