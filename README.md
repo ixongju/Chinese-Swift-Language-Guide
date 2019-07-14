@@ -6,7 +6,7 @@ THE SEIFT PROGRAMMING LANGUAGE SWIFT 5.1
 - [快速开始](Welcome_to_Swift/A_Swift_Tour.md)
 
 ### Swift语言指南
-- [基础](Language_Guide/Basic_Operators.md)
+- [基础](Language_Guide/The_Basic.md)
 - [基本操作符](Language_Guide/Basic_Operators.md)
 - [字符串与字符（Strings and Characters）](Language_Guide/Strings_and_Characters.md)
 - [集合类型（Collection Types）](Language_Guide/Collection_Types.md)
