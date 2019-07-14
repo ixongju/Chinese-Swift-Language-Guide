@@ -606,20 +606,125 @@ print(protocolValue.simpleDescription)
 
 ### 错误处理
 
+你可以用实现了`Error`协议的任何类型表示错误。
+```swift
+enum PrinterError: Error {
+  case outOfPaper
+  case noToner
+  case onFire
+}
+```
 
+用`throw`关键字抛出错误，用`throws`关键字标记或抛出错误的函数。如果你在函数中抛出错误，函数会立即返回，调用函数的代码将负责处理错误。
+```swift
+func send(job: Int, toPrinter printerName: String) throws -> String {
+  if printerName == "Never Has Toner" {
+    throw PrinterError.noToner
+  }
+  return "Job sent"
+}
+```
+
+有几种可以处理错误的方法。一种是用`do-catch`。在`do`代码块中，用`try`关键字标记可能抛出错误的代码。在`catch`代码块中，如果你不指定一个不同名称，错误会被自动命名为`error`。
+```swift
+do {
+  let printerResponse = try send(job: 1040, toPrinter: "Bi Sheng")
+  print(printerResponse)
+} catch {
+  print(error)
+}
+// Prints "Job sent"
+```
+
+> 试一试：将打印机名改为“Never Has Toner”，让send方法抛出错误。
+
+你可以用多个`catch`来处理特定的错误。就像处理switch分支一样在`catch`后面写上一个模式。
+```swift
+do {
+    let printerResponse = try send(job: 1440, toPrinter: "Gutenberg")
+    print(printerResponse)
+} catch PrinterError.onFire {
+    print("I'll just put this over here, with the rest of the fire.")
+} catch let printerError as PrinterError {
+    print("Printer error: \(printerError).")
+} catch {
+    print(error)
+}
+// Prints "Job sent"
+```
+
+> 试一试：添加在do代码块中捕获错误的代码。抛出什么错误将会被第一个catch捕获呢？第二个和第三个呢？
+
+另一种处理错误的方式是用`try?`关键字把错误转变为可选值。如果函数抛出错误，指定的错误会被抛弃，返回的结果是`nil`。否则，结果就是一个包含返回值的可选值。
+```swift
+let printerSuccess = try? send(job: 1884, toPrinter: "Mergenthaler")
+let printerFailure = try? send(job: 1885, toPrinter: "Never Has Toner")
+```
+
+用`defer`关键字写函数中所有代码被执行之后再执行的代码块，在函数返回之前。代码的执行会忽视函数抛出错误。你可以将配置和清理代码写在一起，即使它们在不同的时间被执行。
+```swift
+var fridgeIsOpen = false
+let fridgeContent = ["milk", "eggs", "leftovers"]
+
+func fridgeContent(_ food: String) -> Bool {
+  fridgeIsOpen = true
+  defer {
+    fridgeIsOpen = false
+  }
+
+  let result = fridgeContent.contains(food)
+  return result
+}
+fridgeContent("banana")
+print(fridgeIsOpen)
+// Prints "false"
+```
 
 ### 泛型
 
+用在尖括号中写上名称的方式创建函数或类型泛型。
+```swift
+func makeArray<Item>(repeating item: Item, numberOfItems: Int) -> [Item] {
+  var result = [Item]()
+  for _ in 0..<numberOfTimes {
+    result.append(item)
+  }
+  return result
+}
+makeArray(repeating: "knock", numberOfTimes: 4)
+```
 
+你可以创建函数和方法的泛型，也可以创建类，枚举和结构体的泛型。
+```swift
+// Reimplement the Swift standard library's optional type
+enum OptionalValue<Wrapped> {
+  case none
+  case some(Wrapped)
+}
+var possibleInteger: OptionalValue<Int> = .none
+possibleInteger = .some(100)
+```
 
+用`where`关键字放在制定一些列需求，例如，要求某一类型实现某一协议，要求两种类型相同，或要求某一类继承自某一父类。
+```swift
+func anyCommonElements<T: Sequence, U: Sequence>(_ lhs: T, _ rhs: U) -> Bool
+  where T.Element: Equatable, T.Element == U.Element
+{
+    for lhsItem in lhs {
+      for rhsItem in rhs {
+        if lhsItem == rhsItem {
+          return true
+        }
+      }
+    }
+    return false
+}
+anyCommonElements([1, 2, 3], [3])
+```
 
+> 试一试：修改`anyCommonElements(_:_:) `方法，返回两者的交集数组。
 
-
-
-
-
-
-
+`<T: Equatable>`与`<T> ... where T: Equatable`相同。
 
 
 [< 版本兼容](Version_Compatibility.md) || [基础 >](../Language_Guide/Basic_Operators.md)
