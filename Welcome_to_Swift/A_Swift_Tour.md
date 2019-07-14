@@ -576,9 +576,37 @@ let bDescription = b.simpleDescription
 
 > 试一试： 给`ExampleProtocol`添加一个需求。为了实现`ExampleProtocol`协议，SimpleClass和SimpleStructure需要作出什么改变？
 
+注意在SimpleStruct的声明中用`mutating`关键字标记能修改结构体内容的方法。SimpleClass类中不需要将方法标记成可变，因为类的方法总是能够修改类的内容。
 
+用`extension`关键字给已有的类型添加功能，例如新方法和计算属性。你可以用扩展给其他地方定义的类型添加协议，或者直接给从某一个框架导入的类型添加扩展。
+```swift
+extension Int: ExampleProtocol {
+  var simpleDescription: String {
+    return "The number \(self)"
+  }
+  mutating func adjust() {
+    self += 42
+  }
+}
+print(7.simpleDescription)
+// Prints "The number 7"
+```
+
+> 试一试：跟double类型添加一个absoluteValue属性的扩展。
+
+你可以像使用任何一个类型名一样使用协议名，例如，创建一组实现了同样协议的不同对象。当使用协议类型的值时，协议定义之外的方法不可用。
+```swift
+let protocolValue: ExampleProtocol = a
+print(protocolValue.simpleDescription)
+// Prints "A very simple class.  Now 100% adjusted."
+// print(protocolValue.anotherProperty)  // Uncomment to see the error
+```
+
+即使变量`protocolValue`在运行时有一个`SimpleClass`类型，编译器仍把它看做`ExampleProtocol`类型。这意味着除了协议一致性之外，你不会无意地访问到类所实现的方法和属性。
 
 ### 错误处理
+
+
 
 ### 泛型
 
