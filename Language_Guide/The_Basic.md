@@ -233,6 +233,20 @@ let hexadecimalDouble = 0xC.3p0
 
 ## 数字类型转换
 
+对于代码中所有通用整型的整数用`Int`类型，即便它们是非负。在日常开发中使用默认整型意味着，整型常量和变量直接和代码保持互换性，匹配字面量的类型推导。
+
+当需要用特定类型处理任务时，用其他整型类型，因为需要符合，外部资源数据的确切的大小，或性能表现，内存使用或其他必要的优化。这种情况下，用确切大小的类型有助于捕获任何意外地值的泄露，并隐式记录所有数据的性质。
+
+#### 整型转换
+整型常量或变量能够储存的数字的范围因数字类型不同。一个`Int8`类型的常量或变量可以储存`-128`到`127`之间的数，而一个`UInt8`的常量和变量可以储存`0`到`255`之间的数。一个不适合整型常量或变量尺寸的数字，在编译时将被报错：
+```swift
+let cannotBeNegative: UInt8 = -1
+// Uint8 cannot store negative numbers, and so this will report an error
+let tooBig: Int8 = Int8.max + 1
+// Int8 cannot store a number larger than its maximun value,
+// and so this will also report an error.
+```
+因为每种数字类型可以储存的值的范围不同，因此必须根据具体情况进行值类型转换。这样可以防止隐藏的转换错误，并有助于明确显式转换的意图。
 
 
 
