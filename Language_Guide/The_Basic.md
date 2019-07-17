@@ -13,7 +13,7 @@ Swift是类型安全语言，这意味着Swift能让你清楚地知道你的代�
 
 ## 常量和变量
 
-常量和变量将一个名称（如`maximumNunberOfLoginAttempts`或`welcomeMessage`）和特定类型的值（如数字`10`或字符串`"Hello"`）关联起来。常量的值一旦设定就不能再修改，变量则可以。
+常量和变量将一个名称（如`maximumNunberOfLoginAttempts`或`welcomeMessage`）和特定类型的值（如数字`10`或字符串`"Hello"`）关联起来。常量的值一旦设定就不能再修改，变量则可以。
 
 #### 声明常量和变量
 
