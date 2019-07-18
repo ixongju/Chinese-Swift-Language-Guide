@@ -550,7 +550,56 @@ if assumedString != nil {
 当在稍后某一点变量的值可能为nil时，不要使用隐式解包可选值。在变量生命周期中，如果你经常需要检查其值是否为nil，请用普通可选值。
 
 ## 错误处理
+用错误处理来响应程序在执行过程中遇到的错误情况。
 
+与可以通过值得存在和缺失表明函数的成功或失败的可选值对反，错误处理允许你决定引起错误的最底层原因，并且，如果需要，可以将错误传递到程序的另一部分。
+
+当一个函数遇到了错误情况，它会抛出错误。然后函数的调用者可以捕获并适当地响应这个错误：
+```swift
+func canThrowAnError() throws {
+  // this function may or may not throw an error
+}
+```
+
+一个函数通过在声明中包含`throws`关键字来表明它可能抛出错误。当你调用可能抛出错误的函数时，在表达式的前面写上`try`关键字。
+
+Swift会自动将错误传播出当前作用域，知道它被`catch`语句捕获。
+```swift
+do {
+  try canThrowAnError()
+  // no error was thrown
+} catch {
+  // an error was thrown
+}
+```
+`do`语句创建了一个新作用域，它允许错误在一个或多个`catch`分句中传递。
+
+这个例子表明错误处理如何响应不同的错误情况：
+```swift
+func makeASandwich() throws {
+  // ...
+}
+
+do {
+    try makeASandwich()
+    eatASandwich()
+} catch SandwichError.outOfCleanDished {
+    washDished()
+} catch SandwichError.missingIngredients(let ingredients) {
+    buGroceries(ingredients)
+}
+```
+在这个例子中，如果没有干净的碟子或缺失原料，`makeASandwich()`函数会抛出错误。因为`makeASandwich()`可以抛出错误，函数被`try`语句调用。通过用`do`语句包住函数，抛出的任何错误将被传递到`catch`分句中。
+
+如果没有抛出错误，`eatASandwich()`将被调用。如果抛出了错误，并且匹配`SandwichError.outOfCleanDished`分支，`washDished()`函数将被调用。如果抛出的错误匹配`SandwichError.missingIngredients`分支，则`buGroceries(_:)`函数配合catch捕捉到的关联值`[String]`值被调用。
+
+抛出，捕获和传递错误的详细资料，参见[错误处理](Error_Handling.md)
+
+## 断言和先决条件
+
+#### 用断言调试
+
+#### 强制先决条件
 
 
 
