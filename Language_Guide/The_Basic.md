@@ -248,10 +248,127 @@ let tooBig: Int8 = Int8.max + 1
 ```
 因为每种数字类型可以储存的值的范围不同，因此必须根据具体情况进行值类型转换。这样可以防止隐藏的转换错误，并有助于明确显式转换的意图。
 
+要转换特定类型的数字，你可以用已知的值初始化一个新数字。下面的例子中，常量`twoThousand`是`UInt16`类型，而`one`是`UInt8`类型。他们不能被直接相加，因为类型不同。但是，在例子中，用`UInt16(one)`创建一个新的`UInt16`类型的数，然后用这个替换原来的值。
+```swift
+let twoThousand: UInt16 = 2_000
+let one: UInt8 = 1
+let twoThousandAndOne = twoThousand + UInt16(one)
+```
+因为加号的两边都是`UInt16`了，所以允许加法运算。输出类型被推导为`UInt16`类型，因为它是两个`UInt16`的值的和。
 
+## 类型别名
+类型别名为一个已知的类型定义一个别名。你可以用`typealias`关键字定义别名。
 
+但你需要以一个更符合上下文的名称来使用一个已知类型的时候，别名就很有用来，例如，当使用特定大小的外部资源数据时：
+```swift
+typealias AudioSample = UInt16
+```
+一旦你定义来别名，你可以在任何能够使用原始名的地方使用别名。
+```swift
+var maxAmplitudeFound = AudioSample.min
+// maxAmplitudeFound is now 0
+```
 
+这里，`AudioSample`被定义为`UInt16`的别名。因为是别名，调用`AudioSample.min`实际上就是调用`UInt16.min`，这为`maxAmplitudeFound`提供了一个初始值`0`。
 
+## 布尔值
+
+Swift有基本的布尔值，为`Bool`。布尔值与逻辑相关，因为它们只能表示真或假。Swift提供两个布尔常量值，`true`和`false`。
+```swift
+let orangesAreOrange = true
+let turnipsAreDelicious = false
+```
+
+从`orangesAreOrange`和`turnipsAreDelicious`被布尔值字面量赋值可以推导出它们是布尔类型。就像上面提到的`Int`和`Double`类型，如果你在创建变量或常量的时候就为他们赋值`true`或`false`,就不需要显式指定为`Bool`类型。用已知类型的字面量初始化常量或变量的时候，Swift的类型推导会让代码更准确和可读。
+
+当你使用诸如`if`等条件语句的时候，布尔类型就显得异常有用：
+```swift
+if turnipsAreDelicious {
+    print("Mmm, tasty turnips!")
+} else {
+    print("Eww, turnips are horrible.")
+}
+// Prints "Eww, turnips are horrible."
+```
+
+关于`if`等条件语句，详见[控制流](Control_Flow.md)
+
+Swift的类型安全机制，防止把非布尔值当作`Bool`类型。下面的例子将报编译错误：
+```swift
+let i = 1
+if i {
+  // this example will not compile, and will report an error
+}
+```
+
+但，下面的做法是可行的：
+```swift
+let i = 1
+if i == 1 {
+  // this example will compile successfully
+}
+```
+
+`i == 1`的比较接过是`Bool`类型，所以第二个例子通过了类型检查。关于`i == 1`这样比较的讨论在[基本操作符](Basic_Operators.md)中。
+
+像其他类型安全的例子样，这个做法能避免意外的错误，并且确保代码意图明显。
+
+## 元组
+
+元组将多个指组合为一个复合值。元组中的值可以是任何类型的，并不需要都是同样的类型。
+
+这个例子，`(404, "Not Found")` 是描述HTTP状态码的元组。HTTP状态码是你访问web页面的时候web服务器返回的特定值。如果你访问一个不存在的网页，就会返回一个`404 Not Found`的状态码。
+```swift
+let http404Error = (404, "Not Found")
+// http404Error is of type (Int, String), and equals (404, "Not Found")
+```
+`(404, "Not Found")`元组通过组合`Int`和`String`类型为HTTP状态码提供两个分开的值：一个数字和一个人类可读的描述。这个元组可以被描述为：“一个类型为`(Int, String)`的元组”。
+
+你可以从任何排列在一起的类型创建元组，只要你需要，它们可以包含很多不同类型。没有什么会阻止你创建诸如`(Int, Int, Int)`或`(String, Bool)`等类型或任何满足你需要的元组。
+
+你可以将元组内容拆解成分离的常量或变量，然后像使用常量或变量样用它们：
+```swift
+let (statusCode, statusMessage) = http404Error
+print("The status code is \(statusCode)")
+// Prints "The status code is 404"
+print("The status message is \(statusMessage)")
+// Prints "The status message is Not Found"
+```
+
+如果你只需要元组中一部分值，拆解的时候可以用下划线(`_`)忽略其余的：
+```swift
+let (justTheStatusCode, _) = http404Error
+print("The status code is \(justTheStatusCode)")
+// Prints "The status code is 404"
+```
+
+或者，用从`0`开始的索引访问单独的元素：
+```swift
+print("The status code is \(http404Error.0)")
+// Prints "The status code is 404"
+print("The status message is \(http404Error.1)")
+// Prints "The status message is Not Found"
+```
+
+定义元组的时候，你可以给元素取名：
+```swift
+let http200Status = (statusCode: 200, description: "OK")
+```
+
+如果你命名了元组中的元素，你可以用名称来访问这些元素：
+```swift
+print("The status code is \(http200Status.statusCode)")
+// Prints "The status code is 200"
+print("The status message is \(http200Status.description)")
+// Prints "The status message is OK"
+```
+
+元组在作为函数的返回值的时候会很有用。一个尝试检索网页的函数可能返回`(Int, String)`类型的元组，用来描述检索是成功还是失败。通过返回一个仅有两个值的元组，函数能为结果提供比返回单个值时更详细的信息。更多信息，请看[函数（Functions）](Functions.md)。
+
+> 注意：
+> 对于相关值的简单组合，元组是很有用的。但不适合创建复杂的数据结构。如果你的数据结构可能会很复杂，把它建模成一个类或结构体，而不是元组。更多信息，请看[结构体和类（Structures and Classes）](Structures_and_Classes.md)
+
+## 可选值
 
 
 
