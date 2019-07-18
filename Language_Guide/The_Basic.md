@@ -243,7 +243,7 @@ let hexadecimalDouble = 0xC.3p0
 let cannotBeNegative: UInt8 = -1
 // Uint8 cannot store negative numbers, and so this will report an error
 let tooBig: Int8 = Int8.max + 1
-// Int8 cannot store a number larger than its maximun value,
+// Int8 cannot store a number larger than its maximum value,
 // and so this will also report an error.
 ```
 因为每种数字类型可以储存的值的范围不同，因此必须根据具体情况进行值类型转换。这样可以防止隐藏的转换错误，并有助于明确显式转换的意图。
@@ -255,6 +255,37 @@ let one: UInt8 = 1
 let twoThousandAndOne = twoThousand + UInt16(one)
 ```
 因为加号的两边都是`UInt16`了，所以允许加法运算。输出类型被推导为`UInt16`类型，因为它是两个`UInt16`的值的和。
+
+为了转换指定类型的数字，用这个值初始化想要的数字类型。下面的例子中，常量`twoThousand`是`UInt16`类型，`one`是`UInt8`类型。由于它们类型不同，所以不能直接相加。所以，例子中用`one`的值创建一个`UInt16`类型的数字，用这个值代替原来的值：
+```swift
+let twoThousand: UInt16 = 2_000
+let one: UInt = 1
+let twoThousandAndOne = twoThousand + UInt16(one)
+```
+因为现在加号的两边都是`UInt16`类型，所以允许执行加法运算。输出常量`twoThousandAndOne`可以被推导出是`UInt16`类型，因为它是两个`UInt16`类型数字的和。
+
+`SomeType(ofInitialValue)`是初始化Swift类型，传入初始值的默认方法。在背后，`UInt16`有一个接受`UInt8`类型值的初始化方法，所以这个方法被用做从已有的`UInt8`值创建`UInt16`值。你不能传入任意类型，但是，它必须是`UInt16`已经提供了初始化方法的类型。扩展已有类型，为其提供接受新类型的初始化方法在[扩展](Extensions.md)中有描述
+
+#### 整数与浮点数转换
+整型数与浮点型数之间的转换必须是显式的：
+```swift
+let three = 3
+let pointOneFourOneFiveNine = 0.14159
+let pi = Double(three) + pointOneFourOneFiveNine
+// pi equals 3.14159, and is inferred to be of type Double
+```
+在这里，常量`three`的值被用来创建新的`Double`类型的值，所以加号的两边是相同类型。如果没有这种转换，加法运算是不被允许的。
+
+浮点型数转换为整型数也必须显式地进行。整型数可以用`Double`或`Float`型的值初始化：
+```swift
+let integerPi = Int(pi)
+// integerPi  equals 3, and is inferred to be of type Int
+```
+
+用浮点数初始化整型数时，往往被截掉小数部分。这意味着，`4.75`会变成`4`，`-3.9`会变成`-3`。
+
+> 注意：
+数字常量或变量之间的结合不同于数字字面值之间的结合。字面值3可以被直接相加给字面值0.14159，因为数字字面值没有明确的类型。它们的类型只有在被编译器计算的时候，才会被决定。
 
 ## 类型别名
 类型别名为一个已知的类型定义一个别名。你可以用`typealias`关键字定义别名。
@@ -369,6 +400,93 @@ print("The status message is \(http200Status.description)")
 > 对于相关值的简单组合，元组是很有用的。但不适合创建复杂的数据结构。如果你的数据结构可能会很复杂，把它建模成一个类或结构体，而不是元组。更多信息，请看[结构体和类（Structures and Classes）](Structures_and_Classes.md)
 
 ## 可选值
+在一个值可能缺失的情况下，使用可选值。一个可选值代表两种可能性：或者有一个值，你可以解包这个值，然后使用，或者根本没有值。
+
+> 注意：
+C或者Objective-C中并没有可选值的概念。Objective-C中相似概念是，返回一个对象的方法可以返回`nil`。`nil`意味着可用对象缺失。但是，这只对对象有效——对结构体，C类型，枚举无效。对于这些类型，Objective-C方法会返回一个特别的值（例如`NSNotFound`）来表明值的缺失。这个行为确保方法的使用者知道有一个特别的值需要测试，并且记得检查。Swift的可选值适用于所有的类型，而不需要特殊的常量。
+
+这里有一个如何使用可选值来应对值的缺失的情况的例子。Swift的`Int`型有一个尝试把`String`类型的值转换为`Int`型值的初始化方法，不是每一个字符串都可以被转换为整数。字符串`"123"`可以转换为数字`123`，但是字符串`"hello, world"`没有明显的数字可以转换。
+
+下面的例子展示了用这个初始化方法将字符串转换为整数：
+```swift
+let possibleNumber = "123"
+let convertedNumber = Int(possibleNumber)
+// convertedNumber is inferred to be of type "Int?", or "optional Int"
+```
+
+因为初始化方法可能失败，所以返回来*可选*`Int`，而不是`Int`。可选的`Int`写作`Int?`，而不是`Int`。问好表明这个值包含可选项，意味着它可能包含其他的`Int`值，或它根本没有值。（它不能包含其他的，例如`Bool`型或`String`型。它是`Int`或什么也没有。）
+
+### nil
+
+通过指定特殊值`nil`给一个可选变量，把变量设置为无值状态。
+```swift
+var serverResponseCode: Int? = 404
+//  serverResponseCode contains an actual Int value of 404
+serverResponseCode = nil
+// serverResponseCode now contains no value
+```
+
+> 注意：
+你不能用`nil`给非可选的常量或变量赋值。如果你的代码中一个常量或变量需要在某些条件下使用缺失值，请将它声明为相关类型的可选值。
+
+如果定义可选变量时不提供默认值，变量将自动被赋值`nil`：
+```swift
+var surveyAnswer: String?
+// surveyAnswer is automatically set to nil
+```
+> 注意：
+Swift中的nil与Objective-C中的nil不同。Objective-C中，nil是指向一个不存在对象的指针。Swift中，nil不是指针——它是某种类型值的缺失。任何类型的可选值都可以被设置成nil，不只是对象类型。
+
+### if语句与强制解包
+你可以用if语句比较可选值与`nil`来判断一个可选值是不是包含有值。用等号（`==`）或不等号（`!=`）进行比较。
+
+如果可选值有值，它就不会等于`nil`：
+```swift
+if convertedNumber != nil {
+  print("convertedNumber contains some integer value.")
+}
+// Prints "convertedNumber" contains some integer value.
+```
+
+一旦你确定可选值确实含有值，你可以通过在可选值名后面加上感叹号（`!`）的方式访问内部值。感叹号表示，“我知道可选值里面一定有值，请使用它。”这种方法成为可选值的*强制解包*：
+```swift
+if convertedNumber != nil {
+    print("convertedNumber has an integer value of \(convertedNumber!).")
+}
+// Prints "convertedNumber has an integer value of 123."
+```
+
+更多关于`if`语句，参见[控制流](Control_Flow.md)
+
+> 注意：
+试着用感叹号访问不存在值的可选值，从而出发运行时错误。在用感叹号强制解包之前，请确保可选值包含非nil的值。
+
+### 可选绑定
+用*可选绑定*确定可选值有没有包含值，如果有，用一个临时常量或变量使该值可用。可选绑定可以与`if`语句或`while`语句一起用来检查可选值内部的值，并将该值抽出给变量或常量，作为语句的一部分。更过关于`if`和`while`语句的讨论，在[控制流](Control_Flow.md)中。
+
+可选绑定的`if`语句如下：
+```
+if let constantName = someOptional {
+    statements
+}
+```
+你可以用可选绑定重写上面的例子，而不是使用强制解包：
+```swift
+if let actualNumber = Int(possibleNumber) {
+    print("The string \"\(possibleNumber)\" has an integer value of \(actualNumber)")
+} else {
+    print("The string \"\(possibleNumber)\" could not be converted to an integer")
+}
+// Prints "The string "123" has an integer value of 123"
+```
+
+代码可以这么读：
+“如果`Int(possibleNumber)`返回的可选值`Int`包含值，就将它赋值给常量`actualNumber`”。
+
+如果转换成功了，常量`actualNumber`在第一个if分支中可用。它已经被可选值中的值初始化了，所以没有必要在用感叹号前缀去访问该值。这个例子中，`actualNumber`简单地被用做打印转换结果。
+
+你可以在可选绑定中使用常量和变量。如果你想在第一个分支中操作`actualNumber`的值，你可以写成`if var actualNumber`。可选值的值会以变量的形式而不是常量变得可用。
+
 
 
 
