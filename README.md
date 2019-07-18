@@ -1,6 +1,6 @@
 THE SEIFT PROGRAMMING LANGUAGE SWIFT 5.1
 
-Wanna join me? fork, translate and pull a request~
+#### Wanna join me? fork, translate and pull a request~ 
 
 ### 欢迎使用Swift
 - [关于](Welcome_to_Swift/About_Swift.md)
