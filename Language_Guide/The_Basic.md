@@ -487,6 +487,69 @@ if let actualNumber = Int(possibleNumber) {
 
 你可以在可选绑定中使用常量和变量。如果你想在第一个分支中操作`actualNumber`的值，你可以写成`if var actualNumber`。可选值的值会以变量的形式而不是常量变得可用。
 
+你可以根据需要，在一个`if`语句中包含多个布尔条件和可选绑定语句，各个语句之间用逗号隔开。如果任何一个可选绑定的值是`nil`，或任何一个布尔条件是`false`，则整个`if`语句会被视作`false`。下面的两个`if`语句是等效的：
+```swift
+if let firstNumber = Int("4"), let secondNumber = Int("42"), firstNumber < secondNumber && secondNumber < 100 {
+  print("\(firstNumber) < \(secondNumber) < 100")
+}
+// Prints "4 < 42 < 100"
+
+if let firstNumber = Int("4") {
+  if let secondNumber = Int("42") {
+    if firstNumber < secondNumber && secondNumber < 100 {
+      print("\(firstNumber) < \(secondNumber) < 100")
+    }
+  }
+}
+// Prints "4 < 42 < 100"
+```
+
+> 注意：
+在if语句中用可选绑定创建的常量或变量只在if语句体中可用。想法，用guard语句创建的常量和变量，在guard语句之后的代码中可用。详见[提前推出](Control_Flow.md#提前推出)
+
+### 隐式解包可选值
+就像上面描述的，可选值表明允许一个常量或变量没有值。可以用`if`语句检查可选值是否含有值，如果有的话，可以用可选绑定的方式有条件解包来访问可选值的值。
+
+有时候，一个值被设置之后，明确地知道一个可选值总是有值。这种情况下，每次访问可选值的值并不都需要检查和解包，因为总是能够安全地访问该值。
+
+这种可选值被定义为*隐式解包可选值*。在你想变成可选值的类型后面写上感叹号，而不是问号，来书写隐式解包可选值。
+
+隐式解包可选值在可选值首次本定义之后立即能确定值的存在，并在之后任何时刻都存在的情况下，显得很有用。Swift中可选值最主要的应用是类的初始化，[不拥有引用和隐式解包可选值属性](Automatic_Reference_Counting.md#不拥有引用和隐式解包可选值属性)中有描述。
+
+隐式解包可选值本质上是一个普通可选值，但也可用作非可选值，每次访问是不需要解包的可选值。下面的例子展示了以显式字符串方式访问一个可选字符串和一个隐式解包可选值字符串的不同行为：
+```swift
+let possibleString: String? = "An optional string."
+let forcedString: String = possibleString! // requires an exclamation mark
+
+let assumedString: String! = "An implicitly unwrapped optional string."
+let implicitString: String = assumedString // no need for an exclamation mark
+```
+
+你可以把隐式解包可选值想象为允许可选值在被使用的时候自动解包。可不是每次用的时候都要加上感叹号，在声明可选值的时候就放一个感叹号在后面。
+
+> 注意：
+如果一个隐式解包可选值是nil，你试图访问解包的值时，会出发运行时错误。结果跟你用感叹号强制解包一个不存在值的普通可选值。
+
+你可以把隐式解包可选值视为普通可选值，然后检查时候含有值：
+```swift
+if assumedString != nil {
+  print(assumedString!)
+}
+// Prints "An implicitly unwrapped optional string."
+```
+
+你也可以将隐式解包可选值进行可选绑定，在一个语句中检查并解包它的值：
+```swift
+ if let definiteString = assumedString {
+   print(definiteString)
+ }
+ // Prints "An implicitly unwrapped optional string"
+```
+
+> 注意：
+当在稍后某一点变量的值可能为nil时，不要使用隐式解包可选值。在变量生命周期中，如果你经常需要检查其值是否为nil，请用普通可选值。
+
+## 错误处理
 
 
 
