@@ -88,6 +88,91 @@ a = (b x `some multiplier`) + `remainder`
 
 9 = (4 x 2) + 1
 
+对于负数`a`也使用相同的方法：
+```swift
+-9 % 4 // equals -1
+```
+得到余数-1。
+
+b是负数时，符号会被忽略。这意味着`a % b`和`a % -b`是一样的结果。
+
+### 一元减法运算符
+
+数值的符号可以用前缀`-`切换，即一元减法运算符：
+```swift
+let three = 3
+let minusThree = -three  // minusThree equals -3
+let plusThree = -minusThree // plusThree equals 3, or "minus minus three"
+```
+一元减法运算符直接放在被操作数的前面，不需要空格。
+
+### 一元加法运算符
+
+一元加法运算符直接返回被操作的数，不做任何改变：
+```swift
+let minusSix = -6
+let alsoMinusSix = +minusSix // alsoMinusSix equals -6
+```
+即使一元加法运算符实际上什么也不做，在你使用一元减法运算符表示负数时，可以用它来对称地表示正数。
+
+## 复合赋值运算符
+
+如C语言一样，Swift提供结合赋值运算和其他运算的复合赋值运算符。一个例子是赋值加运算：
+```swift
+var a = 1
+a += 2
+// a is now equal to 3
+```
+
+表达式`a += 2`是`a = a + 2`的简写。更高效地，加法运算和赋值运算被结合起来赋予给一个能同时执行这两种运算的运算符。
+> 注意：
+复合运算符并不返回值，例如，你不能这么写`let b = a += 2`。
+
+更多关于Swift标准库操作符的信息，参见[运算符声明](https://developer.apple.com/documentation/swift/swift_standard_library/operator_declarations)
+
+## 比较运算符
+
+Swift支持C语言的所有标准比较运算符：
+* 等于（a == b）
+* 不等于（a != b）
+* 大于（a > b）
+* 小于（a < b）
+* 大于或等于（a >= b）
+* 小于或等于（a <= b）
+> 注意：
+Swift同时提供两个身份运算符（=== 和 !==），用来测试两个引用是否都指向同一个实例。更多请看[结构体和类（Structures and Classes）](Structures_and_Classes.md#身份运算符)
+
+每个比较运算符返回一个`Bool`值指明语句是否是`true`：
+```swift
+1 == 1   // true because 1 is equal to 1
+2 != 1   // true because 2 is not equal to 1
+2 > 1    // true because 2 is greater than 1
+1 < 2    // true because 1 is less than 2
+1 >= 1   // true because 1 is greater than or equal to 1
+2 <= 1   // false because 2 is not less than or equal to 1
+```
+
+比较运算符一般都用在条件语句中，例如`if`语句：
+```swift
+let name = "world"
+if name == "world" {
+    print("hello, world")
+} else {
+    print("I'm sorry \(name), but I don't recognize you")
+}
+// Prints "hello, world", because name is indeed equal to "world".
+```
+
+更多关于`if`语句，参见[控制流](Control_Flow.md)
+
+
+
+## 三元条件运算符
+
+
+
+
+
 
 
 
