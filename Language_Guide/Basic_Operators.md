@@ -95,4 +95,4 @@ a = (b x `some multiplier`) + `remainder`
 
 
 
-[< 基本运算符](Basic_Operators.md) || [字符串和字符 >](Strings_and_Characters.md)
+[< 基础](The_Basic.md) || [字符串和字符 >](Strings_and_Characters.md)
