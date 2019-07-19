@@ -595,24 +595,56 @@ do {
 
 抛出，捕获和传递错误的详细资料，参见[错误处理](Error_Handling.md)
 
-## 断言和先决条件
+## 断言和先决条件（Assertions and Preconditions）
+断言和先决条件是发生在运行时检查。用它们来确保某一必要条件在进一步执行其他代码前被满足。如果断言或先决条件的是`true`，则执行后面的代码。如果是`false`，则程序当前状态无效，停止执行代码，app被终止。
+
+用断言和先决条件表达你在写代码过程中的假设和例外，所以它们可以作为你代码的一部分。断言有助于你在开发阶段找出错误，修正假设，先决条件有助于你侦测产品问题。
+
+除在运行时验证例外外，断言和先决条件也是代码中文档的有用的部分。不同于上文中讨论到的错误处理，断言和先决条件是用于可恢复或可预测的错误的。因为一个失败了的断言和先决条件代表着程序不可用的状态，没有办法捕获一个失败的断言。
+
+断言和先决条件并不能代替以不可能出现无效状态的方法设计你的代码。即便如此，用它们强化数据和状态，使app在因不可用状态发生崩溃时更加可预测，有助于是问题更加易于调试。一旦发生无效状态立即停止执行也有助于最小化该无效状态引起的损失。
+
+断言与先决条件的不同在于检查的时机：断言仅在调试构建中被检查，先决条件在调试和发布构建中都会被检查。在发布构建中，条件语句中的断言不会被判断。这意味着你可以在调试阶段使用尽可能多的断言，而不会影响到发布之后的应能。
 
 #### 用断言调试
+调用Swift标准库中的`assert(_:_:file:line:)`函数以编写断言。向该函数传入一个结果为`true`或`false`的表达式和，一个当表达式结果为`false`时被显式的信息。例如：
+```swift
+let age = -3
+assert(age >= 0, "A person's age can't be less than zero.")
+// This assertion fails because -3 is not >= 0.
+```
+
+本例中，如果`age >= 0`被判定为`true`就继续执行代码，也就是，如果`age`是非负数。如果`age`是负数，就如上面的代码，则`age >= 0`为`false`，断言失败，应用终止。
+
+你可以省略断言的信息参数---例如，简单地重复判断该条件：
+```swift
+assert(age >= 0)
+```
+
+如果代码已经检查了该条件，你可以用函数`assertionFailure(_:file:line:)`表示失败了的断言。例如：
+```swift
+if age > 10 {
+  print("You can rie the roller-coaster or the ferris wheel.")
+} else if age >= 0 {
+  print("You can ride the ferris wheel.")
+} else {
+  assertionFailure("A person's age can't be less than zero.")
+}
+```
 
 #### 强制先决条件
 
+当一个条件有`false`的可能性时用先决条件，但为了使代码继续运行，该条件必须是`true`。例如，用先决条件检查脚标是否越界，或检查函数是否被传入了无效值。
 
+调用`precondition(_:_:file:line:)`函数来使用先决条件。传入一个可被判断为`true`或`false`的表达式和一个当表达式结果为`false`时被显式的信息。例如：
+```swift
+// In the implementation of a subscript...
+precondition(index > 0, "Index must be greater than zero.")
+```
 
+调用函数`preconditionFailure(_:file:line:)`来指明发生了错误---例如，如果调用了`swift`语句的`default`分支，但是所有的有效值应该调用其他分支。
 
-
-
-
-
-
-
-
-
-
-
+> 注意：如果你在不执行检查模式（`-Ounchecked`）下编译，先决条件就不会被检查。编译器会默认所有的先决条件都是`true`，并且会根据情况优化代码。但是，无论优化与否，`fatalError(_:file:line:)`始终暂停执行。
+> 你可以在原型设计和早期开发期间使用`fatalError(_:file:line:)`函数，通过编写`fatalError("Unimplemented")`作为尚未实现函数的桩(`stub`)（概念参见[Method stub](https://en.wikipedia.org/wiki/Method_stub)）。因为致命错误是不会像断言或先决条件一样被优化掉，你可以确保当桩被执行时，程序会暂停运行。
 
 [< 快速开始](../Welcome_to_Swift/A_Swift_Tour.md) || [基本操作符 >](Basic_Operators.md)
