@@ -16,12 +16,77 @@ Swift也提供C中没有的范围运算符，例如`a..<b`和`a...b`，就是值
 
 被运算符操作的是操作数（`operands`）。在`1 + 2`表达式中，加号`+`是二元运算符，操作数是值`1`和`2`。
 
-## 复制运算符
+## 赋值运算符
+赋值运算符（如`a = b`)可以用值`b`初始化或更新`a`的值：
+```swift
+let b = 10
+var a = 5
+a = b
+// a is now equal to 10
+```
+如果赋值语句的右边是一个有多个值的元组，它的值可以一次性被拆解成多个常量或变量：
+```swift
+let (x, y) = (1, 2)
+// x is equal to 1, and y is equal to 2.
+```
 
+与C或Objective-C中的赋值运算符不同的是，Swift运算符不返回值。下面的语句无效：
+```swift
+if x = y {
+  // This is not valid, because x = y does not return a value.
+}
+```
 
+这一功能能防止赋值运算符被误当作等于运算符（`==`）使用。通过使`if x = y`无效，Swift帮你避免了此类错误。
 
+## 数学运算符
 
+Swift支持所有数字类型的数学运算符：
+* 加法（`+`）
+* 减法（`-`）
+* 乘法（`*`）
+* 除法（`/`）
+```swift
+1 + 2       // equals 3
+5 - 3       // equals 2
+2 * 3       // equals 6
+10.0 / 2.5  // equals 4.0
+```
 
+不同于C和Objective-C中的数学运算符，Swift默认不允许数值溢出。你也可以用Swift的溢出运算符处理值的溢出行为。参见[高级运算符](Advanced_Operators.md#溢出运算符)。
+
+加法运算符也支持字符串的连结：
+```swift
+"hello, " + "world" // equals "hello, world"
+```
+
+### 取余运算符
+取余运算符（`a % b`）计算多少个`b`可以填入`a`中，并且返回剩余的值。（被称为*取余*）。
+> 注意：
+> 取余运算在其他语言中被称作取模运算。但是，在Swift中，严格地说对于负数意味着，它是取余运算而不是取模运算。
+
+下面描述取余运算如何工作。为了计算`9 % 4`，你首先需要知道`9`中可以填多少个`4`：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/remainderInteger_2x.png" alt="取余运算符" width="300"/>
+</p>
+
+你可以将`2`个`4`填入`9`中，剩余`1`（后面橘黄色）。
+
+在Swift中，这样写：
+```swift
+9 % 4 // equals 1
+```
+
+为了决定`a % b`的值，运算符`%`计算下列方程的解，然后返回余数作为输出：
+
+a = (b x `some multiplier`) + `remainder`
+
+`some multiplier`是用`b`填`a`最多的次数。
+
+将9和4带入方程中：
+
+9 = (4 x 2) + 1
 
 
 
