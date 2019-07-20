@@ -165,9 +165,70 @@ if name == "world" {
 
 更多关于`if`语句，参见[控制流](Control_Flow.md)
 
+你可以比较两个含有相同类型和数量的元素的元组。元组的比较从左到右进行，每次比较一个，直到两个值不相等。这两个值被比较，结果决定着整个元组比较的结果。若果所有的元素都相等，则元组相等。例如：
+```swift
+(1, "zebra") < (2, "apple")   // true because 1 is less than 2; "zebra" and "apple" are not compared
+(3, "apple") < (3, "bird")    // true because 3 is equal to 3, and "apple" is less than "bird"
+(4, "dog") == (4, "dog")      // true because 4 is equal to 4, and "dog" is equal to "dog"
+```
+上面的例子中，可以看出第一行是从左到右的比较。因为1小于2，`(1, "zebra")`被认为小于`(2, "apple")`，其余的值会被忽略。`zebra`比`apple`小并没什么关系，比较结果已经被第一组元素决定了。然后，当元组的第一组元素相等时，就会比较第二组——第二行和第三行就是这么进行的。
 
+只有当运算符可被用于每个单独的元素时，才能将该运算符用于比较元组。例如，下面列出的代码中，你可以比较一个`(String, Int)`类型的元组，是因为`String`和`Int`的值可以用`<`运算符进行比较，相反，两个`(String, Bool)`的元组不能用`<`运算符比较，因为`<`运算符不能用于比较`Bool`值。
+```swift
+("blue", -1) < ("purple", 1)        // OK, evaluates to true
+("blue", false) < ("purple", true)  // Error because < can't compare Boolean values
+```
+
+> 注意：
+Swift标准库包含元素个数在7个以下的元组的比较运算符。要比较元素个数7个以上的元组，你需要自己实现该操作符。
 
 ## 三元条件运算符
+三元运算符是运算三个目标的特殊操作符，格式为`question ? answer1 : answer2`。它是根据`question`的真假来计算两个表达式中的一个的简写。当`question`是真，会计算并返回`answer1`的值；否则，计算并返回`answer2`的值。
+
+三元运算符是下面代码的简写：
+```swift
+if question {
+  answer1
+} else {
+  answer2
+}
+```
+
+再来个计算table row高度的例子。如果row有头部，则其高度需要比内容的高度高50，如果没有头部，只比内容高20：
+```swift
+let contentHeight = 40
+let hasHeader = true
+let rowHeight = contentHeight + (hasHeader ? 50 : 20)
+// rowHeight is equal to 90
+```
+
+上面的例子是下面的简写：
+```swift
+let contentHeight = 40
+let hasHeader = true
+let rowHeight: Int
+if hasHeader {
+    rowHeight = contentHeight + 50
+} else {
+    rowHeight = contentHeight + 20
+}
+// rowHeight is equal to 90
+```
+
+第一个例子中用到的三元运算符意味着rowHeight可以只用一行代码设置正确的值，比第二个例子中的更简洁。
+
+三元运算符为决定用二个表达式中的哪一个提供了一个高效地简写。但要小心使用，如果过多使用三元运算符，会导致代码难以阅读。不要将多个三元运算符放到一个复合语句中。
+
+## Nil-Coalescing运算符
+(暂时不知道怎么翻译这个名词)
+**nil-Coalescing** 运算符（`a ?? b`）用于当可选值`a`包含值时解包可选值`a`，或当`a`是`nil`时返回默认值`b`。`a`表达式是可选类型。`b`表达式的值必须与`a`中值的类型相同。
+
+nil-Coalescing运算符是下面代码的简写：
+```swift
+a != nil ? a! : b
+```
+
+
 
 
 
