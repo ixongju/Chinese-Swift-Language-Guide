@@ -228,6 +228,71 @@ nil-Coalescing运算符是下面代码的简写：
 a != nil ? a! : b
 ```
 
+上面的代码用三元运算符，当a不是nil时强制解包其值，否则返回值b。nil-Coalescing运算符用一种更优雅的方式提供简洁，易读地检查并解包方法。
+> 注意：
+如果a的值是非nil，则不会计算b的值。这被称为短路评估。（short-circuit evaluation）。
+
+下面的代码用nil-coalescing运算符从一个默认颜色和一个可选用户自定义颜色中做出选择：
+```swift
+let defaultColorName = "red"
+var userDefinedColorName: String? // default to nil
+
+var colorNameToUse = userDefinedColorName ?? defaultColorName
+// userDefinedColorName is nil, so colorNameToUse is set to the default of "red"
+```
+`userDefinedColorName`被定义为可选`String`，默认值是`nil`。因为是可选类型，所以你可以用nil-coalescing去考量它。上例中，这个操作符用于给`String`变量`colorNameToUse`指定初始值。因为`userDefinedColorName`为`nil`，表达式`userDefinedColorName ?? defaultColorName`返回`defaultColorName`的值，`red`。
+
+如果给`userDefinedColorName`赋非`nil`的值然后用nil-coalescing运算符检查，则会使用`userDefinedColorName`内部的值而不是默认值：
+```swift
+userDefinedColorName = "green"
+colorNameToUse = userDefinedColorName ?? defaultColorName
+// userDefinedColorName is not nil, so colorNameToUse is set to "green"
+```
+
+## 范围运算符
+
+Swift有好几个范围运算符，它们是值的范围表达式的缩写。
+
+### 封闭范围运算符
+
+封闭范围运算符定义了一个从`a`到`b`的范围，包括`a`和`b`。且`a`的值不得比`b`大。
+
+在你想遍历一个范围中所有值得时候，封闭范围运算符比较有用。如`for-in`循环：
+```swift
+for index in 1...5 {
+  print("\(index) times 5 is \(index * 5)")
+}
+// 1 times 5 is 5
+// 2 times 5 is 10
+// 3 times 5 is 15
+// 4 times 5 is 20
+// 5 times 5 is 25
+```
+
+关于`for-in`循环，参见[控制流](Control_Flow.md)。
+
+### 半开范围运算符
+
+半开范围运算符（`a..<b`）定义了一个从`a`到`b`的范围，但是不包括`b`。之所以说是半开，是因为它包括第一个值，不包括第二个值。如封闭范围运算符，`a`的值必须比`b`的值小。如果`a`等于`b`，则范围是空。
+
+当使用从零开始的列表，例如数组时，半开范围运算符就比较有用。要历数整个列表长度：
+```swift
+let names = ["Anna", "Alex", "Brian", "Jack"]
+let count = names.count
+for i in 0..<count {
+  print("Person \(i + 1) is called \(names[i])")
+}
+// Person 1 is called Anna
+// Person 2 is called Alex
+// Person 3 is called Brian
+// Person 4 is called Jack
+```
+
+注意数组包含四个元素，但`0..<count`只历数到`3`（最后一个元素的索引），因为它是半开范围。更多信息请看[数组](Collection_Types.md#数组)。
+
+### 单边范围
+
+
 
 
 
