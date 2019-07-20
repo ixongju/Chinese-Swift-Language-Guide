@@ -113,7 +113,7 @@ let plusThree = -minusThree // plusThree equals 3, or "minus minus three"
 let minusSix = -6
 let alsoMinusSix = +minusSix // alsoMinusSix equals -6
 ```
-即使一元加法运算符实际上什么也不做，在你使用一元减法运算符表示负数时，可以用它来对称地表示正数。
+即使一元加法运算符实际上什么也不做，在你使用一元减法运算符表示负数时，可以用它来对称地表示正数。
 
 ## 复合赋值运算符
 
@@ -165,7 +165,7 @@ if name == "world" {
 
 更多关于`if`语句，参见[控制流](Control_Flow.md)
 
-你可以比较两个含有相同类型和数量的元素的元组。元组的比较从左到右进行，每次比较一个，直到两个值不相等。这两个值被比较，结果决定着整个元组比较的结果。若果所有的元素都相等，则元组相等。例如：
+你可以比较两个含有相同类型和数量的元素的元组。元组的比较从左到右进行，每次比较一个，直到两个值不相等。这两个值被比较，结果决定着整个元组比较的结果。若果所有的元素都相等，则元组相等。例如：
 ```swift
 (1, "zebra") < (2, "apple")   // true because 1 is less than 2; "zebra" and "apple" are not compared
 (3, "apple") < (3, "bird")    // true because 3 is equal to 3, and "apple" is less than "bird"
@@ -173,17 +173,17 @@ if name == "world" {
 ```
 上面的例子中，可以看出第一行是从左到右的比较。因为1小于2，`(1, "zebra")`被认为小于`(2, "apple")`，其余的值会被忽略。`zebra`比`apple`小并没什么关系，比较结果已经被第一组元素决定了。然后，当元组的第一组元素相等时，就会比较第二组——第二行和第三行就是这么进行的。
 
-只有当运算符可被用于每个单独的元素时，才能将该运算符用于比较元组。例如，下面列出的代码中，你可以比较一个`(String, Int)`类型的元组，是因为`String`和`Int`的值可以用`<`运算符进行比较，相反，两个`(String, Bool)`的元组不能用`<`运算符比较，因为`<`运算符不能用于比较`Bool`值。
+只有当运算符可被用于每个单独的元素时，才能将该运算符用于比较元组。例如，下面列出的代码中，你可以比较一个`(String, Int)`类型的元组，是因为`String`和`Int`的值可以用`<`运算符进行比较，相反，两个`(String, Bool)`的元组不能用`<`运算符比较，因为`<`运算符不能用于比较`Bool`值。
 ```swift
 ("blue", -1) < ("purple", 1)        // OK, evaluates to true
 ("blue", false) < ("purple", true)  // Error because < can't compare Boolean values
 ```
 
 > 注意：
-Swift标准库包含元素个数在7个以下的元组的比较运算符。要比较元素个数7个以上的元组，你需要自己实现该操作符。
+Swift标准库包含元素个数在7个以下的元组的比较运算符。要比较元素个数7个以上的元组，你需要自己实现该操作符。
 
 ## 三元条件运算符
-三元运算符是运算三个目标的特殊操作符，格式为`question ? answer1 : answer2`。它是根据`question`的真假来计算两个表达式中的一个的简写。当`question`是真，会计算并返回`answer1`的值；否则，计算并返回`answer2`的值。
+三元运算符是运算三个目标的特殊操作符，格式为`question ? answer1 : answer2`。它是根据`question`的真假来计算两个表达式中的一个的简写。当`question`是真，会计算并返回`answer1`的值；否则，计算并返回`answer2`的值。
 
 三元运算符是下面代码的简写：
 ```swift
@@ -257,7 +257,7 @@ Swift有好几个范围运算符，它们是值的范围表达式的缩写。
 
 封闭范围运算符定义了一个从`a`到`b`的范围，包括`a`和`b`。且`a`的值不得比`b`大。
 
-在你想遍历一个范围中所有值得时候，封闭范围运算符比较有用。如`for-in`循环：
+当你想遍历一个范围中所有值的时候，封闭范围运算符比较有用。如`for-in`循环：
 ```swift
 for index in 1...5 {
   print("\(index) times 5 is \(index * 5)")
