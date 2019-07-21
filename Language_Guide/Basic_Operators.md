@@ -292,18 +292,130 @@ for i in 0..<count {
 
 ### 单边范围
 
+单边范围运算符可选择范围开始的方向——例如，一个包含从2开始到数组最后虽有元素的范围。这种情况下，你可以省略一边的范围运算符。这种范围被称为*单边范围*因为只有一边有值。例如：
+```swift
+for name in names[2...] {
+  print(name)
+}
+// Brian
+// Jack
 
+for name in names[..2] {
+  print(name)
+}
+// Anna
+// Alex
+// Brian
+```
 
+半开范围运算符也有一个只写末尾值的单边格式。就如包含两边的范围一样，末尾值可以不包含。例如：
+```swift
+for name in names[..<2] {
+  print(name)
+}
+// Anna
+// Alex
+```
 
+单边范围可以还有其他用途，并不限于脚标。你不能遍历一个省略了首位值的单边范围，因为不清楚从哪里开始遍历。你可以遍历一个省略了末尾值的单边范围；尽管如此，因为范围的无限延续，你需要确保循环有一个明确的结尾。你也可以检查一个单边范围是否包括某一个值，如下列代码所示：
+```swift
+let range = ...5
+range.contains(7)   // false
+range.contains(4)   // true
+range.contains(-1)  // true
+```
 
+## 逻辑运算符
 
+逻辑运算符可以修改或结合布尔逻辑值`true`和`false`。Swift支持三种基于C的标准逻辑运算符：
+* 逻辑否（`!a`）
+* 逻辑与（`a && b`）
+* 逻辑或（`a || b`）
 
+### 逻辑否运算符
 
+逻辑否运算符用于反转布尔值，让`true`变成`false`，`false`变成`true`。
 
+逻辑否运算符是前置操作符，出现在操作值的前面，不加空格。可以读作“非`a`”，如下例所示：
+```swift
+let allowedEntry = false
+if !allowedEntry {
+  print("ACCESS DENIED")
+}
+// Prints "ACCESS DENIED"
+```
 
+语句`if !allowedEntry`可以读作“如果非allowedEntry”。随后的代码只在“非allowedEntry”为真的时候才会执行；也就是`allowedEntry`为`false`时。
 
+如这个例子样，好的变量和常量的名字的选择有助于让代码可读和简洁，避免双重否定和易混淆的逻辑语句。
 
+### 逻辑与运算符
 
+逻辑与运算符（`a && b`）创建当所有的值是`true`时整个表达式的值才是`true`的逻辑表达式。
 
+如果有一个值是`false`，则整个表达式的值是`false`。事实上，如果第一个值是`false`，第二个值就不会被判断，因为已经可以判断整个表达式的值不是`true`。这被称为*最短评估*。
+
+下面的例子考量两个`Bool`值，且只有当两个值都是`true`时才允许访问之后的代码：
+```swift
+let enteredDoorCode = true
+let passedRetinaScan = false
+if enteredDoorCode && passedRetinaScan {
+  print("Welcome!")
+} else {
+  print("ACCESS DENIED")
+}
+// Prints "ACCESS DENIED"
+```
+
+### 逻辑或运算符
+
+逻辑或运算符（`a || b`）是由两个相邻管道字符组成的中缀运算符。用逻辑或运算符创建当两个中的一个是`true`时整个表达式的值是`true`的表达式。
+
+如上面的逻辑与运算符，逻辑或运算符用最短评估考量表达式。如果逻辑或表达式的左边是`true`，右边的部分将不被计算，因为右边的表达式影响不到整个表达式的输出。
+
+下面的例子中，第一个布尔值（`hasDoorKey`）是`false`，但是第二个值（`knowsOverridePassword`）是`true`。因为第一个值是`true`，整个表达式是`true`，所以可以通行：
+```swift
+let hasDoorKey = false
+let knowsOverridePassword = true
+if hasDoorKey || knowsOverridePassword {
+  print("Welcome!")
+} else {
+  print("ACCESS DENIED")
+}
+// Prints "Welcome!"
+```
+
+### 结合逻辑运算符
+
+可以结合多个逻辑运算符来创建更长的复合表达式：
+```swift
+if enteredDoorCode && passedRetinaScan || hasDoorKey || knowsOverridePassword {
+  print("Welcome!")
+} else {
+  print("ACCESS DENIED")
+}
+// Prints "Welcome!"
+```
+这个例子用了`&&`和`||`运算符来创建更长的复合表达式。但是，`&&`和`||`仍然只能操作两个值，所以这实际上是三个小表达式链接在一起。这个例如可以读作：
+（略）
+
+基于`enteredDoorCode`，`passedRetinaScan`，`hasDoorKey`的值，第一个表达式是`false`。但是，emergency override password已知，所以整个复合表达式仍然是`true`。
+
+> 注意：
+Swift的逻辑运算符`&&`和`||`是左结合，意味着多个逻辑运算符的复合表达式中，首先评估最左边的子表达式。
+
+### 显式括号
+
+有时候在不明确需要括号的时候用上括号也很有用，可以使表达式的意图更易读。在上面的例子中，加上括号可以使复合表达式第一部分意图更明确：
+```swift
+if (enteredDoorCode && passedRetinaScan) || hasDoorKey || knowsOverridePassword {
+    print("Welcome!")
+} else {
+    print("ACCESS DENIED")
+}
+// Prints "Welcome!"
+```
+
+括号的使用清楚地表明前两个值被视为整个逻辑的一部分。复合表达式的输出不变，但是整个复合表达式的意图更加明确。可读性总是比简洁性优先的；将括号用在可以使你的意图更明显的地方。
 
 [< 基础](The_Basic.md) || [字符串和字符 >](Strings_and_Characters.md)
