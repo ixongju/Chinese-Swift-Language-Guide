@@ -69,7 +69,77 @@ It also ends with a line break.
 
 ### 字面量中的特殊字符
 
+字符串字面量可以包含以下特殊字符：
+* 转义特殊字符`\0` (空字符), `\\` (反斜杠backslash), `\t` (水平标签horizontal tab), `\n` (缩紧line feed), `\r` (回车carriage return), `\"` (双引号double quotation mark) and `\'` (单引号single quotation mark)
+* 任意Unicode标量值，写作`\u{n}`，`n`是1-8位十六进制数字（Unicode将在下面讨论）
+
+下面的代码展示了特殊字符的四个例子。`wiseWords`包含两个被转义的引号。`dollarSign`，`blackHeart`和`sparklingHeart`常量示范了纯Unicode格式：
+```swift
+let wiseWords = "\"Imagination is more important than knowledge\" - Einstein"
+// "Imagination is more important than knowledge" - Einstein
+let dollarSign = "\u{24}"        // $,  Unicode scalar U+0024
+let blackHeart = "\u{2665}"      // ♥,  Unicode scalar U+2665
+let sparklingHeart = "\u{1F496}" // 💖, Unicode scalar U+1F496
+```
+因为多行字符串字面量用三重引号而不是单引号，你可以在多行字符串字面量里用双引号(`"`)而不需要转义。要在多行字符串字面量中包含`"""`，至少将其中一个双引号转义。例如：
+```swift
+let threeDoubleQuotationMarks = """
+Escaping the first quotation mark \"""
+Escaping all three quotation marks \"\"\"
+"""
+```
+
 ### 扩展字符串分隔符
+
+可以将字符串字面量放到*扩展分隔符*中，使字面量中的特殊字符不发挥效果。将字符串用置于引号中，然后用数字符号（`#`）包围。例如，打印字符串字面量`#"Line 1\nLine 2"#`打印出行缩进转义结果（`\n`）而不是打印两行字符串。
+
+如果你需要字符串字面量中特殊字符的效果，请匹配转义字符(`\`)后面字符串的数字符号。例如，如果你的字符串是#"Line 1\nLine 2"#，你打算使用换行，你可以用#"Line 1\#nLine 2"#代替。类似地，`###"Line1\###nLine2"###`也会换行。
+
+使用扩展分隔符的字符串字面量也可以是多行字符串字面量。你可以用扩展字符串分隔符在多行字符串中包含`"""`，重写字面量结束（三重引号）的默认行为。例如：
+```swift
+let threeMoreDoubleQuotationMarks = #"""
+Here are three more double quotes: \"""
+"""#
+```
+
+## 初始化空字符串
+
+创建空字符串作为创建长字符串的起点，要么用空字符串字面量给变量赋值，要么用初始化语法初始化一个字符串实例：
+```swift
+var emptyString = ""       // empty string literal
+var anotherEmptyString = String()  // initializer syntax
+// these two strings are both empty, and are equivalent to each other.
+```
+
+通过检查字符串值的布尔属性`isEmpty`可以知道字符串值是否为空：
+```swift
+if emptyString.isEmpty {
+  print("Nothing to see here")
+}
+// Prints "Nothing to see here"
+```
+
+## 字符串可变性
+
+通过将一个字符串赋值给变量（可修改）或常量（不可修改）来表明它是否可变：
+```swift
+var variableString = "Horse"
+variableString += " and carriage"
+// variableString is now "Horse and carriage"
+
+let constantString = "Highlander"
+constantString += " and another Highlander"
+// this reports a compile-time error - a constant string cannot be modified
+```
+
+> 注意：
+这种操作跟Objective-C和Cocoa中的可变字符串不同，Cocoa中你可以选择两个类（`NSString`和`NSMutableString`）来决定字符串是否可变。
+
+## 字符串是值类型
+
+
+
+## 使用字符
 
 
 
