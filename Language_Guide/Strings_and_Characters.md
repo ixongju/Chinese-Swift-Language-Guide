@@ -62,7 +62,7 @@ It also ends with a line break.
 
 多行字符串字面量可以缩进以匹配周围的代码。右三重引号（`"""`）之前的空格告诉Swift在所有其他行之前要忽略哪些空格。但是，如果你在第一行前面写上空格，而不是在右三重引号之前，则该空格会被包含：
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/multilineStringWhitespace_2x.png" alt="取余运算符" width="300"/>
+<img src="https://docs.swift.org/swift-book/_images/multilineStringWhitespace_2x.png" alt="取余运算符" width="450"/>
 </p>
 
 上面的例子中，索然整体多行字符串字面量都有缩进，但第一行与最后一行并不以空格开始。中间行的缩进比右三重引号多，所以该行缩进多处的四个空格。
