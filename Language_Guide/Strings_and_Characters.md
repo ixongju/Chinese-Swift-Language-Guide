@@ -141,8 +141,98 @@ Swift中字符串类型是值类型。如果你创建一个新的字符串值，
 
 ## 使用字符
 
+你可以用`for-in`循环遍历字符串值的方式访问单个的字符值：
+```swift
+for character in "Dog!🐶" {
+    print(character)
+}
+// D
+// o
+// g
+// !
+// 🐶
+```
+`for-in`循环在[For-in循环](Control_Flow.md#For-in循环)中有描述。
+
+另外，你也可以通过提供`Character`类型说明符，从单个字符串字面量创建一个单独的字符变量或常量：
+```swift
+let exclamationMark: Character = "!"
+```
+
+可以通过传递一个字符数组给字符串的初始化方法当作实参来构建字符串值：
+```swift
+let catCharacters: [Character] = ["C", "a", "t", "!", "🐱"]
+let catString = String(catCharacters)
+print(catString)
+// Prints "Cat!🐱"
+```
+
+## 链接字符串和字符
+可以用加号(`+`)把字符串链接起来创建新字符串：
+```swift
+let string1 = "hello"
+let string2 = " there"
+var welcome = string1 + string2
+// welcome now equals "hello there"
+```
+
+也可以用加号赋值运算符把字符串与已有字符串连接起来：
+```swift
+var instruction = "look over"
+instruction += string2
+// instruction now equals "look over there"
+```
+
+可以用字符串类型的`append()`方法把字符与字符串链接起来：
+```swift
+let exclamationMark: Character = "!"
+welcome.append(exclamationMark)
+// welcome now equals "hello there!"
+```
+> 注意：
+不能把字符串与字符相连接，因为字符必须只包含一个字符。
+
+如果你用多行字符串字面量建立长字符串的行，你需要字符串中的每一行都以换行结束，包括最后一行。例如：
+```swift
+let badStart = """
+one
+two
+"""
+let end = """
+three
+"""
+print(badStart + end)
+// Prints two lines:
+// one
+// twothree
+
+let goodStart = """
+one
+two
+
+"""
+print(goodStart + end)
+// Prints three lines:
+// one
+// two
+// three
+```
+
+在上面的代码中，链接`badStart`与`end`得到一个两行的字符串，这并不是想要的结果。因为`badStart`的最后一行并没有以换行结束，这一行与`end`的第一行链接起来了。相反，`goodStart`的所有行都以换行结束，所以当与`end`链接后变成三行，如愿。
+
+## 字符串插值
+
+*字符串插值* 是从常量，变量，字面量和包含表达式值的字面量的混合物构建新字符串的方法。你可以在单行和多行字符串字面量中使用字符串插值。插入到字符串字面量中的值用带有反斜杠(`\`)前缀的括号包围：
+```swift
+let multiplier = 3
+let message = "\(multiplier) times 2.5 is \(Double(multiplier) * 2.5)"
+// message is "3 times 2.5 is 7.5"
+```
+
+上面的例子中，变量`multiplier`的值以`\(multiplier)`的形式插入到字符串字面量中。字符串插值被用来创建字符串的时候，占位符由`multiplier`的值代替。
 
 
+## 统一码（Unicode）
 
 
 
