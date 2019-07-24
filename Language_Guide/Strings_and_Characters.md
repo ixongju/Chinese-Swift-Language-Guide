@@ -539,7 +539,7 @@ print("")
 // Prints "68 111 103 226 128 188 240 159 144 182 "
 ```
 
-上面的例子中，前面的三个`codeUnit`值(`68`, `111`, `103`)代表字符`D`，`o`和`g`，它们的UTF-8表示与ASCII表示相同。接下来的三个十进制数`codeUnit`值(`226`,`128`,`188`)是`DOUBLE EXCLAMATION MARK`字符的三比特UTF-8呈现。最后四个`codeUnit`值(`240`,`159`,`144`,`182`)是`DOG FACE`字符的四比特UTF-8呈现。
+上面的例子中，前面的三个`codeUnit`值(`68`, `111`, `103`)代表字符`D`，`o`和`g`，它们的UTF-8表示与ASCII表示相同。接下来的三个十进制数`codeUnit`值(`226`,`128`,`188`)是`DOUBLE EXCLAMATION MARK`字符的三比特UTF-8呈现。最后四个`codeUnit`值(`240`,`159`,`144`,`182`)是`DOG FACE`字符的四比特UTF-8呈现。
 
 ### UTF-16表示
 
@@ -561,11 +561,11 @@ print("")
 
 第四个`codeUnit`值是与十六进制值`203C`相等的十进制值，代表着字符`DOUBLE EXCLAMATION MARK`的纯Unicode`U+203C`。这个字符可以以UTF-16单个代码单元表示。
 
-第五和第六个`codeUnit`值(`55357`和`56374`)是字符`DOG FACE`UTF-16代理表示。它们一个是`U+D38D`(十进制`55357`)高级代理，一个是`U+DC36`(十进制`56374`)低级代理。
+第五和第六个`codeUnit`值(`55357`和`56374`)是字符`DOG FACE`UTF-16代理表示。它们一个是`U+D38D`(十进制`55357`)高级代理，一个是`U+DC36`(十进制`56374`)低级代理。
 
 ### 纯Unicode表示
 
-可以通过遍历`unicodeScalars`属性来访问字符串值的纯Unicode表示。属性是`unicodeScalarView`类型，它是一个`unicodeScalar`类型值的集合。
+可以通过遍历`unicodeScalars`属性来访问字符串值的纯Unicode表示。属性是`unicodeScalarView`类型，它是一个`unicodeScalar`类型值的集合。
 
 每个`unicodeScalar`有一个返回纯21位值的`value`属性，以`UInt32`值形式表示：
 
@@ -583,7 +583,7 @@ print("")
 
 `value`属性的前三个`UnicodeScalar`值(68, 111, 103)再一次代表字符`D`，`o`和`g`。
 
-第四个`codeUnit`值(`8252`)是与十六进制`203C`相等的十进制值，代表着字符`DOUBLE EXCLAMATION MARK`的纯Unicode`U+203C`。
+第四个`codeUnit`值(`8252`)是与十六进制`203C`相等的十进制值，代表着字符`DOUBLE EXCLAMATION MARK`的纯Unicode`U+203C`。
 
 `value`属性的第五位和最后一位`UnicodeScalar`，`128054`，是十六进制值`1F436`的十进制，代表着字符`DOG FACE`的纯Unicode`U+1F436`。
 
