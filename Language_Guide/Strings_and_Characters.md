@@ -168,6 +168,7 @@ print(catString)
 ```
 
 ## 链接字符串和字符
+
 可以用加号(`+`)把字符串链接起来创建新字符串：
 ```swift
 let string1 = "hello"
@@ -294,6 +295,7 @@ let regionalIndicatorForUS: Character = "\u{1F1FA}\u{1F1F8}"
  ```
 
  ### 字符的数量
+
  用`count`属性获取字符串中字符的数量：
  ```swift
 let unusualMenagerie = "Koala 🐨, Snail 🐌, Penguin 🐧, Dromedary 🐪"
@@ -414,7 +416,7 @@ let newString = String(beginning)
 
 Swift提供三种比较文本值的方法：字符串和字符相等，前缀相等和后缀相等。
 
-### 字符串和字符相等
+### 字符串和字符相等比较
 
 字符串和字符使用等于运算符（`==`）和不等运算符（`!=`）进行检查，如[比较运算符]()中所述。
 ```swift
@@ -426,19 +428,175 @@ if quotation == sameQuotation {
 // Prints "These two strings are considered equal"
 ```
 
-如果字符串与字符串，字符与字符的扩展字符集在规范上相同（*canonically equivalent*），那么，两个字符串（或两个字符）被认为是相等的。
+如果字符串与字符串，字符与字符的扩展字符集在规范上相同（*canonically equivalent*），那么，两个字符串（或两个字符）被认为是相等的。如果扩展字符集有相同的表现和语言上的意义，则在规范上相同，即便它们在幕后由不同的Unicode标量值组成。
 
+例如，`LATIN SMALL LETTER E WITH ACUTE(U+00E9)`与链接了`COMBINING ACUTE ACCENT (U+0303)`的`LATIN SMALL LETTER E(U+0065)`在规范上相同。这两种扩展字符集都是表示字符`é`的有效方法，因此被认为在规范上相同：
+```swift
+// "Voulez-vous un café?" using LATIN SMALL LETTER E WITH ACUTE
+let eAcuteQuestion = "Voulez-vous un caf\u{E9}?"
 
+// "Voulez-vous un café?" using LATIN SMALL LETTER E and COMBINING ACUTE ACCENT
+let combinedEAcuteQuestion = "Voulez-vous un caf\u{65}\u{301}?"
 
+if eAcuteQuestion == combinedEAcuteQuestion {
+    print("These two strings are considered equal")
+}
+// Prints "These two strings are considered equal"
+```
 
+相反地，`LATIN CAPITAL LETTER A`(`U+0041`，或`"A"`)，用在因英文中，与`CYRILLIC CAPITAL LETTER A`(`U+0410`，或`"A"`)，用在俄文中，是不相等的。字符看起来相似，但是拥有不同的语言意义：
+```swift
+let latinCapitalLetterA: Character = "\u{41}"
 
+let cyrillicCapitalLetterA: Character = "\u{0410}"
 
+if latinCapitalLetterA != cyrillicCapitalLetterA {
+    print("These two characters are not equivalent.")
+}
+// Prints "These two characters are not equivalent."
+```
+> 注意：
+Swift中字符串和字符的比较对语言环境不敏感。
 
+### 前缀和后缀相等比较
+使用`hasPrefix(_:)`和`hasSuffix(_:)`方法检查字符串是否含有特定的前缀或后缀，这两个方法需要一个`String`类型的参数，返回一个布尔值。
 
+下面的例子中，是一个表示莎士比亚的《罗密欧与朱丽叶》前两节场景位置的字符串数组：
+```swift
+let romeoAndJuliet = [
+    "Act 1 Scene 1: Verona, A public place",
+    "Act 1 Scene 2: Capulet's mansion",
+    "Act 1 Scene 3: A room in Capulet's mansion",
+    "Act 1 Scene 4: A street outside Capulet's mansion",
+    "Act 1 Scene 5: The Great Hall in Capulet's mansion",
+    "Act 2 Scene 1: Outside Capulet's mansion",
+    "Act 2 Scene 2: Capulet's orchard",
+    "Act 2 Scene 3: Outside Friar Lawrence's cell",
+    "Act 2 Scene 4: A street in Verona",
+    "Act 2 Scene 5: Capulet's mansion",
+    "Act 2 Scene 6: Friar Lawrence's cell"
+]
+```
 
+你可以对`romeoAndJuliet`使用`hasPrefix(_:)`方法来统计这场戏中第一节(`Act 1`)的场景数：
+```swift
+var act1SceneCount = 0
+for scene in romeoAndJuliet {
+  if scene.hasPrefix("Act 1") {
+    act1SceneCount += 1
+  }
+}
+print("There are \(act1SceneCount) scenes in Act 1")
+// Prints "There are 5 scenes in Act 1"
+```
 
+类似地，用`hasSuffix(_:)`方法统计发生在Capulet's和Friar Lawrence的场景数：
+```swift
+var mansionCount = 0
+var cellCount = 0
+for scene in romeoAndJuliet {
+    if scene.hasSuffix("Capulet's mansion") {
+        mansionCount += 1
+    } else if scene.hasSuffix("Friar Lawrence's cell") {
+        cellCount += 1
+    }
+}
+print("\(mansionCount) mansion scenes; \(cellCount) cell scenes")
+// Prints "6 mansion scenes; 2 cell scenes"
+```
+> 注意：
+`hasPrefix(_:)`方法和`hasSuffix(_:)`方法执行逐个字符规范相等来比较每个字符串中的扩展字符集，如[字符串和字符相等比较](Strings_and_Characters.md#字符串和字符相等比较)中所述。
 
+## 字符串的Unicode表示
 
+当一个Unicode字符串被写入到文本文件或其他储存时，字符串中的Unicode标量值被以数个Unicode定义的编码表单被编码。每个表单以最小的`代码单元`对字符串进行编码。这些（表单）包括UTF-8编码表单（将字符串编码成8位代码单元），UTF-16编码表单（将字符串编码成16位代码单元）和UTF-32编码表单（将字符串编码成32位代码单元）。
 
+Swift提供了不同的方法来访问字符串的Unicode表示。你可以用`for-in`语句遍历字符串，从而以Unicode扩展字符集访问单个的字符值。这个过程在[使用字符](Strings_and_Characters.md#使用字符)中有述。
+
+另外，访问其他三种兼容Unicode的方式表示的字符串：
+* 一个UTF-8代码单元集合（通过`utf8`属性访问）
+* 一个UTF-16代码单元集合（通过`utf16`属性访问）
+* 一个21位Unicode标量值，与字符串的UTF-32编码表单相同（通过`unicodeScalars`属性访问）
+
+下面的例子表示了字符串的不同呈现，字符串由`D`，`o`，`g`，`!!`(`DOUBLE EXCLAMATION MARK`,或Unicode标量值`U+203C`)，和字符🐶 (`DOG FACE`或Unicode标量值`U+1F436`)组成：
+```swift
+let dogString = "Dog‼🐶"
+```
+
+### UTF-8表示
+
+可以通过遍历`utf8`属性来访问一个字符串的UTF-8表示。这个属性是`String.UTF8View`类型，是一个无符号8位值(`UInt8`)的集合，对应字符串UTF-8表示中的每个比特：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/UTF8_2x.png" alt="UTF-8表示" width="450"/>
+</p>
+
+```swift
+for codeUnit in dogString.utf8 {
+  print("\(codeUnit)", terminator: "")
+}
+print("")
+// Prints "68 111 103 226 128 188 240 159 144 182 "
+```
+
+上面的例子中，前面的三个`codeUnit`值(`68`, `111`, `103`)代表字符`D`，`o`和`g`，它们的UTF-8表示与ASCII表示相同。接下来的三个十进制数`codeUnit`值(`226`,`128`,`188`)是`DOUBLE EXCLAMATION MARK`字符的三比特UTF-8呈现。最后四个`codeUnit`值(`240`,`159`,`144`,`182`)是`DOG FACE`字符的四比特UTF-8呈现。
+
+### UTF-16表示
+
+可以通过遍历`utf16`属性来访问一个字符串的UTF-16表示。这个属性是`String.UTF16View`类型，是一个无符号16位值(`UInt16`)的集合，对应字符串UTF-16表示中的每个比特：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/UTF16_2x.png" alt="UTF-16表示" width="450"/>
+</p>
+
+```swift
+for codeUnit in dogString.utf16 {
+    print("\(codeUnit) ", terminator: "")
+}
+print("")
+// Prints "68 111 103 8252 55357 56374 "
+```
+
+再一次，前三个`codeUnit`值代表字符`D`，`o`和`g`，它们的UTF-16代码单元与UTF-8字符串的表示拥有同样的值（因为这些纯Unicode代表ASCII字符）。
+
+第四个`codeUnit`值是与十六进制值`203C`相等的十进制值，代表着字符`DOUBLE EXCLAMATION MARK`的纯Unicode`U+203C`。这个字符可以以UTF-16单个代码单元表示。
+
+第五和第六个`codeUnit`值(`55357`和`56374`)是字符`DOG FACE`UTF-16代理表示。它们一个是`U+D38D`(十进制`55357`)高级代理，一个是`U+DC36`(十进制`56374`)低级代理。
+
+### 纯Unicode表示
+
+可以通过遍历`unicodeScalars`属性来访问字符串值的纯Unicode表示。属性是`unicodeScalarView`类型，它是一个`unicodeScalar`类型值的集合。
+
+每个`unicodeScalar`有一个返回纯21位值的`value`属性，以`UInt32`值形式表示：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/UnicodeScalar_2x.png" alt="纯Unicode表示" width="450"/>
+</p>
+
+```swift
+for scalar in dogString.unicodeScalars {
+    print("\(scalar.value) ", terminator: "")
+}
+print("")
+// Prints "68 111 103 8252 128054 "
+```
+
+`value`属性的前三个`UnicodeScalar`值(68, 111, 103)再一次代表字符`D`，`o`和`g`。
+
+第四个`codeUnit`值(`8252`)是与十六进制`203C`相等的十进制值，代表着字符`DOUBLE EXCLAMATION MARK`的纯Unicode`U+203C`。
+
+`value`属性的第五位和最后一位`UnicodeScalar`，`128054`，是十六进制值`1F436`的十进制，代表着字符`DOG FACE`的纯Unicode`U+1F436`。
+
+作为另外一种请求`value`属性的方式，每个`UnicodeScalar`值可用来创建一个新`String`值，例如用字符串插值：
+```swift
+for scalar in dogString.unicodeScalars {
+    print("\(scalar) ")
+}
+// D
+// o
+// g
+// ‼
+// 🐶
+```
 
 [< 基本操作符](Basic_Operators.md) || [集合类型 >](Collection_Types.md)
