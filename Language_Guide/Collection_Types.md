@@ -59,4 +59,4 @@ someInts = []
 
 
 
-[< 集合类型](Collection_Types.md) || [控制流 >](Control_Flow.md)
+[< 字符串和字符](Strings_and_Characters.md) || [控制流 >](Control_Flow.md)
