@@ -284,7 +284,7 @@ let decomposed: Character = "\u{1112}\u{1161}\u{11AB}"
 扩展字符集群允许封闭符号的标量值（例如`COMBINING ENCLOSING CIRCLE`，或`U+20DD`）封闭其他的Unicode标量值，（两者组合）作为一个单独的`Character`值：
 ```swift
 let encolsedEAcute: Character = "\u{E9}\u{20DD}"
-// enclosedEAcute is é⃝
+// enclosedEAcute is é⃝ (Use safari to see é⃝ in correct representation)
 ```
 
 区域标识符号的Unicode标量值可以结合起来表示单个`Character`值，例如`REGIONAL INDICATOR SYMBOL LETTER U (U+1F1FA)`与`REGIONAL INDICATOR SYMBOL LETTER S (U+1F1F8)`：
