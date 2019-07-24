@@ -412,7 +412,21 @@ let newString = String(beginning)
 
 ## 字符串比较
 
+Swift提供三种比较文本值的方法：字符串和字符相等，前缀相等和后缀相等。
 
+### 字符串和字符相等
+
+字符串和字符使用等于运算符（`==`）和不等运算符（`!=`）进行检查，如[比较运算符]()中所述。
+```swift
+let quotation = "We're a lot alike, you and I."
+let sameQuotation = "We're a lot alike, you and I."
+if quotation == sameQuotation {
+    print("These two strings are considered equal")
+}
+// Prints "These two strings are considered equal"
+```
+
+如果字符串与字符串，字符与字符的扩展字符集在规范上相同（*canonically equivalent*），那么，两个字符串（或两个字符）被认为是相等的。
 
 
 
