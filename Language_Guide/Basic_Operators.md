@@ -402,7 +402,7 @@ if enteredDoorCode && passedRetinaScan || hasDoorKey || knowsOverridePassword {
 基于`enteredDoorCode`，`passedRetinaScan`，`hasDoorKey`的值，第一个表达式是`false`。但是，emergency override password已知，所以整个复合表达式仍然是`true`。
 
 > 注意：
-Swift的逻辑运算符`&&`和`||`是左结合，意味着多个逻辑运算符的复合表达式中，首先评估最左边的子表达式。
+Swift的逻辑运算符`&&`和`||`是左结合，意味着多个逻辑运算符的复合表达式中，首先考虑最左边的子表达式。
 
 ### 显式括号
 
