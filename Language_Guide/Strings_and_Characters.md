@@ -388,6 +388,30 @@ welcome.removeSubrange(range)
 
 ## 子字符串
 
+当你从一个字符串中获取子字符串时---例如，使用下标或诸如`prefix(_:)`的方法---得到的结果是`Substring`类型，而不是另外一个字符串。Swift的`Substring`有大部分跟`String`相同的方法，这意味着你可以像使用字符串一样使用子字符串。但是，与字符串不同的是，当在字符串上执行操作时，较少用到子字符串。当你打算把结果存储较长时间时，把子字符串转换为字符串。例如：
+```swift
+let greeting = "Hello, world!"
+let index = greeting.firstIndex(of: ",") ?? greeting.endIndex
+let beginning = greeting[..<index]
+// beginning is "Hello"
+
+// Convert the result to a String for long-term storage.
+let newString = String(beginning)
+```
+
+如字符串一样，每段子字符串都有一段内存，组成子字符串的字符被储存在该内存中。字符串与子字符串的不同在于，为了优化性能，一个子字符串可以共用原字符串的内存，或这使用被用来储存过其他子字符串的内存片段。（字符串也有类似的优化，但是如果两个字符串共用内存，则他们相等）。这种性能优化，使你在修改字符串或子字符串之前，不同担心复制内存时的性能消耗。如上面提到的，子字符串不适合长期保存---因为他们与原字符串共享内存，整个原字符串在任何一个其子字符串被使用前，必须保存在内存中。
+
+上面的例子中，`greeting`是一个字符串，这意味着它有一段储存组成该字符串的所有字符的内存。因为`beginning`是`greeting`的子字符串，它共享了`greeting`的内存。相反，`newString`是一个字符串---当从子字符串被创建时，它就拥有自己的内存片段。下面的图展示了这种关系：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/stringSubstring_2x.png" alt="子字符串" width="450"/>
+</p>
+
+> 注意：
+> `String`和`Substring`都实现了 `StringProtocol`协议，这意味着操作字符串的函数能很方便地接受`StringProtocol`值。你可以用`String`值或`Substring`值调用该函数。
+
+## 字符串比较
+
 
 
 
