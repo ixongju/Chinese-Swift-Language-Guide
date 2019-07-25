@@ -402,15 +402,169 @@ farmAnimals.isDisjoint(with: cityAnimals)
 // true
 ```
 
+## 字典
 
+字典无序地储存集合中相同类型键和相同类型值之间的关系。每个值与唯一的键关联，键相当于值在字典中的识别码。不像数组中的元素，字典中的值没有固定顺序。当需要通过键查找值时，可以使用字典，就像现实中用字典查看某个单词的定义一样。
 
+> 注意：Swift中的`Dictionary`桥接于Foundation框架中的`NSDictionary`类。
+> 更多关于与Foundation和Cocoa一起使用`Dictionary`的信息，参见[桥接Dictionary与NSDictionary](https://developer.apple.com/documentation/swift/dictionary#2846239)。
 
+### 字典类型快捷语法
 
+Swift中字典类型完整写法是`Dictionary<Key, Value>`，其中`Key`是可以被用作字典键的值的类型，`Value`是可以被字典存放的值的类型。
 
+> 注意：
+> 如无序集合的值一样，字典的`Key`的类型必须实现了`Hashable`协议。
 
+可以将字典的类型简写为`[Key: Value]`。虽然这两种格式在功能上相同，但推荐简写格式，当提到字典类型时，简写格式的使用贯穿本指南。
 
+### 创建空字典
 
+如数组一样，用初始化器语法创建某个类型的空字典：
+```swift
+var namesOfIntegers = [Int: String]()
+// namesOfIntegers is an empty [Int: String] dictionary
+```
 
+这个例子创建一个`[Int: String]`类型的空字典，用来存放人类可读的整数值名称。键的类型是`Int`，值的类型是`String`。
 
+如果上下文已经提供了类型信息，则可以用空字典字面量创建空字典，写成`[:]`（中括号括起冒号）：
+```swift
+namesOfIntegers[16] = "sixteen"
+// namesOfIntegers now contains 1 key-value pair
+namesOfIntegers = [:]
+// namesOfIntegers is once again an empty dictionary of type [Int: String]
+```
+
+### 用字典字面量创建字典
+
+可以用字典字面量初始化字典，这与上面的数组字面量语法相似。字典字面量是书写一个或多个键值对字典集合的简洁写法。
+
+键值对是键和值的结合。在字典字面量中，没对键值对中的键和值被冒号分开。键值对被写作一个列表，用逗号隔开，并用方括号括起：[`key 1`: `value 1`, `key 2`: `value 2`, `key 3`: `value 3`]
+
+下面的例子创建一个字典存放国际机场的名称。在这个字典中，键是三个字面的国际航空联盟代码，值是机场名称：
+```swift
+var airports: [String: String] = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
+```
+
+字典`airports`被声明为`[String: String]`类型，这意味着“一个键类型`String`，值类型也为`String`的字典”。第一个键值对的键为`YYZ`，值为`Toronto Pearson`。第二个键值对的键为`DUB`，值为`Dublin`。
+
+这个字典字面量包含两对`String: String`。键值的类型满足变量`airports`所声明的类型（即一个键是`String`，值是`String`的字典），所以字典字面量的赋值被允许用来以两个初始元素初始化字典`airports`。
+
+与数组一样，当用键值类型一致的字典字面量初始化初始化字典时，不必写上类型。`airports`的初始化可以简洁地写成：
+```swift
+var airport = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
+```
+
+因为字面量中的所有键类型相同，同样所有的值类型也相同，Swift可以推导出`[String: String]`是字典`airports`的正确类型。
+
+### 访问和修改字典
+
+可以通过方法，属性或下标语法访问和修改字典。
+
+与数组一样，检查只读属性`count`来获取字典键值对的个数：
+```swift
+print("The airports dictionary contains \(airports.count) items.")
+// Prints "The airports dictionary contains 2 items."
+```
+
+用布尔属性`isEmpty`作为检查`count`属性是否为`0`快捷方法：
+```swift
+if airports.isEmpty {
+  print("The airports dictionary is empty.")
+} else  {
+  print("The airports dictionary is not empty.")
+}
+// Prints "The airports dictionary is not empty."
+```
+
+可以用下标语法向字典添加新元素。用适当类型的新键作为下标索引，然后赋上适当的新值：
+```swift
+airports["LHR"] = "London"
+// the airports dictionary now contains 3 items.
+```
+
+你也可以用下标语法通过指定的键修改关联的值：
+```swift
+airports["LHR"] = "London Heathrow"
+// the value for "LHR" has been changed to "London Heathrow"
+```
+
+除下标语法外，另一种方式是，用字典的`updateValue(_:forKey:)`方法设置或更新特定键关联的值。如上面下标例子样，如果键关联的值不存在，`updateValue(_:forKey:)`方法会为该键设定关联值，如果关联值存在，则更新该值。但，与下标不同的是，`updateValue(_:forKey:)`更新关联值后返回原来的值。这能让你检查更新有没有成功。
+
+`updateValue(_:forKey:)`方法返回字典的值类型的可选值。例如，对于一个存放`String`值的字典，这个方法返回一个`String?`类型的值，或"可选的`String`"。如果原来的关联值存在，则这个可选值包含该值，如果不存在，则可选值为`nil`：
+```swift
+if let oldValue = airports.updateValue("Dublin Airport", forKey: "DUB") {
+    print("The old value for DUB was \(oldValue).")
+}
+// Prints "The old value for DUB was Dublin."
+```
+
+你也可以使用下标语法从字典中获取特定键的关联值。因为有可能请求键的关联值不存在，所以字典下标返回字典关联值类型的可选值。如果字典包含请求键的关联值，则下标返回一个包含该键关联值的可选值。否则，下标返回`nil`：
+```swift
+if let airportName = airports["DUB"] {
+    print("The name of the airport is \(airportName).")
+} else {
+    print("That airport is not in the airports dictionary.")
+}
+// Prints "The name of the airport is Dublin Airport."
+```
+
+可以通过下标语法为键赋值`nil`从字典中移除键值对：
+```swift
+airports["APL"] = "Apple International"
+// "Apple International" is not the real airport for APL, so delete it
+airports["APL"] = nil
+// APL has now been removed from the dictionary
+```
+
+另外，用`removeValue(forKey:)`方法从字典中移除键值对。如果键值对存在，该方法将移除并返回该键值对，如果不存在，则返回`nil`：
+```swift
+if let removedValue = airports.removeValue(forKey: "DUB") {
+    print("The removed airport's name is \(removedValue).")
+} else {
+    print("The airports dictionary does not contain a value for DUB.")
+}
+// Prints "The removed airport's name is Dublin Airport."
+```
+
+### 遍历字典
+
+可以用`for-in`循环遍历字典的键值对。字典的每个键值对以元组`(key, value)`被返回，作为遍历的一部分，你可以将元组成员拆解成临时常量或变量：
+```swift
+for (airportCode, airportName) in airports {
+    print("\(airportCode): \(airportName)")
+}
+// LHR: London Heathrow
+// YYZ: Toronto Pearson
+```
+
+关于`for-in`循环，参见[For-In循环](Control_Flow.md#For-In循环)。
+
+也可以通过访问`keys`或`values`属性获取一个字典的键或值的可遍历集合：
+```swift
+for airportCode in airports.keys {
+    print("Airport code: \(airportCode)")
+}
+// Airport code: LHR
+// Airport code: YYZ
+
+for airportName in airports.values {
+    print("Airport name: \(airportName)")
+}
+// Airport name: London Heathrow
+// Airport name: Toronto Pearson
+```
+
+如果需要把字典的键或值传递给一个接受数组实例的API，用`keys`或`values`属性初始化一个新数组：
+```swift
+let airportCodes = [String](airports.keys)
+// airportCodes is ["LHR", "YYZ"]
+
+let airportNames = [String](airports.values)
+// airportNames is ["London Heathrow", "Toronto Pearson"]
+```
+
+Swift中的字典类型没有固定顺序。要以特定顺序遍历字典中的键或值，对`keys`或`values`属性使用`sorted()`方法。
 
 [< 字符串和字符](Strings_and_Characters.md) || [控制流 >](Control_Flow.md)
