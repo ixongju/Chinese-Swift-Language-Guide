@@ -47,6 +47,36 @@ for index in 1...5 {
 // 5 times 5 is 25
 ```
 
+被遍历的序列是1到5的数字范围，闭合范围运算符表明包括1和5。`index`的值被设置成范围的第一个数字`1`，循环中的语句开始被执行。这种情况下，循环体仅包含一句代码，用来打印`index`当前值乘以五的结果。语句被执行后，`index`的值被更新到数字范围的第二位`2`，`print(_:separator:terminator:)`方法再次被调用。这个过程一直被重复执行，知道数字范围末尾。
+
+上面的例子中，`index`是一个常量，它的值在循环遍历开始时就自动被设定。因此，`index`在使用前不需要声明。当它被包含在循环声明中时就已经被隐式声明，不需要用`let`声明关键字。
+
+```swift
+let base = 3
+let power = 10
+var answer = 1
+for _ in 1...power {
+    answer *= base
+}
+print("\(base) to the power of \(power) is \(answer)")
+// Prints "3 to the power of 10 is 59049"
+```
+
+上面的例子计算一个数乘以另一个数的积（3乘以10）。首先1乘以3，用一个1到10的闭合范围执行十次。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
