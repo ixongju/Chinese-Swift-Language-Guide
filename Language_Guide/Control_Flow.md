@@ -371,7 +371,7 @@ print("There are \(naturalCount) \(countedThings).")
 
 可以在同一个`switch`语句中，用元组测试多个值。元组中的元素可以与不同的值或值范围进行测试。另外，用下划线(`_`)，称为通配模式，匹配任何可能的值。
 
-下面的例子用点(x,y)，用元组表示为(`Int`, `Int`)，并把点分布到例子下面的图中：
+下面的例子用点(x,y)，用元组表示为(`Int`, `Int`)，并把点分布到例子下面的坐标系中：
 ```switch
 let somePoint = (1, 1)
 switch somePoint {
@@ -390,7 +390,7 @@ default:
 ```
 
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/coordinateGraphSimple_2x.png" alt="元组" width="450"/>
+<img src="https://docs.swift.org/swift-book/_images/coordinateGraphSimple_2x.png" alt="元组" width="300"/>
 </p>
 
 `switch`语句决定点是在原始位置(0, 0)，还是在红色x轴或黄色y轴上，原点(0, 0)周围4x4的范围内，或该范围外。
@@ -401,7 +401,7 @@ default:
 
 一个`switch`分支可以给值命名一个临时常量或变量，以在分支体中使用。这个行为被称为*值绑定*，因为值被绑定到分支体的临时常量或变量中。
 
-下面的例子用点(x,y)，用元组表示为(`Int`, `Int`)，并把点分布到例子下面的图中：
+下面的例子用点(x,y)，用元组表示为(`Int`, `Int`)，并把点分布到例子下面的坐标系中：
 ```swift
 let anotherPoint = (2, 0)
 switch anotherPoint {
@@ -415,8 +415,120 @@ case let (x, y):
 // Prints "on the x-axis with an x value of 2"
 ```
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/coordinateGraphMedium_2x.png" alt="值绑定" width="450"/>
+<img src="https://docs.swift.org/swift-book/_images/coordinateGraphMedium_2x.png" alt="值绑定" width="300"/>
 </p>
+
+`switch`语句判定点是否在红色x轴上，黄色y轴上，或其他地方。
+
+三个`switch`分支声明了包含常量`x`和`y`的占位符，从`anotherPoint`中临时获取一个或全部元组值。第一个分支，`case (let x, 0)`，匹配任何y值为0的点，并将该点的x值赋值给临时常量`x`。类似的，第二个分支，`case (0, let y)`，匹配任何x值为0的点，并将该点的y值赋值给临时常量`y`。
+
+临时常量被声明后，可以在分支代码块中使用他们。在这里，他们被用于打印点的分布。
+
+这个`switch`语句没有`default`分支。最后一个分支，`case let (x, y)`，声明包含两个占位符的元组，可以匹配其他所有的值。因为`anotherPoint`是一个包含两个值的元组，这个分支能匹配所有可能的情况，不需要`default`分支让`switch`语句变得彻底。
+
+### Where
+
+一个`switch`分支可以用`where`子句判断额外条件。
+
+下面的例子将点分布到下面的坐标系中：
+```switch
+let yetAnotherPoint = (1, -1)
+switch yetAnotherPoint {
+case let (x, y) where x == y:
+    print("(\(x), \(y)) is on the line x == y")
+case let (x, y) where x == -y:
+    print("(\(x), \(y)) is on the line x == -y")
+case let (x, y):
+    print("(\(x), \(y)) is just some arbitrary point")
+}
+// Prints "(1, -1) is on the line x == -y"
+```
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/coordinateGraphComplex_2x.png" alt="Where语句" width="300"/>
+</p>
+
+`switch`语句确定点是否在`x == y`绿色对角线上，紫色`x == -y`对角线上或两者。
+
+三个`switch`分支声明常量占位符`x`和`y`，该占位符临时获取元组`yetAnotherPoint`的两个值。这些常量被用做`where`子句的一部分，以创建动态过滤器。`switch`分支只有在`where`子句为`true`的情况下才匹配当前的`point`值。
+
+如前面的例子样，最后一个分支匹配其他所有可能的值，所以不需要用`default`分支使`switch`语句彻底。
+
+### 复合分支
+
+多个共用同一分支体的分支，可以结合起来将匹配模式写在一个`case`后面，用逗号把匹配模式隔开。如果任何一个模式匹配了，则该分支被匹配。如果模式很长，可以写成多行。例如：
+```swift
+let someCharacter: Character = "e"
+switch someCharacter {
+case "a", "e", "i", "o", "u":
+    print("\(someCharacter) is a vowel")
+case "b", "c", "d", "f", "g", "h", "j", "k", "l", "m",
+     "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z":
+    print("\(someCharacter) is a consonant")
+default:
+    print("\(someCharacter) is not a vowel or a consonant")
+}
+// Prints "e is a vowel"
+```
+
+`switch`语句第一个分支匹配5个小写英文元音。类似地，第二个分支匹配所有的小写英文辅音。最后，`default`分支匹配其余所有字符。
+
+复合分支也可以包含值的绑定。所有复合分支的模式必须包含相同绑定值，每个绑定需要从复合分支所有匹配模式中获取相同类型的值。这确保了，不管复合分支的哪一部分匹配，分支体中的代码总能够访问绑定的值，而它们具有相同的类型。
+```swift
+let stillAnotherPoint = (9, 0)
+switch stillAnotherPoint {
+case (let distance, 0), (0, let distance):
+    print("On an axis, \(distance) from the origin")
+default:
+    print("Not on an axis")
+}
+// Prints "On an axis, 9 from the origin"
+```
+
+上面的`case`有两种模式：`(let distance, 0)`匹配x轴上的点，`(0, let distance)`匹配y轴上的点。两个模式都包含`distance`的绑定，并且`distance`在两种匹配中都是整数---这意味着，分支体中的代码总能访问`distance`的值。
+
+## 控制跳转语句
+
+*控制跳转语句*通过将控制流从一段代码跳到另一段代码，来改变代码的执行顺序。Swift有五个控制跳转语句：
+* `continue`
+* `break`
+* `fallthrough`
+* `return`
+* `throw`
+
+下面会讨论`continue`，`break`和`fallthrough`语句。`return`语句将在[函数](Functions.md)中讨论，`throw`语句将在[用抛出功能传递错误](Error_Handling.md#用抛出功能传递错误)中讨论。
+
+### Continue
+
+`continue`语句让一个循环停止当前动作，并从头开始下一次循环遍历。它说“当前循环遍历已经完事了”，并且不离开循环。
+
+下面的例子，从一个小写字符串中移除所有的元音和空格，来创建一个拼图短语：
+```swift
+let puzzleInput = "great minds think alike"
+var puzzleOutput = ""
+let charactersToRemove: [Character] = ["a", "e", "i", "o", "u", " "]
+for character in puzzleInput {
+    if charactersToRemove.contains(character) {
+        continue
+    }
+    puzzleOutput.append(character)
+}
+print(puzzleOutput)
+// Prints "grtmndsthnklk"
+```
+
+上面的代码中，当任何时候匹配了元音或空格，代码会用`continue`关键字，使当前循环立即结束，然后跳转到下一次遍历的开头。
+
+### Break
+
+`break`语句立即结束整个控制流的执行。当想提前终止`switch`或循环时，可以在`switch`或循环中用上`break`语句。
+
+#### 循环语句中的Break
+
+当在循环中使用时，`break`会立即终止执行循环，并将控制流跳转到循环关闭括号之后的代码。当前循环的遍历不会被进一步执行或开始。，
+
+#### Switch语句中的Break
+
 
 
 
