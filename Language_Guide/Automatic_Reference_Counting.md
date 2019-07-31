@@ -309,7 +309,55 @@ john!.card = CreditCard(number: 1234_5678_9012_3456, customer: john!)
 
 ## 不拥有引用和隐式解包可选属性
 
+上面关于弱引用和不拥有引用的例子，介绍了两个有必要打破强循环引用更常见的场景。
 
+`Person`和`Apartment`的例子展示了允许两个属性为`nil`，可能引起强循环引用的情形。这个可以用弱引用很好地解决。
+
+`Customer`和`CreditCard`的例子则展示了允许一个属性为`nil`，另一个属性不能为`nil`，可能引起强循环引用的情形。可以用不拥有引用很好地解决。
+
+但是，有第三中情形，两个属性都必须有值，且初始化之后任何一个属性不能为`nil`。这种情况下，用隐式解包可选属性将不拥有属性的类与另一个类链接起来。
+
+这确保一旦初始化完成，两个属性都可以直接被访问（不用可选解包），且避免了循环引用。本节介绍如何缔结这种关系。
+
+下面的例子中，定义了两个类，`Country`和`City`，每个类保存另一个类的实例作为属性。在这个数据模型中，每个国家必须有一个首都城市，每个城市都应该属于某一个国家。为了实现这个，`Country`类有一个`capitalCity`属性，`City`类有一个`country`属性：
+```swift
+class Country {
+  let name: String
+  var capitalCity: City!
+  init(name: String, capitalName: String) {
+    self.name = name
+    self.capitalCity = City(name: capitalName, country: self)
+  }
+}
+
+class City {
+  let name: String
+  unowned let country: Country
+  init(name: String, country: Country) {
+    self.name = name
+    self.country = country
+  }
+}
+```
+
+为了构建这两个类的相互依赖关系，`City`的初始化方法需要一个`Country`实例，并将该实例存入`country`属性中。
+
+`City`的初始化方法在`Country`初始化方法中被调用。但是，`Country`实例被完全初始化之前，在`Country`的初始化方法中不能将`self`传给`City`的初始化方法，如[两步初始化](Initialization.md#两步初始化)中所述。
+
+为了应付这种需求，将`Country`类的`capitalCity`属性声明为*隐式解包可选属性*，在类型后面标上感叹号(!)。这意味着`capitalCity`属性有默认值`nil`，就像其他可选值样，但不需要解包储存的值得。如[隐式解包可选值](The_Basic.md#隐式解包可选值)中所述。
+
+因为`capitalCity`有默认值`nil`，当`Country`实例在初始化方法中设置`name`属性时，`Country`实例被认为已经完全初始化。这意味着一旦`name`属性被设置，`Country`初始化方法可以开始引用并传递隐式`self`属性。因此，在`Country`的初始化方法中设置`capitalCity`属性时，可以将`self`用作`City`初始化方法的参数。
+
+所有这些表明，你可以在单个语句中创建`Country`和`City`的实例，而不会导致强循环引用，且不用感叹号解包，`capitalCity`属性可以被直接访问：
+```swift
+var country = Country(name: "Canada", capitalName: "Ottawa")
+print("\(country.name)'s capital city is called \(country.capitalCity.name)")
+// Prints "Canada's capital city is called Ottawa"
+```
+
+上面的例子中，使用隐式解包可选值意味着，所有的两步初始化的要求得到满足。一旦初始化完成，`capitalCity`属性可以像非可选值样被使用和访问，同时也避免了强循环引用。
+
+## 闭包的强循环引用
 
 
 
