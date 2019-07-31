@@ -167,8 +167,147 @@ unit4A = nil
 > 注意：
 当ARC将弱引用设置为`nil`时，属性观察者不会被调用。
 
+下面的例子与上面的例子相同，只有一个重要的不同。这次，`Apartment`类型的租户属性`tenant`被声明为弱引用：
+```swift
+class Person {
+  let name: String
+  init(name: String) { self.name = name }
+  var apartment: Apartment?
+  deinit { print("\(name) is being deinitialized") }
+}
 
+class Apartment {
+  let unit: String
+  init(unit: String) { self.unit = unit }
+  weak var tenant: Person?
+  deinit { print("Apartment \(unit) is being deinitialized") }
+}
+```
 
+两个变量(`john`和`unit4A`)之间的强引用和两个实例之间的链接跟以前一样。
+```swift
+var john: Person?
+var unit4A: Apartment?
+
+john = Person(name: "John Appleseed")
+unit4A = Apartment(unit: "4A")
+
+john!.apartment = unit4A
+unit4A!.tenant = john
+```
+
+现在实例间的的引用情况如下：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/weakReference01_2x.png" alt="弱引用" width="600"/>
+</p>
+
+`Person`实例有一个指向`Apartment`实例的强引用，但`Apartment`实例有一个指向`Person`实例的***弱引用***。这意味着，当你给变量`john`赋值`nil`来终止其持有的强引用时候，`Person`实例不再应有强引用：
+```swift
+john = nil
+// Prints "John Appleseed is being deinitialized"
+```
+
+因为`Person`实例不再有任何强引用，它会被回收，`tenant`属性会被设置为`nil`：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/weakReference02_2x.png" alt="弱引用" width="600"/>
+</p>
+
+仅存的指向`Apartment`实例的强引用是变量`unit4A`。如果终止该强引用，`Apartment`将没有任何强引用：
+```swift
+unit4A = nil
+// Prints "Apartment 4A is being deinitialized"
+```
+
+因为`Apartment`实例不再有任何强引用，它也会被回收：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/weakReference03_2x.png" alt="弱引用" width="600"/>
+</p>
+
+> 注意：
+> 在垃圾回收系统中，弱指针一般被用作实现简单的缓存机制，因为强引用只有在内存告急触发内存回收时才会被回收。但是，使用ARC，实例一旦失去强引用就会被回收，这时候用弱引用就不那么合适了。
+
+### 不拥有引用
+
+就像弱引用样，***不拥有引用*** 不强持有其所指向的实例。但是，不像弱引用的是，当另一个（被持有）的实例拥有相同会更长的生命周期时，使用***不拥有引用***。在属性或变量的声明前面标记`unowned`关键字以表明该引用是不拥有引用。
+
+不拥有引用总是有一个值。因此，ARC不会将不拥有引用设置为`nil`，这意味着，需要将不拥有引用定义为非可选类型。
+> 注意：
+> 当你能确保引用总是指向一个不会被回收的实例的时候，使用不拥有引用。
+> 如果你试图访问一个实例已经被回收了的不拥有引用，会得到一个运行时错误。
+
+下面的例中，定义两个类，`Customer`和`CreditCard`，为一个银行用户和该用户可能用到的信用卡建模。两个类都将另一个类作为属性储存。这种关系具备创建强循环引用的潜能。
+
+`Customer`和`CreditCard`的关系明显不同于上例中`Apartment`和`Person`的关系。在这个数据模型中，一个用户可能没有也可能有信用卡，但是一张信用卡一定关联于一个用户。一个`CreditCard`实例不会超过其指向的`Customer`的生命周期。要表明这个，`Customer`类有一个可选的`card`属性，同时，`CreditCard`类有一个不拥有的（非可选）`customer`属性。
+
+更进一步，只有当传入一个数值和一个`customer`实例给`CreditCard`的自定义初始化方法，才能创建一个`CreditCard`实例。这确保了，当`CreditCard`实例被创建时，总是有一个与其关联的`customer`实例。
+
+因为信用卡总是有一个用户，所以将其`customer`属性定义为不拥有引用，以避免出现强循环引用：
+```swift
+class Customer {
+  let name: String
+  var card: CreditCard?
+  init(name: String) {
+    self.name = name
+  }
+  deinit { print("\(name) is being deinitialized") }
+}
+
+class CreditCard {
+  let number: UInt64
+  unowned let customer: Customer
+  init(number: UInt64, customer: Customer) {
+    self.number = number
+    self.customer = customer
+  }
+  deinit { print("Card #\(number) is being deinitialized") }
+}
+```
+
+> 注意：
+> `CreditCard`类的数组属性用的是`UInt64`类型，而不是`Int`，是为了确保在32位系统和64位系统中，该属性都足够存放16位卡号。
+
+下面的代码片段定义一个可选`Customer`变量`john`，将不用于存放指定用户的引用。由于是可选的，这个变量初始值为`nil`：
+```swift
+var john: Customer?
+```
+
+现在可以创建一个`Customer`实例，用它初始化并赋值一个用作用户实例`card`属性的`CreditCard`实例：
+```swift
+john = Customer(name: "John Appleseed")
+john!.card = CreditCard(number: 1234_5678_9012_3456, customer: john!)
+```
+
+链接这两个实例后，引用情况如下：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/unownedReference01_2x.png" alt="不拥有引用" width="600"/>
+</p>
+
+`Customer`实例持有`CreditCard`实例的强引用，`CreditCard`实例持有`Customer`实例的不拥有引用。
+
+因为`customer`的不拥有引用，当终止了变量`john`持有的强引用时，`Customer`实例将不再有任何强引用：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/unownedReference02_2x.png" alt="不拥有引用" width="600"/>
+</p>
+
+因为`Customer`实例没有了强引用，它将被回收。这之后，`CreditCard`实例也没有强引用，它也被回收：
+```swift
+ john = nil
+ // Prints "John Appleseed is being deinitialized"
+ // Prints "Card #1234567890123456 is being deinitialized"
+```
+
+上面最后的代码片段显示，变量`john`被设置成`nil`后，`Customer`实例和`CreditCard`实例的反初始化方法都打印出了反初始化信息。
+
+> 注意：
+> 上看的例子展示了如何使用不拥有引用。Swift也提供了*unsafe unowned*引用，以应对需要禁用运行时安全检查的情况---例如，出于性能考虑，对于不安全操作，由你自己来负责代码的安全检查。
+> 用`unowned(unsafe)`关键表明非安全不拥有引用。如果在实例被回收之后试图访问非安全不拥有引用，程序会试着访问该实例过去的内存位置，这个操作是不安全的。
+
+## 不拥有引用和隐式解包可选属性
 
 
 
