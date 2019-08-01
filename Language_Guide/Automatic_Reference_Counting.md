@@ -359,6 +359,93 @@ print("\(country.name)'s capital city is called \(country.capitalCity.name)")
 
 ## 闭包的强循环引用
 
+你已经看到了两个类的实例用另一个实例做属性会产生强循环引用。也知道如何利用弱引用和无主引用打破强循环引用。
+
+如何给类实例属性赋值闭包，也能产生强循环引用，闭包会捕获实例。发生这种捕获是因为在闭包中访问了实例的属性，例如`self.someProperty`，或因为闭包调用了实例的方法，例如`self.someMethod()`。这两种情况中，对实例的访问导致闭包捕获`self`，并创建了一个强引用。
+
+发生强循环引用是因为闭包，与类一样，是***引用类型***。当把闭包赋值给属性，你就为该闭包分配了一个强引用。本质上，与上面的例子类似---两个强引用使双方得以存活。但，这次不是两个类实例，而是一个类实例和一个闭包，使双方得以存活。
+
+Swift提供了一个优雅的方法来解决此问题，称为*闭包捕获列表*。但是，在你学习如何使用闭包捕获列表打破强循环引用之前，最好先弄懂怎样引起这种循环引用。
+
+下面的例子展示了如何在使用闭包引用`self`的时候创建强循环引用。例子中定义了一个类`HTMLElement`，为HTML文档中的单个元素建立一个简单模型：
+```swift
+class HTMLElement {
+  let name: String
+  let text: String?
+
+  lazy var asHTML: () -> String = {
+    if let text = self.text {
+      return "<\(self.name)>\(text)</\(self.name)>"
+    } else {
+      return "<\(self.name) />"
+    }
+  }
+
+  init(name: String, text: String? = nil) {
+    self.name = name
+    self.text = text
+  }
+
+  deinit {
+    print("\(name) is being deinitialized")
+  }
+}
+```
+
+`HTMLElement`类定义了一个`name`属性，指元素的名称，例如`"h1"`指头元素，`"p"`指段落元素，`"br"`指换行元素。`HTMLElement`也定义了一个可选`text`属性，你可以赋值字符串，以表明字符串被该元素渲染。
+
+除了这两个简单的属性，`HTMLElement`还类定义了一个懒属性`asHTML`。这个属性指向一个闭包，该闭包将`name`和`text`连接成一个HTML字符串片段。`asHTML`属性的类型是`() -> String`，或“一个无参数函数，返回一个字符串值”。
+
+默认地，`asHTML`属性被赋值一个闭包，该闭包返回一个代表HTML标签的字符串。如果文本值存在的话，标签包含一个可选文本值，如果文本值不存在，则标签为空文本。对于一个表格元素，闭包会根据`text`属性是否是`"some text"`或空，返回`"</>some text</p>"`或`"<p />"`。
+
+`asHTML`属性的命名和使用有点像实例方法。但是，因为`asHTML`是闭包属性而不是实例方法，如果你想特定HTML元素的渲染内容，你可以用一个自定义的闭包替换`asHTML`属性的默认值。
+
+例如，为了避免返回一个空HTML标签，`asHTML`属性可以设置成，当`text`属性是`nil`时返回默认文本的闭包：
+```swift
+let heading = HTMLElement(name: "h1")
+let defaultText = "some default text"
+heading.asHTML = {
+  return "<\(heading.name)>\(heading.text ?? defaultText)</\(heading.name)>"
+}
+print(heading.asHTML())
+// Prints "<h1>some default text</h1>"
+```
+
+> 注意：
+> `asHTML`属性被定义成懒属性，因为当且仅当元素需要被渲染成字符串作为HTML输出目标时，才需要该属性。事实上，`asHTML`是懒属性意味着你可以在默认闭包中引用`self`，因为，在初始化完成和`self`存在之前，懒属性是不会被访问的。
+
+`HTMLElement`类提供了唯一的初始化方法，该初始化方法用一个`name`参数和（如果需要）一个文本参数初始化一个新元素。该类也定义了一个反初始化方法，该方法会打印信息以表明`HTMLElement`实例被回收。
+
+下面是如何使用`HTMLElement`类创建并打印新实例：
+```swift
+var paragraph: HTMLElement? = HTMLElement(name: "p", text: "hello, world")
+print(paragraph!.asHTML())
+// Prints "<p>hello, world</p>"
+```
+> 注意：
+> 变量`paragraph`被定义为可选`HTMLElement`类型，所以可以设置为`nil`来演示下面的强循环引用。
+
+不幸的是，上面编写的`HTMLElement`类，在`HTMLElement`实例和用于`asHTML`默认值的闭包之间创建了强循环引用。见下图：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/closureReferenceCycle01_2x.png" alt="无主引用" width="600"/>
+</p>
+
+实例的`asHTML`属性持有闭包的强引用。但是，由于闭包中引用了`self`（就像引用`self.name`和`self.text`样），闭包捕获了self，这意味着闭包反过来持有了`HTMLElement`实例的强引用。两个对象间创建了强循环引用。（更多关于闭包捕获值，参见[值的捕获](Closures.md#值的捕获)）
+
+> 注意；
+> 即使闭包多次引用`self`，它指捕获一个`HTMLElement`实例的强引用。
+
+如果将`paragraph`变量设置为`nil`，终止其指向`HTMLElement`实例的强引用，由于存在强循环引用，`HTMLElement`实例和闭包都不会被回收：
+```swift
+paragraph = nil
+```
+
+注意，`HTMLElement`反初始化方法并没有打印信息，这表明`HTMLElement`实例没有被回收。
+
+## 解决闭包强循环引用问题
+
+
 
 
 
