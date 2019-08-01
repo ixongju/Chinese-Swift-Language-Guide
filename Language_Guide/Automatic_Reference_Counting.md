@@ -448,7 +448,27 @@ paragraph = nil
 通过定义一个捕获列表作为闭包定义的一部分，来解决闭包与类实例之间的强循环引用问题。捕获列表定义了在闭包内捕获一个或过个引用类型需要遵守的规则。与两个类实例之间的强循环引用一样，你可以声明每个捕获的引用是弱引用还是无主引用，而不是强引用。根据不同代码间的关系确定是用弱引用还是无主引用。
 
 > 注意：
-> 
+> 无论何时在闭包中引用`self`的成员，Swift要求你写成`self.someProperty`或`self.someMethod()`（而不仅仅是`someProperty`或`someMethod()`）。这提醒你，可能会无意中捕获`self`。
+
+### 定义捕获列表
+
+捕获列表中的每个项是`weak`或`unowned`和一个类实例的引用（例如`self`）的配对，或是一个用其他值初始化的变量（例如`delegate = self.delegate!`）。这个配对用方括号括起，每个配对用逗号隔开。
+
+将捕获列表放在闭包参数列表和返回类型（如果有返回类型）的前面：
+```swift
+lazy var someClosure: (Int, String) -> String = { [unowned self, weak delegate = self.delegate!] (index: Int, stringToProcess: String) -> String in
+  // closure body goes here
+}
+```
+
+如果由于可从上下文推导，闭包没有指定参数列表或返回类型，则将捕获列表放在闭包的最开头，后面跟上`in`关键字：
+```swift
+lazy var someClosure: () -> String = { [unowned self, weak delegate = self.delegate!] in
+  // closure body goes here
+}
+```
+
+### 弱引用和无主引用
 
 
 
