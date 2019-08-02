@@ -470,15 +470,58 @@ lazy var someClosure: () -> String = { [unowned self, weak delegate = self.deleg
 
 ### 弱引用和无主引用
 
+**当闭包和其捕获的实例总是相互引用，并同时被回收时，将闭包的捕获列表定义为无主引用**。
 
+**相反，当闭包捕获的引用可能会变成`nil`时，将闭包的捕获列表定义为弱引用**。弱引用总是可选类型，当其引用的实例被回收时，自动变成`nil`。这允许你在闭包内检查（实例）是否存在。
 
+> 注意：
+> 如果捕获的引用永远不会变成`nil`，则应该以无主引用的方式被捕获，而不是弱引用。
 
+无主引用的捕获方法适用于解决上面[闭包的强循环引用](#闭包的强循环引用)`HTMLElement`例子中强循环引用问题。下面的代码是避免循环引用的`HTMLElement`类：
+```swift
+class HTMLElement {
+  let name: String
+  let text: String?
+  lazy var asHTML: () -> String = { [unowned self] in
+    if let text = self.text {
+      return "<\(self.name)>\(text)</\(self.name)>"
+    } else {
+      return "<\(self.name) />"
+    }
+  }
 
+  init(name: String, text: String? = nil) {
+    self.name = name
+    self.text = text
+  }
 
+  deinit {
+    print("\(name) is being deinitialized")
+  }
+}
+```
 
+除了`asHTML`闭包的捕获列表，这个版本的`HTMLElement`实现与上一个版本的基本相同。这各版本中，捕获列表是`[unowned self]`类型，这意味着“以无主引用，而不是强引用的方式捕获`self`”。
 
+可以像前面一样，创建并打印`HTMLElement`实例：
+```swift
+var paragraph: HTMLElement? = HTMLElement(name: "p", text: "hello,world")
+print(paragraph!.asHTML())
+// Prints "<p>hello,world</p>"
+```
 
+下面是捕获列表中引用情况：
 
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/closureReferenceCycle02_2x.png" alt="无主引用" width="600"/>
+</p>
 
+这次，闭包捕获的`self`是无主引用，闭包不强持有所捕获的`HTMLElement`实例。如果将`paragraph`变量持有的强引用设置为`nil`，从打印出的反初始化信息可以看出，`HTMLElement`实例会被回收：
+```swift
+paragraph = nil
+// Prints "p is being deinitialized"
+```
+
+更多关于捕获列表，参见[捕获列表](../Language_Reference/Expressions.md#捕获列表)
 
 [< 透明类型](Opaque_Types.md) || [内存安全 >](Memory_Safety.md)

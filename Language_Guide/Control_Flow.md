@@ -529,6 +529,10 @@ print(puzzleOutput)
 
 #### Switch语句中的Break
 
+在`switch`语句中使用`break`时，`break`会使`switch`语句立即停止执行，并将控制流转到`switch`语句反括号(`}`)后面。
+
+
+
 
 
 
