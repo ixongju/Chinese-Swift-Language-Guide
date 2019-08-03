@@ -531,20 +531,192 @@ print(puzzleOutput)
 
 在`switch`语句中使用`break`时，`break`会使`switch`语句立即停止执行，并将控制流转到`switch`语句反括号(`}`)后面。
 
+这个操作可以用来匹配并忽略一个或多个`switch`语句的分支。因为`swift`语句是彻底的且不允许空分支，有时候需要特地地匹配并忽略一个分支，从而使意图变得明显。你可以在想要忽略的分支里写上`break`语句作为该分支的全部。当`switch`语句匹配了该分支，该分支中的`break`语句会立即终止执行`switch`语句。
 
+> 注意：
+只包含注释的分支会报编译错误。注释不是语句，且不会使`switch`语句被忽略。请请`break`语句终止`switch`语句。
 
+下面的例子切换`Character`值，判断该值是否代表四个语言中一个语言的数字符号。为了简洁，一行`switch`分支包含了多个值：
+```swift
+let numberSymbol: Character = "三"  // Chinese symbol for the number 3
+var possibleIntegerValue: Int?
+switch numberSymbol {
+case "1", "١", "一", "๑":
+    possibleIntegerValue = 1
+case "2", "٢", "二", "๒":
+    possibleIntegerValue = 2
+case "3", "٣", "三", "๓":
+    possibleIntegerValue = 3
+case "4", "٤", "四", "๔":
+    possibleIntegerValue = 4
+default:
+    break
+}
+if let integerValue = possibleIntegerValue {
+    print("The integer value of \(numberSymbol) is \(integerValue).")
+} else {
+    print("An integer value could not be found for \(numberSymbol).")
+}
+// Prints "The integer value of 三 is 3."
+```
 
+这个例子判断`numberSymbol`是否是拉丁，阿拉伯，中文或泰语中的1-4字符。如果匹配上了，`switch`中的一个分支会给`Int?`可选变量`possibleIntegerValue`设置一个合适的值。
 
+`switch`语句完成时，例子会用一个可选值绑定来判断是否找到一个值。由于是可选类型，变量`possibleIntegerValue`有一个隐式初始值`nil`，所以只有当变量`possibleIntegerValue`被`switch`语句四个分支中的一个设置值后，可选绑定才会成功。
 
+因为上例中列出每个可能的`Character`值是不现实的，所以用`default`分支匹配其他所有字符。`default`分支不需要执行任何操作，所以只写了`break`语句作为分支主体。一旦匹配了`default`，`break`语句会终止执行`switch`语句，代码会从`if let`语句继续执行。
 
+### 穿透
 
+在Swift中，`switch`语句不会穿透每个分支的底部到下一个分支。也就是，当第一个匹配的分支完成时整个`switch`语句也会执行完成。与此相反，C语言需要你在`switch`的每个分支底部显式插入`break`语句以阻止穿透。避免默认穿透意味着Switch的`switch`语句比同样功能的C代码更简洁明了，而且因此防止了意外执行多个分支。
 
+如果你需要C类型的穿透行为，你可以选择使用`fallthrough`关键字逐个添加此行为。下面的例子用`fallthrough`创建数组的文本描述：
+```switch
+let integerToDescribe = 5
+var description = "The number \(integerToDescribe) is"
+switch integerToDescribe {
+  case 2, 3, 5, 7, 11, 13, 17, 19:
+    description += " a prime number, and also"
+    fallthrough
+  default:
+    description += " an integer."
+}
+print(description)
+// Prints "The number 5 is a prime number, and also an integer."
+```
 
+这个例子定义了一个字符串变量`description`，并指定初始值。然后函数用`switch`语句考量`integerToDescribe`的值。如果`integerToDescribe`的值是列表素数中之一，函数会向`description`尾部追加文本，表明该数字是素数。然后用`fallthrough`关键字穿透到`default`分支。`default`分支给`description`追加额外文本，然后`switch`语句结束。
 
+如果`integerToDescribe`的值不在素数列表中，则不匹配第一个`switch`分支。因为没有其他指定分支，`integerToDescribe`会匹配`default`分支。
 
+当`switch`语句执行完毕，会用`print(_:separator:terminator:)`函数打印数字描述。这个例子中，数字`5`被正确地识别为素数。
 
+> 注意：
+`fallthrough`关键字不会检查其引起穿透到的`switch`分支的条件。`fallthrough`关键字只是使代码执行直接移到下一个分支（`default`分支）代码块中。
 
+#### 标签语句
 
+在Swift中，可以把循环和条件语句嵌套到其他循环和条件语句中，从而创建复杂的控制流结构。然而，循环和条件语句并不都能使用`break`语句提前终止执行。因此，有时候显式指明你想用`break`终止哪一个循环或条件语句比较有用。类似地，如果你有多个嵌套循环，明确`continue`语句影响哪个循环会很有用。
 
+为达到这些目标，你可以用***语句标签***来标记一个循环语句或条件语句。使用条件语句，你可以用一个语句标签配合`break`语句终止标签语句的执行。使用循环语句，你可以用一个语句标签配合`break`或`continue`语句终止或继续标签语句。
+
+通过在语句起始关键字同一行放置标签，后跟冒号，表明该语句是标签语句。下面`while`循环的此语法示例，原理与所有循环和`switch`语句相同：
+```swift
+  `label name`: while `condition` {
+    `statements`
+  }
+```
+
+下面的例子用`break`和`continue`语句，配合标签`while`循环，改编前面章节中看到过的*蛇和梯子*游戏。这一次，游戏有一个额外规则：
+* 为了赢，必须正好落在方块25上。
+
+如果某一次掷骰子使你超出了方块25，你必须重新掷骰子直到你得到让你落在方块25上的数字。
+
+棋盘跟以前一样：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/snakesAndLadders_2x.png" alt="标签语句" width="600"/>
+</p>
+
+用与以前相同的方法初始化`finalSquare`，`board`，`square`和`diceRoll`：
+```swift
+let finalSquare = 25
+var board = [Int](repeating: 0, count: finalSquare + 1)
+board[03] = +08; board[06] = +11; board[09] = +09; board[10] = +02
+board[14] = -10; board[19] = -11; board[22] = -02; board[24] = -08
+var square = 0
+var diceRoll = 0
+```
+
+本版本的游戏，使用`while`循环和`switch`语句来实现游戏逻辑。`while`循环有一个语句标签`gameLoop`，表明循环是蛇与梯子游戏的主循环。
+
+`while`循环的循环条件是`while square != finalSquare`，反映出你必须正好落在方块25上：
+```swift
+gameLoop: while square != finalSquare {
+  diceRoll += 1
+  if diceRoll == 7 { diceRoll = 1 }
+  switch square + diceRoll {
+  case finalSquare:
+    // diceRoll will move us to the final square, so the game is over
+    break gameLoop
+  case let newSquare where newSquare > finalSquare:
+    // diceRoll will move us beyond the final square, so roll again
+    continue gameLoop
+  default:
+    // this is a valid move, so find out its effect
+    square += diceRoll
+    square += board[square]
+  }
+}
+print("Game over!")
+```
+
+每次循环的开始都会掷骰子。循环用一个`switch`语句考量移动结果来决定移动是否被允许，而不是直接移动玩家：
+* 如果掷骰子将把玩家移到最后一个方块，则游戏结束。`break gameLoop`语句将控制跳转到`while`循环外的第一行代码，结束游戏。
+* 如果掷骰子将把玩家移到超出最后一个方块，则该移动无效，玩家需要重新掷骰子。`continue gameLoop`语句结束当前循环，重新开始下一次循环。
+* 其他所有情况下，掷骰子有效。玩家移动`diceRoll`个方块，游戏逻辑检查所有的蛇和梯子。然后循环结束，控制流返回到`while`循环条件，决定是否需要下一回合。
+
+> 注意：
+如果上面例子中`break`语句没有使用`gameLoop`标签，则会终止并跳出`switch`语句，而不是`while`语句。用`gameLoop`标签使要终止哪一个控制语句变得清晰。
+当调用`continue gameLoop`跳转到下一次循环时，并不一定非要使用`gameLoop`标签。在游戏中，只有一个循环，对于`continue`语句将要影响哪一个循环并没有歧义。然而，使用`gameLoop`标签配合`continue`语句并无任何害处。这么做能与`break`语句配合标签的使用和保持一致，从而使游戏逻辑更清晰，易读易懂。
+
+## 提前退出
+
+一个`guard`语句，像`if`语句一样，根据表达式的布尔值来执行语句。用`guard`语句来确保为了执行`guard`语句后面的代码，一个条件必须为真。与`if`语句不同的是，`guard`语句总是有`else`子句——如果条件不是真，`else`子句的代码会被执行：
+```swift
+func greet(person: [String: String]) {
+  guard let name = person["name"] else {
+      return
+  }
+
+  print("Hello \(name)!")
+
+  guard let location = person["location"] else {
+    print("I hope the weather is nice near you.")
+    return
+  }
+
+  print("I hope the weather is nice in \(location).")
+}
+
+greet(person: ["name": "John"])
+// Prints "Hello John!"
+// Prints "I hope the weather is nice near you."
+greet(person: ["name": "Jane", "location": "Cupertino"])
+// Prints "Hello Jane!"
+// Prints "I hope the weather is nice in Cupertino."
+```
+
+如果`guard`语句条件得到满足，`guard`语句括号后面的代码继续执行。任何用可选值绑定被指定值的变量或常量都适用于`guard`语句后面的代码。
+
+如果该条件不满足，`else`分支的代码将被执行。该分支必须跳转控制流从而结束`guard`语句所在的代码块。用跳转语句如`return`、`break`、`continue`或`throw`可以做到这个，或者可以调用不返回的函数或方法，如`fatalError(_:file:line:)`。
+
+与使用`if`语句进行相同的检查相比，用`guard`语句能改善代码可读性。它使你无需将通常需要执行的代码写在`else`代码块中，且让处理相反需求的代码紧挨需求。
+
+## 检查API可用性
+
+Swift内置支持检查API可用性，只能确保你不会意外使用给定部署目标不支持的API。
+
+编译器使用SDK中的可用性信息验证代码中用到的所有API是否适用于你的工程所指定的部署目标。如果你试图使用不支持的API，Swift会在编译时报错。
+
+在`if`或`guard`语句中使用*可用性条件*，来有条件地执行代码块，执行与否取决于你使用的API在运行时是否可用。编译器使用可用性条件中的信息验证代码块中的API是否可用。
+```swift
+if #available(iOS 10, macOS 10.12, *) {
+  // Use iOS 10 APIs on iOS, and use macOS 10.12 APIs for macOS
+} else {
+  // Fall back to earlier iOS and macOS APIs
+}
+```
+
+上面的可用性信息指定，在iOS中，`if`语句主体只在iOS10及以上版本执行；在macOS中，只在10.12及以上版本执行。最后一个参数，`*`，是必须的，它表明在任何其他平台上，`if`语句主体在你指定的部署目标中最低版本的部署目标上执行。
+
+在通用格式中，可用性条件接受一个平台名称和版本的列表。用平台名称，如`iOS`、`macOS`、`watchOS`和`tvOS`——作为完整列表，参见[声明属性](../Language_Reference/Attributes.md#声明属性)。除了指定iOS 8或macOS 10.10这样的主要版本数字，也可以指定iOS 11.2.6和macOS 10.13.3这样的次要版本数字。
+```swift
+if #available(`platform name` `version`, `...`, *) {
+  `statements to execute if the APIs are available`
+} else {
+  `fallback statements to execute if the APIs are unavailable`
+}
+```
 
 [< 集合类型](Collection_Types.md) || [函数 >](Functions.md)
