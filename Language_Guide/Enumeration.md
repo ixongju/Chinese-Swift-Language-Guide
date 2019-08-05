@@ -117,11 +117,15 @@ for beverage in Beverage.allCases {
 
 例如，假设库存跟踪相同需要通过两种不同类型的条形码来跟踪产品。一些产品用UPC格式的条形码标记，会用到数字1-9。每个条形码有一个系统数字，后面跟5个制造商数字和5个产品数字。然后是检验码以验证条形码是否被正确扫描：
 
-![](https://docs.swift.org/swift-book/_images/barcode_UPC_2x.png)
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/barcode_UPC_2x.png" alt="关联值" width="300"/>
+</p>
 
 其余的产品使用二维码，可以用ISO-8859-1字符，最长长度为2953个字符。
 
-![](https://docs.swift.org/swift-book/_images/barcode_QR_2x.png)
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/barcode_QR_2x.png" alt="关联值" width="280"/>
+</p>
 
 库存跟踪系统可以方便地将条形码存储为四个整数的元组，将二维码存储为一个字符串。
 
