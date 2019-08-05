@@ -285,31 +285,105 @@ incrementByTen()
 
 如果一个闭包被当作实参传入函数，但在函数返回之后才被调用，我们就说该闭包逃逸。当声明一个接受闭包当作参数的函数时，在参数类型前面写上`@escaping`表明允许该闭包逃逸。
 
-闭包可以逃逸的一种方式是，将闭包存放在定义在函数外面的变量中。举个例，
+闭包可以逃逸的一种方式是，将闭包存放在定义在函数外面的变量中。举个例子，许多启动异步操作的函数接受一个闭包实参作为操作完成后的处理器。函数启动操作后就返回，但闭包并没有被调用，直到异步操作完成——闭包需要逃逸，延后调用。例如：
+```swift
+var completionHandlers: [() -> Void] = []
+func someFunctionWithEscapingClosure(completionHandler: @escaping () -> Void) {
+  completionHandlers.append(completionHandler)
+}
+```
 
+`someFunctionWithEscapingClosure(_:)`函数接受一个闭包作为实参，然后将其添加到一个定义在函数外面的数组里。如果不将参数标记为`@escaping`，将发生编译时错误。
 
+讲一个闭包标记为`@escaping`意味着你必须在闭包中显式引用`self`。例如，下面的代码中，传入到`someFunctionWithEscapingClosure(_:)`的是一个逃逸闭包，意味着需要显式引用`self`。相反，传入到`someFunctionWithNonescapingClosure(_:)`的是非逃逸闭包，意味着其可以隐式地引用`self`。
+```swift
+func someFunctionWithNonescapingClosure(closure: () -> Void) {
+  closure()
+}
 
+class SomeClass {
+  var x = 10
+  func doSomething() {
+    someFunctionWithEscapingClosure { self.x = 100 }
+    someFunctionWithNonescapingClosure { x = 200 }
+  }
+}
 
+let instance = SomeClass()
+instance.doSomething()
+print(instance.x)
+// Prints "200"
 
+completionHandlers.first?()
+print(instance.x)
+// Prints "100"
+```
 
+## 自动闭包
 
+自定闭包是为了包裹一个被当作形参传入给函数的表达式而自动创建的闭包。它不接受任何参数，当被调用时，会返回被包裹的表达式的值。这种语法糖，通过编写简单的表达式而不是显式的闭包，使你可以省略包围函数参数的括号。
 
+调用接受自动闭包的函数很常见，但是实现该类型函数并不常见。例如，`assert(condition:message:file:line:)`函数为`condition`和`message`函数接受一个自动闭包；`condition`参数只在调试构建时才参与计算，`message`参数只在当`condition`是`false`时才参与计算。
 
+自动闭包能让你延迟计算，因为只有你调用闭包的时候，代码才执行。延迟计算对于有边际效应或费计算力的代码很有用，因为代码被计算时，你能控制它。下面的代码展示了闭包如何延迟计算的：
+```swift
+var customersInLine = ["Chris", "Alex", "Ewa", "Barry", "Daniella"]
+print(customersInLine.count)
+// Prints "5"
 
+let customerProvider = { customersInLine.remove(at: 0) }
+print(customersInLine.count)
+// Prints "5"
 
+print("Now serving \(customerProvider())!")
+// Prints "Now serving Chris!"
+print(customersInLine.count)
+// Prints "4"
+```
 
+即便数组`customersInLine`第一个元素被闭包内的代码移除，闭包被实际调用之前，数组元素并没有被移除。如果闭包从不被调用，则闭包内的表达式从不被计算，意味着数组的元素从不会被移除。注意`customerProvider`的类型不是`String`而是`() -> String`——一个无参数返回字符串的函数。
 
+当把闭包当作函数传给函数时，你会得到相同的延迟计算行为：
+```swift
+// customersInLine is ["Alex", "Ewa", "Barry", "Daniella"]
+func serve(customer customerProvider: () -> String) {
+  print("Now serving \(customerProvider())!")
+}
+serve(customer: { customersInLine.remove(at: 0) } )
+// Prints "Now serving Alex!"
+```
 
+上面的`serve(customer:)`函数接受一个返回顾客名的显式闭包。下面版本的`serve(customer:)`执行相同的操作，但，作为接受显式闭包的替代，它通过标记参数类型属性为`@autoclosure`从而接受一个自动闭包。现在你可以像它接受一个`String`参数一样调用该函数。参数自动变换成一个闭包，因为`customerProvider`参数类型被标记为`@autoclosure`属性。
+```swift
+// customersInLine is ["Ewa", "Barry", "Daniella"]
+func serve(customer customerProvider: @autoclosure () -> String) {
+  print("Now serving \(customerProvider())!")
+}
+serve(customer: customersInLine.remove(at: 0))
+// Prints "Now serving Ewa!"
+```
+> 注意：
+过量使用自动闭包会使你的代码变得难懂。上下文和函数名应该明确计算被推迟。
 
+如果你想一个自动闭包能够逃逸，使用`@autoclosure`和`@escaping`属性。`@escaping`属性在上面[逃逸闭包](#逃逸闭包)有描述。
+```swift
+// customersInLine is ["Barry", "Daniella"]
+var customerProviders: [() -> String] = []
+func collectCustomerProviders(_ customerProvider: @autoclosure @escaping () -> String) {
+    customerProviders.append(customerProvider)
+}
+collectCustomerProviders(customersInLine.remove(at: 0))
+collectCustomerProviders(customersInLine.remove(at: 0))
 
+print("Collected \(customerProviders.count) closures.")
+// Prints "Collected 2 closures."
+for customerProvider in customerProviders {
+    print("Now serving \(customerProvider())!")
+}
+// Prints "Now serving Barry!"
+// Prints "Now serving Daniella!"
+```
 
-
-
-
-
-
-
-
-
+在上面的代码中，不是直接调用被传入作为`customerProvider`参数的闭包，而是`collectCustomerProviders(_:)`函数将闭包添加到`customerProviders`数组中。数组在函数块之外被声明，意味着数组中的闭包可以在函数返回之后被执行。结果，`customerProvider`参数的值必须被允许逃逸函数块。
 
 [< 函数](Functions.md) || [枚举 >](Enumeration.md)
