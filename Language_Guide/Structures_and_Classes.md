@@ -19,6 +19,14 @@ Swift中的结构体和类有许多共同点。都能：
 
 更多信息，参见[属性](Properties.md)，[方法](Methods.md)，[下标](Subscripts.md)，[初始化](Initialization.md)，[扩展](Extensions.md)和[协议](Protocols.md)。
 
+类有结构体没有的功能：
+* 继承允许一个类继承另一个类的成员
+* 类型转换允许在运行时检查和解释类实例的类型
+* 反初始化器允许类实例释放赋值的资源
+* 引用计数允许一个类实例有一个以上的引用
+
+更多信息，参见[继承](Inheritance.md)，[类型转换](Type_Casting.md)，[反初始化](Deinitialization.md)和[自动引用计数](Automatic_Reference_Counting.md)。
+
 类支持的额外功能以增加复杂性为代价。作为通用指南，优先使用结构体因为更容易理解，当需要用到类或用类比较合适时，才用类。实践中，意味着用结构体和枚举定义大多数自定义的数据类型。更多详情，参见[结构体与类之间的选择](https://developer.apple.com/documentation/swift/choosing_between_structures_and_classes)。
 
 ## 定义语法
