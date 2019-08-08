@@ -205,29 +205,28 @@ print("The frameRate property of tenEighty is now(tenEighty.frameRate)")
 
 注意到`tenEighty`和`alsoTenEighty`被声明为常量，而不是变量。然而，你仍然能够改变`tenEighty.frameRate`和`alsoTenEighty.frameRate`，因为实际上常量`tenEighty`和`alsoTenEighty`本身并不改变。`tenEighty`和`alsoTenEighty`本身并不存放`VideoMode`实例---而是，它们在背后引用了`VideoMode`实例。改变的是底层`VideoMode`的`frameRate`属性，而不是引用`VideoMode`的常量的值。
 
-### 标识运算符
+### 身份运算符
 
+因为类是引用类型，有可能多个常量或变量引用了类的同一个实例。（这对于结构体和枚举是不成立的，因为赋值给常量或变量，或传递给函数是，用的是备份。）
 
+有时候，判断两个常量或变量是否引用同一个类实例比较有用。为了实现这个，Swift提供了两个身份运算符：
+* 身份相等（`===`）
+* 身份不等（`!==`）
 
+用这些运算符检查两个常量或变量是否指向同一个实例：
+```swift
+if tenEighty === alsoTenEighty {
+  print("tenEighty and alsoTenEighty refer to the same VideoMode instance.")
+}
+// Prints "tenEighty and alsoTenEighty refer to the same VideoMode instance."
+```
 
+注意，身份相等（三个等号，`===`）并不与相等（两个等号，`==`）一样。身份相等意思是两个类类型的常量或变量指向同一个类实例。相等意思是两个实例被认为是相等或值相等，或如类型设计者定义的其他意义上的相等。
 
+当你定义自定义结构体和类时，你有责任决定两个实例相等时需要什么条件。操作符`==`和`!=`的自定义实现在[等价运算符](Advanced_Operators.md#等价运算符)中有描述。
 
+## 指针
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+如果你用过C，C++或Objective-C，你也许知道这些语言用指针引用内存地址。Swift中引用某些引用类型实例的常量或变量，与C中的指针类似，但不是直接指向内存地址的指针，也不需要你书写星号(`*`)来表明要创建引用。相反，像Swift中其他常量或变量样定义这些引用。如果你需要直接跟指针打交道，标准库提供了指针和缓冲类型。参见[Manual Memory Management](https://developer.apple.com/documentation/swift/swift_standard_library/manual_memory_management)。
 
 [< 枚举](Enumeration.md) || [属性 >](Properties.md)
