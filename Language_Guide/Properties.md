@@ -200,7 +200,9 @@ print("the volume of fourByFiveByTwo is \(fourByFiveByTwo.volume)")
 * `willSet`在值被储存之前调用
 * `didSet`在值被储存之后立即调用
 
+如果实现了`willSet`观察者，它将新值作为常量参数传递。作为`willSet`实现的一部分，可以为这个参数指定一个名称。如果实现中没有写明参数名且无括号，则可以用默认参数名`newValue`访问参数。
 
+类似地，
 
 
 
