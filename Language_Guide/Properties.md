@@ -24,7 +24,7 @@ rangeOfThreeItems.firstValue = 6
 // the range now represents integer values 6, 7, and 8
 ```
 
-`FixedLengthRange`的时候有一个可变的存储属性`firstValue`和一个常量存储属性`length`。上例中，`length`在创建新实例的时候初始化，之后不可被改变，因为是常量属性。
+`FixedLengthRange`的实例有一个可变的存储属性`firstValue`和一个常量存储属性`length`。上例中，`length`在创建新实例的时候初始化，之后不可被改变，因为是常量属性。
 
 ### 常量结构体实例的存储属性
 
