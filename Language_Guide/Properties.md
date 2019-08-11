@@ -259,7 +259,51 @@ stepCounter.totalSteps = 896
 
 ## 类型属性
 
+实例属性属于某一类型的实例。每次创建该类型的实例，它就拥有属于自身的属性值，与其他任何实例无关。
 
+你也可以定义属于类型自身，而不属于任何该类型实例的属性。不管创建了该类型的多少实例，只有一份这些属性的备份。这种属性称为*类型属性*。
+
+类型属性对于要定义通用于某一个类型所有实例的值比较有用，例如，一个所有实例都可用的常量属性（如C中的静态常量），或一个储存该类型所有实例都可访问的值的变量（如C中的静态变量）。
+
+储存类型属性可以是常量或变量。计算类型属性总是于计算实例属性一样，声明为变量属性。
+
+> 注意：
+不像储存实例属性，必须为储存类型属性设置默认值。这是因为类型本身没有初始化器可以在初始化阶段为储存类型属性赋值。
+储存类型属性在第一次访问时是懒式初始化。它们确保即使被多线程同时访问，只被初始化一次，且不需要用`lazy`修饰符标记。
+
+### 类属性语法
+
+在C语言和Objective-C中，你将与类型关联的静态常量和变量定义为全局静态变量。但是，在Swift中，类型属性被写在类型的花括号内类作为类型定义的一部分，每个类型属性都明确地限定为它所支持的类型。
+
+用`static`关键字定义类型属性。对于类类型的计算类型属性，可以用`class`关键字，以允许子类重写父类的实现。下面的例子展示了储存类型属性和计算类型属性的语法：
+```swift
+struct SomeStructure {
+    static var storedTypeProperty = "Some Value."
+    static var computedTypeProperty: Int {
+      return 1
+    }
+}
+enum SomeEnumeration {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 6
+    }
+}
+class SomeClass {
+  static var storedTypeProperty = "Some value."
+  static var computedTypeProperty: Int {
+    return 27
+  }
+  class var overrideableComoputedTypeProperty: Int {
+    return 107
+  }
+}
+```
+
+> 注意：
+上面计算类型属性的例子是只读计算类型属性，但你也可以用与计算实例属性相同的语法定义读写计算类型属性。
+
+### 请求和设置类型属性
 
 
 
