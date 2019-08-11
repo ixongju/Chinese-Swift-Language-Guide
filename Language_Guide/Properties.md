@@ -202,7 +202,67 @@ print("the volume of fourByFiveByTwo is \(fourByFiveByTwo.volume)")
 
 如果实现了`willSet`观察者，它将新值作为常量参数传递。作为`willSet`实现的一部分，可以为这个参数指定一个名称。如果实现中没有写明参数名且无括号，则可以用默认参数名`newValue`访问参数。
 
-类似地，
+类似地，如果实现了`didSet`观察者，观察者被传入一个包含旧属性值的常量参数。你可以重命名该参数或使用默认参数名`oldValue`。如果在`didSet`观察者中给属性赋新值，新的值将取代刚才设置的值。
+
+> 注意：
+当在子类初始化器中设置属性的值时，父类初始化器被调用之后，父类属性的`willSet`和`didSet`观察者将被调用。在类设置自身属性时，和父类初始化器被调用之前，观察者不会被调用。
+关于初始化器委托的更多信息，参见[值类型初始化器委托](Initialization.md#值类型初始化器委托)和[类类型初始化器委托](Initialization.md#类类型初始化器委托)。
+
+下面是`willSet`和`didSet`实际应用的例子。下例中，定义了一个新类`StepCounter`，用来统计一个人走路的步数。该类可能配合计步器的输入数据或其他计数器来统计一个人日常生活中的训练。
+```swift
+class StepCounter {
+  var totalSteps: Int = 0 {
+    willSet(newTotalSteps) {
+      print("About to set totalSteps to \(newTotalSteps)")
+    }
+    didSet {
+      if totalSteps > oldValue {
+        print("Added \(totalSteps - oldValue) steps")
+      }
+    }
+  }
+}
+let stepCounter = StepCounter()
+stepCounter.totalSteps = 200
+// About to set totalSteps to 200
+// Added 200 steps
+stepCounter.totalSteps = 360
+// About to set totalSteps to 360
+// Added 160 steps
+stepCounter.totalSteps = 896
+// About to set totalSteps to 896
+// Added 536 steps
+```
+
+`StepCounter`类声明了一个`Int`类型的属性`totalSteps`。这是一个有`willSet`和`didSet`观察者的储存属性。
+
+每当属性被赋新值，`totalSteps`的`willSet`和`didSet`观察者都会被调用。即使新值与当前值相同，也会被调用。
+
+例子中的`willSet`观察者为即将到来新值使用了自定义参数名`newTotalSteps`。这个例子，简单打印出即将设置的值。
+
+`didSet`观察者在`totalSteps`的值被更新后被调用。将`totalSteps`的新值与旧值比较。如果总步数增加了，打印一个信息显示新增了多少步。`didSet`观察没有为旧值提供自定义参数名，而是使用了默认名称`oldValue`。
+
+> 注意：
+如果把有观察者的属性用作输入输出参数传递给函数，`willSet`和`didSet`将总是被调用。这是因为输入输出参数的复制输入复制输出：在函数的最后，值总被写回到属性。关于输入输出参数的详细讨论，参见[输入输出参数](Language_Reference/Declarations.md#输入输出参数)。
+
+## 全局和局部变量
+
+上面描述的计算属性和观察者属性的功能，也适用于全局变量和局部变量。全局变量是定义在任何函数，方法，闭包或类型上下文的外面的变量。局部变量是定义在某一函数，方法或闭包上下文之内的变量。
+
+前面章节中遇到的全局和局部变量都是储存变量。如同储存属性样，储存变量为某一类型的值提供存储，并且允许设置或获取该值。
+
+但是，你也可以在全局或局部范围里，定义*计算变量*，且可以为储存变量定义观察者。计算变量计算它们的值，而不是储存值，它们的写法与计算属性一样。
+
+> 注意：
+全局常量和变量总是懒式计算，与[懒储存属性](#懒储存属性)方式相似。与懒储存属性不同的是，全局常量和变量不需要用`lazy`修饰符标记。
+局部常量和变量从不懒式计算。
+
+## 类型属性
+
+
+
+
+
 
 
 
