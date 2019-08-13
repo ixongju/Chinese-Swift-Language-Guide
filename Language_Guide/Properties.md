@@ -353,22 +353,34 @@ struct AudioChannel {
 `AudioChannel`结构体也定义了一个储存实例属性`currentLevel`，它代表频道当前0-10范围内的音频等级。
 
 `currentLevel`属性用一个`didSet`属性观察者检查是否在为`currentLevel`设置值。该观察者执行两个检查：
+* 如果`currentLevel`的新值比允许的`thresholdLevel`大，属性观察者将`currentLevel`限制为`thresholdLevel`.
+* 如果`currentLevel`的新值（在被限制之后）比之前任何`AudioChannel`实例接受的值高，属性观察者将新`currentLevel`值保存在类型属性`maxInputLevelForAllChannels`中。
 
+> 注意：
+两种检查中的第一个，`didSet`观察者为`currentLevel`设置不同的值。但，不会导致观察者再次被调用。
 
+可以用`AudioChannel`结构体创建两个音频频道`leftChannel`和`rightChannel`，代表标准声音系统的音频等级：
+```swift
+var leftChannel = AudioChannel()
+var rightChannel = AudioChannel()
+```
 
+如果将`leftChannel`的`currentLevel`设置为`7`，你可以看到类型属性`maxInputLevelForAllChannels`被更新到`7`：
+```swift
+leftChannel.currentLevel = 7
+print(leftChannel.currentLevel)
+// Prints "7"
+print(AudioChannel.maxInputLevelForAllChannels)
+// Prints "7"
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+如果你试图将`rightChannel`的`currentLevel`设置为`11`，你可以看到右声道的`currentLevel`属性被限制为最大值`10`，`maxInputLevelForAllChannels`被更新到`10`：
+```swift
+rightChannel.currentLevel = 11
+print(rightChannel.currentLevel)
+// Prints "10"
+print(AudioChannel.maxInputLevelForAllChannels)
+// Prints "10"
+```
 
 [< 结构体和类](Structures_and_Classes.md) || [方法 >](Methods.md)
