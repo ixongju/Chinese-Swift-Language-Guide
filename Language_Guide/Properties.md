@@ -305,6 +305,54 @@ class SomeClass {
 
 ### 请求和设置类型属性
 
+跟实例属性一样，用点语法请求和设置类型属性。但是，类型属性是在类型上请求和设置，而不是在类型的实例上。例如：
+```swift
+print(SomeStructure.storedTypeProperty)
+// Prints "Some value."
+SomeStructure.storedTypeProperty = "Another value."
+print(SomeStructure.storedTypeProperty)
+// Prints "Another value."
+print(SomeEnumeration.computedTypeProperty)
+// Prints "6"
+print(SomeClass.computedTypeProperty)
+// Prints "27"
+```
+
+上面的示例，用两个储存类型属性，作为为多个音频频道的音频表建模的结构体的一部分。每个频道有一个从0-10的音频等级。
+
+下图描述了，两个音频频道如何组合建模成标准音频等级。当一个频道的音频等级为`0`，该频道就没有灯亮。当音频等级为`10`，该频道所有的灯都亮起来。图中，左边的频道等级为`9`，右边的等级为`7`：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/staticPropertiesVUMeter_2x.png" alt="请求和设置类型属性" width="300"/>
+</p>
+
+上例中表述的音频频道用`AudioChannel`结构体的示例表示：
+```swift
+struct AudioChannel {
+  static let thresholdLevel = 10
+  static var maxInputLevelForAllChannels = 0
+  var currentLevel: Int = 0 {
+    didSet {
+      if currentLevel > AudioChannel.thresholdLevel {
+        // cap the new audio level to the threshold level
+        currentLevel = AudioChannel.thresholdLevel
+      }
+      if currentLevel > AudioChannel.maxInputLevelForAllChannels {
+        // store this as the new overall maximum input level
+        AudioChannel.maxInputLevelForAllChannels = currentLevel
+      }
+    }
+  }
+}
+```
+
+`AudioChannel`结构体定义了两个储存类型属性以支持其功能。首先，`thresholdLevel`，定义了音频等级能达到的最大阈值。它是`AudioChannel`实例值为`10`的常量值。如果进来的音频信号比`10`高，它将被阈值所限制（如上所述）。
+
+第二个类属性是一个变量储存属性`maxInputLevelForAllChannels`。它追踪`AudioChannel`实例所接受的最大输入值。它从初始值`0`开始。
+
+`AudioChannel`结构体也定义了一个储存实例属性`currentLevel`，它代表频道当前0-10范围内的音频等级。
+
+`currentLevel`属性用一个`didSet`属性观察者检查是否在为`currentLevel`设置值。该观察者执行两个检查：
 
 
 
