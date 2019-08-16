@@ -202,17 +202,42 @@ struct LevelTracker {
 
 除了类型属性和类型方法，`LevelTracker`跟踪一个单独玩家的游戏进度。用`currentLevel`实例方法记录当前玩家的关卡。
 
+为帮助管理`currentLevel`属性，`LevelTracker`定义了一个实例方法`advance(to:)`。更新`currentLevel`之前，该方法检查请求的新等级是否解锁。`advance(to:)`方法返回一个布尔值表明是否能够设置`currentLevel`。因为调用`advance(to:)`方法时忽略返回值不一定是错误，所以函数被`@discardableResult`特性标记。更多关于特性，参见[特性](Language_Reference/Attributes.md)。
 
+如下所示，`LevelTracker`结构体与`Player`类配合，跟踪与更新单个玩家的进度：
+```swift
+class Player {
+  var tracker = LevelTracker()
+  let playerName: String
+  func complete(level: Int) {
+    LevelTracker.unlock(level + 1)
+    tracker.advance(to: level + 1)
+  }
+  init(name: String) {
+    playerName = name
+  }
+}
+```
 
+`Player`类创建一个`LevelTracker`新实例用来追踪该玩家的进度。也提供一个`complete(level:)`方法，当任何时候玩家完成某一等级时就会被调用。这个方法为所有玩家解锁下一个等级，并更新玩家进度至下一个等级。（`advance(to:)`方法的布尔返回值被忽略，因为在上一行代码中，等级被`LevelTracker.unlock(_:)`解锁完毕。）
 
+你可以用`Player`类为新玩家创建一个实例，看看当玩家完成等级1时会发生什么：
+```swift
+var player = Player(name: "Argyrios")
+player.complete(level: 1)
+print("highest unlock level is now \(LevelTracker.highestUnlockedLevel)")
+// Prints "highest unlocked level is now 2"
+```
 
-
-
-
-
-
-
-
-
+如果你创建第二个玩家，该玩家试图移动到尚未没任何玩家解锁的等级，尝试设置玩家当前等级会失败：
+```swift
+player = Player(name: "Beto")
+if player.tracker.advance(to: 6) {
+  print("player is now on level 6")
+} else {
+  print("level 6 has not yet been unlocked")
+}
+// Prints "level 6 has not yet been unlocked"
+```
 
 [< 属性](Properties.md) || [下标 >](Subscripts.md)
