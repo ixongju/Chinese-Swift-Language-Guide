@@ -68,7 +68,40 @@ Swift的字典类型实现了接受并返回一个可选类型的键值下标。
 
 下标可以接受任意数量的输入参数，这些参数可以是任何类型。下标也可以返回任何类型。下标可以用可变参数，且可以提供默认参数，但不能使用输入输出参数。
 
-一个类或结构体可以根据需要提供任意多的下标实现。适当的下标会在下标被使用时，根据值的类型或下标括号中值的类型推导出来。
+一个类或结构体可以根据需要提供任意多的下标实现。适当的下标会在下标被使用时，根据值的类型或下标括号中值的类型推导出来。多个下标的定义被称为*下标重载*。
+
+虽然下标经常只需要一个参数，如果合适你也可以定义多参数下标。下面的例子中定义了一个`Matrix`结构体，代表着`Double`值的二维矩阵。`Matrix`结构体的下标接受两个整数参数：
+```swift
+struct Matrix {
+    let rows: Int, columns: Int
+    var grid: [Double]
+    init(rows: Int, columns: Int) {
+      self.rows = rows
+      self.columns = columns
+      grid = Array(repeating: 0.0, count: rows * columns)
+    }
+    func indexIsValid(row: Int, column: Int) -> Bool {
+      return row >= 0 && row < rows && column >= 0 && column < columns
+    }
+    subscript(row: Int, column: Int) -> Double {
+      get {
+        assert(indexIsValid(row: row, column: column), "Index out of range")
+        return grid[(row * columns) + column]
+      }
+      set {
+        assert(indexIsValid(row: row, column: column), "Index out of range")
+        grid[(row * columns) + column] = newValue
+      }
+    }
+}
+```
+
+`Matrix`提供一个接受两个参数`rows`和`columns`的初始化方法，并且创建一个足够容纳`rows * columns`个`Double`值的数组。矩阵的每个位置都有一个初始值`0.0`。为此，数组大小和初始值`0.0`被传给数组初始化方法来创建相应尺寸的新数组。这个初始化方法在[用默认值创建数组](Collection_Types.md#用默认值创建数组)中有更多描述。
+
+你可以通过给初始化方法传入相应的列和行数来创建新的矩阵实例：
+```swift
+var matrix = Matrix(rows: 2, columns: 2)
+```
 
 
 
