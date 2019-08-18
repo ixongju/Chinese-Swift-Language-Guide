@@ -103,18 +103,49 @@ struct Matrix {
 var matrix = Matrix(rows: 2, columns: 2)
 ```
 
+上面的例子用2行和2列创建一个新矩阵实例。矩阵实例的数组`grid`是一个平坦版的矩阵，从左上到右下：
 
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/subscriptMatrix01_2x.png" alt="下标选项" width="300"/>
+</p>
 
+可以通过传入用逗号隔开的行和列的值给下标，来设置矩阵的值：
+```swift
+matrix[0, 1] = 1.5
+matrix[1, 0] = 3.2
+```
 
+这两个语句调用下标setter方法为矩阵的右上位置设置`1.5`(行是`0`，列是`1`)，左下位置是`3.2`(行是`1`，列是`0`)：
 
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/subscriptMatrix02_2x.png" alt="下标选项" width="300"/>
+</p>
 
+`Matrix`下标的getter和setter方法包含一个断言用来检查下标`row`和`column`是否有效。为配合这些断言，`Matrix`包括了一个便利方法`indexIsValid(row:column:)`，该方法检查被请求的`row`和`column`是否在矩阵范围内：
+```swift
+func indexIsValid(row: Int, column: Int) -> Bool {
+  return row >= 0 && row < rows && column >= 0 && column < columns
+}
+```
 
+如果试图访问超出矩阵范围的下标就会触发断言：
+```swift
+let someValue = matrix[2, 2]
+// This triggers an assert, because [2, 2] is outside of the matrix bounds.
+```
 
+## 类型下标
 
-
-
-
-
-
+如上所述，实例下标是可以用某一类型的实例调用的下标。也可以定义用类型本身调用的下标。这类下标被称为*类型下标*。在`subscript`关键字前面写上`static`关键字来表明下标是类型下标。类可以用`class`关键字，以允许子类重写父类的实现。下面的例子展示如何定义和调用类下标：
+```swift
+enum Planet: Int {
+    case mercury = 1, venus, earth, mars, jupiter, saturn, uranus, neptune
+    static subscript(n: Int) -> Planet {
+      return Planet(rawValue: n)!
+    }
+}
+let mars = Planet[4]
+print(mars)
+```
 
 [< 方法](Methods.md) || [继承 >](Inheritance.md)
