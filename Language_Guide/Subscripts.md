@@ -106,7 +106,7 @@ var matrix = Matrix(rows: 2, columns: 2)
 上面的例子用2行和2列创建一个新矩阵实例。矩阵实例的数组`grid`是一个平坦版的矩阵，从左上到右下：
 
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/subscriptMatrix01_2x.png" alt="下标选项" width="300"/>
+<img src="https://docs.swift.org/swift-book/_images/subscriptMatrix01_2x.png" alt="下标选项" width="250"/>
 </p>
 
 可以通过传入用逗号隔开的行和列的值给下标，来设置矩阵的值：
@@ -118,7 +118,7 @@ matrix[1, 0] = 3.2
 这两个语句调用下标setter方法为矩阵的右上位置设置`1.5`(行是`0`，列是`1`)，左下位置是`3.2`(行是`1`，列是`0`)：
 
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/subscriptMatrix02_2x.png" alt="下标选项" width="300"/>
+<img src="https://docs.swift.org/swift-book/_images/subscriptMatrix02_2x.png" alt="下标选项" width="100"/>
 </p>
 
 `Matrix`下标的getter和setter方法包含一个断言用来检查下标`row`和`column`是否有效。为配合这些断言，`Matrix`包括了一个便利方法`indexIsValid(row:column:)`，该方法检查被请求的`row`和`column`是否在矩阵范围内：
