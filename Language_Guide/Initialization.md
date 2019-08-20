@@ -157,13 +157,40 @@ class SurveyQuestion {
     print(text)
   }
 }
-let cheeseQuestion = SurveyQuestion(text: "Do you like cheese?")
+let cheeseQuestion = SurveyQuestion(text: "Do you like cheese?")。
 cheeseQuestion.ask()
 // Prints "Do you like cheese?"
 cheeseQuestion.response = "Yes, I do like cheese."
 ```
 
 在询问之前问卷的回不是不可能知道的，所以`response`属性被声明为可选字符串类型`String?`。该属性自动被指定默认值`nil`，意思是当新`SurveyQuestion`实例被初始化时，“还没有字符串”。
+
+### 初始化期间赋值常量属性
+
+你可以在初始化期间任何时刻给常量属性赋值，只要在初始化结束之前赋值即可。一旦常量属性被赋值，就不能再修改了。
+
+> 注意：
+对于类实例，一个常量属性，只能通过引入它的类在初始化期间对其进行修改。它不能被子类修改。
+
+可以修改上例中的`SurveyQuestion`，为了表明一旦`SurveyQuestion`实例被创建问题就不会改变，可以用一个常量属性而不是变量属性来表示`text`。即使`text`属性现在是常量，仍然可以在类的初始化方法中设置：
+```swift
+class SurveyQuestion {
+  let text: String
+  var response: String?
+  init(text: String) {
+    self.text = text
+  }
+  func ask() {
+    print(text)
+  }
+}
+let beetsQuestion = SurveyQuestion(text: "How about beets?")
+beetsQuestion.ask()
+// Prints "How about beets?"
+beetsQuestion.response = "I also like beets. (But not with cheese.)"
+```
+
+## 默认初始化方法
 
 
 ## 两步初始化
