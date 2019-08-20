@@ -143,6 +143,27 @@ let bodyTemperature = Celsius(37.0)
 
 ### 可选的属性类型
 
+如果自定义类型有一个在逻辑上可以为“无值”的储存属性——或许是因为在初始化时不能设置值，或在后面某一时刻允许为无值状态——将该属性声明为*可选类型*。可选类型的属性自动被初始化为`nil`，特地表初始化时属性会是无值状态。
+
+下面的例子定义了一个类`SurveyQuestion`，该类有一个可选字符串属性`response`:
+```swift
+class SurveyQuestion {
+  var text: String
+  var response: String?
+  init(text: String) {
+    self.text = text
+  }
+  func ask() {
+    print(text)
+  }
+}
+let cheeseQuestion = SurveyQuestion(text: "Do you like cheese?")
+cheeseQuestion.ask()
+// Prints "Do you like cheese?"
+cheeseQuestion.response = "Yes, I do like cheese."
+```
+
+在询问之前问卷的回不是不可能知道的，所以`response`属性被声明为可选字符串类型`String?`。该属性自动被指定默认值`nil`，意思是当新`SurveyQuestion`实例被初始化时，“还没有字符串”。
 
 
 ## 两步初始化
