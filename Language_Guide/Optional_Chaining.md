@@ -138,22 +138,205 @@ class Address {
 }
 ```
 
+`Address`类提供了一个返回`String?`类型的方法`buildingIdentifier()`。这个方法检查地址的属性，如果有值则返回`buildingName`，如果`buildingNumber`和`street`都有值，则返回街道和建筑编号信息，否则返回`nil`。
 
+## 用可选链访问属性
 
+如[可选链作为强制解包的替代方法](#可选链作为强制解包的替代方法)中所展示的，可以用可选链访问可选值的属性，和检查属性访问是否成功。
 
+用上面定义的类创建一个`Person`实例，尝试像以前一样访问它的`numberOfRooms`属性：
+```swift
+let john = Person()
+if let roomCount = john.residence?.numberOfRooms {
+    print("John's residence has \(roomCount) room(s).")
+} else {
+    print("Unable to retrieve the number of rooms.")
+}
+// Prints "Unable to retrieve the number of rooms."
+```
 
+因为`john.residence`是`nil`，跟前面一样可选链调用失败。
 
+你可以试着用可选链设置属性值：
+```swift
+let someAddress = Address()
+someAddress.buildingName = "29"
+someAddress.street = "Acacia Road"
+john.residence?.address = someAddress
+```
 
+这个例子中，尝试给`john.residence`的`address`属性赋值会失败，因为`john.residence`是`nil`。
 
+赋值操作是可选链的一部分，这意味着等号(`=`)运算符右边的代码不会被计算。在前面的例子中，不容易看到`someAddress`没有被计算，因为访问常量没有副作用。下面的列表做同样的赋值操作，但是是用一个函数创建`address`。函数在返回之前会打印“Function was called”信息，这可以让你看到等号(`=`)右边的部分是否被计算。
+```swift
+func createAddress() -> Address {
+    print("Function was called.")
 
+    let someAddress = Address()
+    someAddress.buildingNumber = "29"
+    someAddress.street = "Acacia Road"
 
+    return someAddress
+}
+john.residence?.address = createAddress()
+```
+你可以看出`createAddress()`函数没有被调用，因为没有打印信息。
 
+## 用可选链调用方法
 
+可以用可选链调用可选值的方法，并且可以检查调用是否成功。即使该方法没有返回值也能这么做。
 
+`Residence`类的`printNumberOfRooms()`方法打印当前`numberOfRooms`的值。如下所示：
+```swift
+func printNumberOfRooms() {
+    print("The number of rooms is \(numberOfRooms)")
+}
+```
 
+这个方法没有指定返回类型。但是，没有返回类型的函数和方法有一个隐式返回类型`Void`，如[无返回值函数](Functions.md#无返回值函数)中所述。这意味着它们返回了`()`，或一个空元组。
 
+如果在一个可选值上用可选链调用这个方法，则方法的返回类型是`Void?`，而不是`Void`，因为通过可选链调用时返回值总是可选类型。这使得你可以用`if`语句检查是否能调用`printNumberOfRooms()`方法，尽管该方法定义中没有返回值。通过将`printNumberOfRooms()`调用的返回值与`nil`对比判断方法调用有没有成功：
+```swift
+if john.residence?.printNumberOfRooms() != nil {
+    print("It was possible to print the number of rooms.")
+} else {
+    print("It was not possible to print the number of rooms.")
+}
+// Prints "It was not possible to print the number of rooms."
+```
 
+试图用可选链数值属性值也是如此。[用可选链访问属性](#用可选链访问属性)中的例子试图为`john.residence`设置`address`，即使`residence`属性为`nil`。任何试图通过可选链为属性设置值都会返回一个`Void?`类型的值，这使得你可以将该值与`nil`对比判断是否成功为属性设置了值：
+```swift
+if (john.residence?.address = someAddress) != nil {
+    print("It was possible to set the address.")
+} else {
+    print("It was not possible to set the address.")
+}
+// Prints "It was not possible to set the address."
+```
 
+## 用可选链访问下标
 
+可以用可选链获取或设置可选值的下标，并检查下标调用是否成功。
+
+> 注意：
+> 当通过可选链访问可选值的下标，将问好放在下标括号之前，而不是之后。可选链问好总是在可选表达式之后。
+
+下面的例子，试图通过`Residence`类中定义的下标，获取`john.residence`的属性`rooms`中第一个房间的名称。因为`john.residence`现在是`nil`，下标调用失败：
+```swift
+if let firstRoomName = john.residence?[0].name {
+    print("The first room name is \(firstRoomName).")
+} else {
+    print("Unable to retrieve the first room name.")
+}
+// Prints "Unable to retrieve the first room name."
+```
+
+下标调用中的可选链问号被放在了`john.residence`后面，下标方括号之前，因为`john.residence`才是可选链试图访问的可选值。
+
+类似地，可以用可选链通过下标设置值：
+```swift
+john.residence?[0] = Room(name: "Bathroom")
+```
+
+这个通过下标设置值的尝试也会失败，因为`residence`当前值是`nil`。
+
+如果创建一个`rooms`数值有多个`Room`实例的`Residence`实例并赋值给`john.residence`，就可以用可选链通过`Residence`下标访问`rooms`数组中实际的项了：
+```swift
+let johnsHouse = Residence()
+johnsHouse.rooms.append(Room(name: "Living Room"))
+johnsHouse.rooms.append(Room(name: "Kitchen"))
+john.residence = johnsHouse
+
+if let firstRoomName = john.residence?[0].name {
+    print("The first room name is \(firstRoomName).")
+} else {
+    print("Unable to retrieve the first room name.")
+}
+// Prints "The first room name is Living Room."
+```
+
+### 访问可选类型的下标
+
+如果下标返回一个可选类型的值---例如Swift中`Dictionary`类型的键下标---在下标括号后面写上问号来链接其可选返回值：
+```swift
+var testScores = ["Dave": [86, 82, 84], "Bev": [79, 94, 81]]
+testScores["Dave"]?[0] = 91
+testScores["Bev"]?[0] += 1
+testScores["Brian"]?[0] = 72
+// the "Dave" array is now [91, 82, 84] and the "Bev" array is now [80, 94, 81]
+```
+
+上例中定义了一个字典`testScores`，该字典包含两对映射`String`键到一个`Int`数组的键值对。示例用可选链设置`"Dave"`对应的数组中第一个项为`91`；将`"Bev"`对应的数组中第一个项增加`1`；试图为`"Brain"`对应的数组的第一个项赋值。前面两个成功，因为`testScores`字典包含`"Dave"`和`"Bev"`两个键。第三个失败了，因为`testScores`字典不包含`"Brian"`键。
+
+## 链接多级可选链
+
+可以链接多个可选链从而深入访问模型内部的子属性，方法和下标。即便如此，多级可选链并不增加返回值的可选性。
+
+也就是说：
+* 如果你试图获取的类型不是可选的，因为是用可选链，它会变成可选的
+* 如果你试图获取的类型是可选的，不会因为是可选链，就变成多级可选（可选值中包含的值仍然是可选值）
+
+因此：
+* 如果你试图通过可选链获取一个`Int`类型的值，会返回一个`Int?`类型的值，而不管用了多少级可选链
+* 类似地，如果你试图通过可选链获取一个`Int?`类型的值，会返回一个`Int?`类型的值，而不管用了多少级可选链
+
+下面的例子试图访问`john`的属性`residence`的属性`address`的属性`street`。这里使用了两级可选链，来链接`residence`和`address`属性，两者都是可选类型：
+```swift
+if let johnsStreet = john.residence?.address?.street {
+    print("John's street name is \(johnsStreet).")
+} else {
+    print("Unable to retrieve the address.")
+}
+// Prints "Unable to retrieve the address."
+```
+
+`john.residence`现在包含一个有效的`Residence`实例。但是，`john.residence.address`当前为`nil`。因此，调用`john.residence?.address?.street`会失败。
+
+注意到在上面的例子中，你试图获取`street`属性的值。该属性的类型是`String?`。因此，即使除了底层的属性是可选类型还使用了二级可选链，`john.residence?.address?.street`的返回值也是`String?`。
+
+如果为`john.residence.address`设置一个真实的`Address`实例，并为`street`属性设置一个真实的值，就可以通过多级可选链访问`street`属性的值：
+```swift
+let johnsAddress = Address()
+johnsAddress.buildingName = "The Larches"
+johnsAddress.street = "Laurel Street"
+john.residence?.address = johnsAddress
+
+if let johnsStreet = john.residence?.address?.street {
+    print("John's street name is \(johnsStreet).")
+} else {
+    print("Unable to retrieve the address.")
+}
+// Prints "John's street name is Laurel Street."
+```
+
+在这个例子中，尝试访问`john.residence`的`address`属性会成功，因为`john.residence`当前包含了一个有效的`Residence`实例。
+
+## 在返回可选类型值的方法上使用可选链
+
+前面的例子展示了如何通过可选链获取可选类型属性的值。也可以用可选链调用返回可选类型值的方法，且如果需要，可以在该返回值上再使用可选链。
+
+下面的例子通过可选链调用`Address`类的`buildingIdentifier()`方法。这个方法返回一个`String?`类型的值。如上所述，用可选链调用这个方法后，最终返回类型仍然是`String?`：
+```swift
+if let buildingIdentifier = john.residence?.address?.buildingIdentifier() {
+    print("John's building identifier is \(buildingIdentifier).")
+}
+// Prints "John's building identifier is The Larches."
+```
+
+如果想在方法的返回值上进一步使用可选链，可在方法的括号后面写上可选链问号：
+```swift
+if let beginsWithThe = john.residence?.address?.buildingIdentifier()?.hasPrefix("The") {
+    if beginsWithThe {
+        print("John's building identifier begins with \"The\".")
+    } else {
+        print("John's building identifier does not begin with \"The\".")
+    }
+}
+// Prints "John's building identifier begins with "The"."
+```
+
+> 注意：
+> 在上面的例子中，在括号后面写上可选链问号，是因为链接的是可选值是方法的返回值，而不是`buildingIdentifier()`方法本身。
 
 [< 反初始化](Deinitialization.md) || [错误处理 >](Error_Handling.md)
