@@ -192,6 +192,8 @@ beetsQuestion.response = "I also like beets. (But not with cheese.)"
 
 ## 默认初始化方法
 
+### 结构类型的成员初始化方法
+
 
 ## 两步初始化
 
