@@ -393,12 +393,419 @@ Swift编译器执行四个有用的安全检查，以确保两步初始化完成
 
 基于上面四个安全检查，下面展示如何进行两步初始化：
 
-##### **第一步**
-* 
+##### **第一阶段**
+* 类的一个指定初始化方法或便捷初始化方法被调用
+* 存放该类新实例的内存被分配。但是内存还未被初始化
+* 该类的指定初始化方法确认其所有储存属性是否有值。存放储存属性的内存被初始化
+* 指定初始化方法将操作交给父类初始化方法，父类为自身储存属性执行相同操作
+* 这种操作持续到类继承链顶端
+* 一旦到达继承链顶端，继承链的最后一个类确保了其所有储存属性都有值，则该实例的内存被认为已经完全初始化，第一阶段结束
 
+##### **第一阶段**
+* 从继承链的顶端向下，继承链中的每个初始化方法可以选择进一步自定义实例。从现在起，在初始化方法中可以访问`self`，并且可以修改属性，可以调用实例方法，等等。
+* 最后，继承链中的任何便捷初始化方法，都可以自定义实例，且可以使用`self`。
 
+下面是展示假想的父类和子类第一阶段初始化的图表：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/twoPhaseInitialization01_2x.png" alt="两步初始化" width="500"/>
+</p>
+
+在这个例子中，初始化始于调用子类的一个便捷初始化方法。这个便捷初始化方法还不能修改任何属性。它交叉委托了一个来自同一个类的指定初始化方法。
+
+根据安全检查一，指定初始化方法确保子类所有的属性都有一个值。然后调用父类的指定初始化方法将初始化延伸到继承链上。
+
+父类指定初始化方法确保父类的所有属性都有一个值。父类没有父类需要初始化，所以不需要进一步委托。
+
+一旦父类所有属性都有初始值，就认为其内存已经完全初始化，第一阶段完成。
+
+下面是展示四二姐的初始化的图表：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/twoPhaseInitialization02_2x.png" alt="两步初始化" width="500"/>
+</p>
+
+父类指定初始化方法现在有一个机会进一步自定义实例（即使这不是必须的）。
+
+一旦父类指定初始化方法执行完毕，子类的指定初始化方法可以指定额外的自定义（即使这也不是必须的）。
+
+最后，一旦子类的指定初始化方法方法执行完毕，最初调用的便捷初始化方法可以执行额外的初始化。
+
+### 初始化的继承和重写
+
+不像Objective-C中的子类，Swift的子类默认不继承父类的初始化方法。Swift的这个操作防止发生这种情况：父类中一个简单的初始化方法被一个更具体的子类继承，然后用该初始化方法创建并没有完全初始化或正确初始化的子类实例。
+
+> 注意：
+> 在某些环境下，父类初始化方法会被继承，但是只在安全和合适的时候才会这么做。更多信息，参见下面的[自动继承初始化方法](#自动继承初始化方法)。
+
+如果你希望自定义子类呈现一个或多个与父类相同的初始化方法，你可以给子类提供这些初始化方法的自定义实现。
+
+当你编写匹配父类的*指定初始化方法*的子类初始化方法时，你正在有效地提供该指定初始化方法的重写版本。因此，你必须在子类初始化方法的定义前写上`override`修饰符。如果你打算重写自动提供的默认初始化方法，也得这么做，如[默认初始化方法](#默认初始化方法)中所述。
+
+与被重写的属性，方法或下标一样，写上`override`修饰符提示Swift检查父类有一个匹配的指定初始化方法需要重写，并且验证被重写初始化方法的参数是否按照预期指定。
+
+> 注意：
+> 当重写父类的指定初始化方法时，即使初始化方法的子类实现是便捷初始化方法，也要写上`override`修饰符。
+
+相反，如果编写匹配父类便捷初始化方法的子类初始化方法，该父类的便捷初始化方法不能被子类直接调用，如果上面[类类型的初始化委托](#类类型的初始化委托)中规则所描述。因此，（严格地说）子类并没有重写父类初始化方法。结果，当（在子类）提供匹配父类便捷初始化方法的实现时，不需要写上`override`修饰符。
+
+下面的例子定义了一个基础类`Vehicle`。这个基础类声明了一个储存属性`numberOfWheels`，默认值是`Int`值`0`。`numberOfWheels`属性被一个计算属性`description`用来创建车辆属性的`String`描述：
+```swift
+class Vehicle {
+  var numberOfWheels = 0
+  var description: String {
+    return "\(numberOfWheels) wheel(s)"
+  }
+}
+```
+
+`Vehicle`类为唯一的储存属性提供了一个默认值，且没有提供任何自定义初始化方法。结果，它自动拥有的默认初始化方法，如[默认初始化方法](#默认初始化方法)中所述。对于类，默认初始化方法（当可用时）就是指定初始化方法，并且可被用于创建一个`numberOfWheels`为`0`的新`Vehicle`实例:
+```swift
+let vehicle = Vehicle()
+print("Vehicle: \(vehicle.description)")
+// Vehicle: 0 wheel(s)
+```
+
+下一个例子定义了`Vehicle`的子类`Bicycle`：
+```swift
+class Bicycle: Vehicle {
+  override init() {
+    super.init()
+    numberOfWheels = 2
+  }
+}
+```
+
+`Bicycle`子类定义了一个自定义指定初始化方法`init()`。这个指定初始化方法匹配`Bicycle`的父类的一个指定初始化方法，所以`Bicycle`版本的这个初始化方法被`override`修饰符标记。
+
+`Bicycle`类的初始化方法`init()`一开始调用`super.init()`，该方法调用`Bicycle`父类`Vehicle`的默认初始化方法。这确保在`Bicycle`有机会修改继承属性`numberOfWheels`之前已经被`Vehicle`初始化。调用`super.init()`之后，`numberOfWheels`的原始值被替换为新值`2`。
+
+如果创建一个`Bicycle`实例，你可以调用其计算属性`description`看看`numberOfWheels`属性如何被改变：
+```swift
+let bicycle = Bicycle()
+print("Bicycle: \(bicycle.description)")
+// Bicycle: 2 wheel(s)
+```
+
+如果子类初始化方法在初始化过程的第二步没有执行自定义操作，且父类有一个无参数的指定初始化方法，则在为子类所有储存属性赋值后，你可以省略调用`super.init()`。
+
+这个例子定义了另外一个`Vehicle`的子类`Hoverboard`。在其初始化方法中，`Hoverboard`类只设置其`color`属性。初始化方法依赖隐式调用父类初始化方法来完成初始化过程，而不是显示调用`super.init()`。
+```swift
+class Hoverboard: Vehicle {
+  var color: String
+  init(color: String) {
+    self.color = color
+    // super.init() implicitly called here
+  }
+  override var description: String {
+    return "\(super.description) in a beautiful \(color)"
+  }
+}
+```
+
+`Hoverboard`的实例用使用`Vehicle`初始化方法提供的默认轮子数：
+```swift
+let hoverboard = Hoverboard(color: "silver")
+print("Hoverboard: \(hoverboard.description)")
+// Hoverboard: 0 wheel(s) in a beautiful silver
+```
+
+> 注意：
+> 子类可以在初始化期间修改继承而来的变量属性，但是不能修改继承而来的常量属性。
 
 ### 自动继承初始化方法
+
+如上面提到的，子类并不默认地继承父类的初始化方法。但是，如果满足某些条件，父类的初始化方法会自动被继承。实践中，这意味着，在许多常见场景，你不需要重写初始化方法，而且只要安全，可以用最小的代价继承父类的初始化方法。
+
+假设你为子类中新引入的属性提供默认值，则适用以下两个规则：
+
+##### **规则一**
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果子类没有定义任何指定初始化方法，则它自动继承父类的所有指定初始化方法。
+
+##### **规则二**
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果子类提供了父类*所有*指定初始化方法–––无论是通过规则一继承，还是作为自身定义的一部分提供自定义实现–––这它自动继承父类所有的便捷初始化方法。
+
+即使子类进一步添加了便捷初始化方法，这些规则仍然适用。
+
+> 注意：
+> 一个子类可以实现一个父类指定初始化方法，作为子类的便捷初始化方法。满足规则二。
+
+### 指定初始化方法和便捷初始化方法实践
+
+下面的例子展示了实践中的指定初始化方法，便捷初始化方法和自动继承初始化方法。这个例子定义了三个类`Food`，`RecipeIngredient`和`ShoppingListItem`的结构图，然后演示了它们的初始化方法如何交互。
+
+结构图中的基础类是`Food`，它是食物名称的简单封装。`Food`类引入了唯一的`String`属性`name`，然后提供了两个创建`Food`实例的初始化方法：
+```swift
+class Food {
+  var name: String
+  init(name: String) {
+    self.name = name
+  }
+  convenience init() {
+    self.init(name: "[Unnamed]")
+  }
+}
+```
+
+下图展示了`Food`类的初始化方法链：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/initializersExample01_2x.png" alt="指定初始化方法和便捷初始化方法实践" width="500"/>
+</p>
+
+类没有默认成员初始化方法，所以`Food`类提供了一个接受单个参数`name`的指定初始化方法。这个初始化方法可以用指定的名称创建一个`Food`实例：
+```swift
+let namedMeat = Food(name: "Bacon")
+// namedMeat's name is "Bacon"
+```
+
+`Food`类的初始化方法`init(name: String)`是指定初始化方法，因为它确保一个新`Food`实例的所有储存属性被完全初始化。`Food`类没有父类，所以`init(name: String)`初始化方法不需要调用`super.init()`来完成初始化。
+
+`Food`类也提供了一个无参数便捷初始化方法`init()`。`init()`初始化方法通过用`name`值`[Unnamed]`交叉委托`Food`类的`init(name: String)`初始化方法，为新实例提供了一个默认占位符名称:
+```swift
+let mysteryMeat = Food()
+// mysteryMeat's name is "[Unnamed]"
+```
+
+类结构图中的第二个类是`Food`的子类`RecipeIngredient`。`RecipeIngredient`类为烹饪食谱中的一种成分建模。它引入了一个`Int`属性`quantity`（除了从`Food`继承而来的`name`属性），然后定义了两个创建`RecipeIngredient`实例的初始化方法：
+```swift
+class RecipeIngredient: Food {
+  var quantity: Int
+  init(name: String, quantity: Int) {
+    self.quantity = quantity
+    super.init(name: name)
+  }
+  override convenience init(name: String) {
+    self.init(name: name, quantity: 1)
+  }
+}
+```
+
+下图展示了`RecipeIngredient`类的初始化方法链：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/initializersExample02_2x.png" alt="指定初始化方法和便捷初始化方法实践" width="500"/>
+</p>
+
+`RecipeIngredient`类有一个唯一的指定初始化方法`init(name: String, quantity: Int)`，该初始化方法可被用于填充一个新`RecipeIngredient`实例的所有属性。这个初始化方法始于将传入的`quantity`实参赋值给`quantity`属性，该属性是唯一有`RecipeIngredient`引入的新属性。这么做之后，初始化方法向上委托给`Food`类的初始化方法`init(name: String)`。这个过程满足[两步初始化](#两步初始化)中的安全检查一。
+
+`RecipeIngredient`也定义类一个便捷初始化方法`init(name: String)`，该初始化方法只用名称创建一个`RecipeIngredient`实例。这个初始化方法假设任何没有明确指明数量的`RecipeIngredient`实例，其数量均为`1`。这个便捷初始化方法使创建`RecipeIngredient`实例更快更便利，且避免了当要创建多个数量为`1`的`RecipeIngredient`实例时的代码重复。这个便捷初始化方法简单地检查委托类的指定初始化方法，传入`quantity`的值`1`。
+
+`RecipeIngredient`提供的便捷初始化方法`init(name: String)`接受与`Food`指定初始化方法相同的参数。因为这个初始化方法重写了父类的指定初始化方法，它必须被`override`修饰符标记（如[初始化的继承和重写](#初始化的继承和重写)中所述）。
+
+即使`RecipeIngredient`提供`init(name: String)`作为一个便捷初始化方法，`RecipeIngredient`还是提供了所有父类指定初始化方法的实现。因此，`RecipeIngredient`也自动继承父类所有的便捷初始化方法。
+
+在这个例子中，`RecipeIngredient`的父类是`Food`，它有一个唯一的便捷初始化方法`init()`。因此这个初始化方法被`RecipeIngredient`继承。`init()`函数的继承版本与`Food`的版本刚好相同，除了它是委托给`RecipeIngredient`版本的`init(name: String)`而不是`Food`的版本。
+
+所有这三个初始化方法都可被用于创建一个`RecipeIngredient`实例：
+```swift
+let oneMysteryItem = RecipeIngredient()
+let oneBacon = RecipeIngredient(name: "Bacon")
+let sixEggs = RecipeIngredient(name: "Eggs", quantity: 6)
+```
+
+类结构图中第三个也是最后一个类`ShoppingListItem`是`RecipeIngredient`的子类。`ShoppingListItem`类为购物单中的食谱成分建模。
+
+购物单中的每个项一开始为"未买单"。为表示这个，`ShoppingListItem`引入了一个布尔属性`purchased`，默认值是`false`。`ShoppingListItem`也引入了一个计算属性`description`，该属性提供`ShoppingListItem`实例的文本描述：
+```swift
+class ShoppingListItem: RecipeIngredient {
+  var purchased = false
+  var description: String {
+    var output = "\(quantity) x \(name)"
+    output += purchased ? " ✔" : " ✘"
+    return output
+  }
+}
+```
+
+> 注意：
+> `ShoppingListItem`没有定义一个初始化方法为`purchased`提供初始值，因为购物单中的项一开始总是未买单。
+
+因为为所有引入的属性提供了默认值，且本身没有定义任何初始化方法，`ShoppingListItem`自动继承父类所有的指定初始化方法和便捷初始化方法。
+
+下面的图标展示了三个类的全体初始化链：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/initializersExample03_2x.png" alt="指定初始化方法和便捷初始化方法实践" width="500"/>
+</p>
+
+你可以用所有这是三个继承的初始化方法类创建一个新`ShoppingListItem`实例：
+```swift
+var breakfastList = [
+    ShoppingListItem(),
+    ShoppingListItem(name: "Bacon"),
+    ShoppingListItem(name: "Eggs", quantity: 6),
+]
+breakfastList[0].name = "Orange juice"
+breakfastList[0].purchased = true
+for item in breakfastList {
+    print(item.description)
+}
+// 1 x Orange juice ✔
+// 1 x Bacon ✘
+// 6 x Eggs ✘
+```
+
+这里，为包含三个`ShoppingListItem`实例的数组字面量创建一个数组`breakfastList`。数组的类型被推导为`[ShoppingListItem]`。数组被创建后，数组中最开始的`ShoppingListItem`的名称从`[Unnamed]`改变为`Orange juice`，并被标记为已购买。打印数组中每个项的描述信息显示，他们的默认状态都按预期设置。
+
+## 可失败初始化方法
+
+有时候定义初始化可失败的类，结构体或枚举比较有用。这个失败可能被无效的初始化参数，外部必要自然的缺失或其他阻止成功初始化的条件触发。
+
+为了应对可以失败的初始化条件，定义一个或多个可失败初始化方法作为类，结构体或枚举定义的一部分。通过在`init`关键字后面写上问号(`init?`)来编写可失败初始化方法。
+
+> 注意：
+> 你不能定义拥有相同参数类型和参数名的可失败初始化方法和非可失败初始化方法。
+
+一个可失败初始化方法创建一个其初始化类型的可选值。在可失败初始化方法里写上`return nil`表明可以在该点触发初始化失败。
+
+> 注意：
+> 严格地讲，初始化方法并不返回一个值。相反，它们的功能是确保初始化结束时，`self`被完全和正确地初始化。即便你用`return nil`触发初始化失败，你不需要用`return`关键字表明初始化成功。
+
+例如，为数字类型转换实现可失败初始化方法。为了确保数字类型间的转换能准确的维持数值，用`init(exactly:)`初始化方法。如果类型转换不能维持数值，则初始化失败：
+```swift
+let wholeNumber: Double = 12345.0
+let pi = 3.14159
+
+if let valueMaintained = Int(exactly: wholeNumber) {
+  print("\(wholeNumber) conversion to Int maintains value of \(valueMaintained)")
+}
+// Prints "12345.0 conversion to Int maintains value of 12345"
+
+let valueChanged = Int(exactly: pi)
+// valueChanged is of type Int?, not Int
+
+if valueChanged == nil {
+  print("\(pi) conversion to Int does not maintain value")
+}
+// Prints "3.14159 conversion to Int does not maintain value"
+```
+
+下面的例子定义了一个结构体`Animal`，有一个`String`常量属性`species`。`Animal`结构体也定义了一个接受单个参数`species`的可失败初始化方法。如果发现了一个空字符串，就会触发初始化失败。否则，为`species`属性赋值，初始化成功：
+```swift
+struct Animal {
+  let species: String
+  init?(species: String) {
+    if species.isEmpty { return nil }
+    self.species = species
+  }
+}
+```
+
+你可以用这个可失败初始化方法，试着初始化一个新`Animal`实例，然后检查初始化是否成功：
+```swift
+let someCreature = Animal(species: "Giraffe")
+// someCreature is of type Animal?, not Animal
+
+if let giraffe = someCreature {
+  print("An animal was initialized with a species of \(giraffe.species)")
+}
+// Prints "An animal was initialized with a species of Giraffe"
+```
+
+如果你传入一个空字符串给可失败初始化方法的`species`参数，初始化方法触发初始化失败：
+```swift
+let anonymousCreature = Animal(species: "")
+// anonymousCreature is of type Animal?, not Animal
+
+if anonymousCreature == nil {
+    print("The anonymous creature could not be initialized")
+}
+// Prints "The anonymous creature could not be initialized"
+```
+
+> 注意：
+> 检查空字符串（例如`""`而不是`"Giraffe"`与检查`nil`表明可选字符串值的缺失是不同的。在上面的例子中，一个空字符串(`""`)是有效的，非可选字符串。但是，动物的`species`属性有一个空字符串是不合适的。为了模拟这个限制，如果发现是空字符串，可失败初始化方法触发一个初始化失败。
+
+### 枚举的可失败初始化方法
+
+可以用可失败初始化方法基于一个或多个参数选择一个可是的枚举分支。如果提供的参数不匹配相应的枚举分支，初始化方法失败。
+
+下面的例子定义了一个枚举`TemperatureUnit`，有三个可能状态（`kelvin`，`celsius`和`fahrenheit`）。用一个可失败初始化方法为代表温度符号的字符(`Character`)值寻找一个合适的枚举分支：
+```swift
+enum TemperatureUnit {
+  case kelvin, celsius, fahrenheit
+  init?(symbol: Character) {
+    switch symbol {
+      case "K":
+        self = .kelvin
+      case "C":
+        self = .celsius
+      case "F":
+        self = .fahrenheit
+      default:
+        return nil
+    }
+  }
+}
+```
+
+你可以用这个可失败初始化方法为三个可能的状态选择一个合适的枚举分支，如果参数不匹配任何一个状态则引起初始化失败：
+```swift
+let fahrenheitUnit = TemperatureUnit(symbol: "F")
+if fahrenheitUnit != nil {
+    print("This is a defined temperature unit, so initialization succeeded.")
+}
+// Prints "This is a defined temperature unit, so initialization succeeded."
+
+let unknownUnit = TemperatureUnit(symbol: "X")
+if unknownUnit == nil {
+    print("This is not a defined temperature unit, so initialization failed.")
+}
+// Prints "This is not a defined temperature unit, so initialization failed."
+```
+
+### 有原始值枚举的可失败初始化方法
+
+有原始值的枚举自动获得一个可失败初始化方法`init?(rawValue:)`，该方法接受一个相应原始类型的参数`rawValue`，然后选择一个枚举分支，如果找到了的话，或如果找不到，则触发一个初始化错误。
+
+可以重写上面例子中的`TemperatureUnit`，来查看`Character`类型的原始值，和应用`init?(rawValue:)`初始化方法：
+```swift
+enum TemperatureUnit: Character {
+    case kelvin = "K", celsius = "C", fahrenheit = "F"
+}
+
+let fahrenheitUnit = TemperatureUnit(rawValue: "F")
+if fahrenheitUnit != nil {
+    print("This is a defined temperature unit, so initialization succeeded.")
+}
+// Prints "This is a defined temperature unit, so initialization succeeded."
+
+let unknownUnit = TemperatureUnit(rawValue: "X")
+if unknownUnit == nil {
+    print("This is not a defined temperature unit, so initialization failed.")
+}
+// Prints "This is not a defined temperature unit, so initialization failed."
+```
+
+### 初始化失败的传递
+
+类，结构体或枚举的初始化失败可以交叉委托给相同类，结构体或枚举中的另一个可失败初始化方法。类似地，子类的可失败初始化方法可以向上委托给一个父类的可失败初始化方法。
+
+在任一情况下，如果你委托给两一个引起初始化失败的初始化方法，则整个初始化立即失败，不会再执行进一步初始化。
+
+> 注意：
+> 一个可失败初始化方法也可以委托一个非可失败初始化方法。如果你需要给现有的初始化过程添加一个潜在的失败状态，否则就会失败，请用这种操作。
+
+下面的例子定义了`Product`的子类`CartItem`。`CartItem`类模拟一个在线购物车中的项。`CartItem`引入了一个储存常量属性`quantity`，并确保这个属性总是有最小为`1`的值：
+```swift
+class Product {
+  let name: String
+  init?(name: String) {
+    if name.isEmpty { return nil }
+    self.name = name
+  }
+}
+
+class CartItem: Product {
+  let quantity: Int
+  init?(name: String, quantity: Int) {
+    if quantity < 1 { return nil }
+    self.quantity = quantity
+    super.init(name: name)
+  }
+}
+```
 
 
 ### 结构类型的成员初始化方法
