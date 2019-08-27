@@ -146,7 +146,7 @@ print("square.origin is now at (\(square.origin.x), \(square.origin.y))")
 <img src="https://docs.swift.org/swift-book/_images/computedProperties_2x.png" alt="计算属性" width="300"/>
 </p>
 
-### 简写setter方法定义
+### 简写Getter方法声明
 
 如果getter方法的方法体仅是一句表达式，getter方法隐式返回该表达式。下面是另一个版本的`Rect`结构体，利用了这种简写方法：
 ```swift
