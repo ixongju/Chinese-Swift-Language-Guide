@@ -807,18 +807,177 @@ class CartItem: Product {
 }
 ```
 
+`CartItem`的可失败初始化方法一开始验证接收到的`quantity`值大于或等于`1`。如果`quantity`无效，整个初始化过程立即失败且不会进一步执行初始化代码。同样，`Product`的可失败初始化方法检查`name`值，如果`name`是空字符串，初始化处理立即失败。
 
-### 结构类型的成员初始化方法
+如果用非空名称和一个大于或等于`1`的数量创建一个`CartItem`实例，初始化会成功：
+```swift
+if let twoSocks = CartItem(name: "sock", quantity: 2) {
+  print("Item: \(twoSocks.name), quantity: \(twoSocks.quantity)")
+}
+// Prints "Item: sock, quantity: 2"
+```
 
+如果你试图用值为`0`的`quantity`创建新的`CartItem`实例，`CartItem`的初始化方法会引起初始化失败：
+```swift
+if let zeroShirts = CartItem(name: "shirt", quantity: 0) {
+    print("Item: \(zeroShirts.name), quantity: \(zeroShirts.quantity)")
+} else {
+    print("Unable to initialize zero shirts")
+}
+// Prints "Unable to initialize zero shirts"
+```
 
+类似地，如果用空值`name`创建`CartItem`实例，父类`Product`的初始化方法会引起初始化失败：
+```swift
+if let oneUnnamed = CartItem(name: "", quantity: 1) {
+    print("Item: \(oneUnnamed.name), quantity: \(oneUnnamed.quantity)")
+} else {
+    print("Unable to initialize one unnamed product")
+}
+// Prints "Unable to initialize one unnamed product"
+```
 
+### 重写一个可失败初始化方法
 
+你可以在子类中像重写其他初始化方法一样，重写一个父类的可失败初始化方法。另外，你可以用子类的非可失败初始化方法重写父类的可失败初始化方法。这能让你定义一个初始化不会失败的子类，即使父类的初始化过程允许失败。
 
+注意如果你用子类的一个非可失败初始化方法重写父类的一个可失败初始化方法，唯一的向上委托给父类初始化方法的做法是强制解包父类可失败初始化方法的结果。
 
+> 注意：
+> 你可以用非可失败初始化方法重写可失败初始化方法，但是反之不然。
 
+下面的例子定义了一个类`Document`。这个类模拟一个文档，该文档可以被一个`name`属性初始化，`name`属性可以是非空字符串或`nil`，但是不能是空字符串：
+```swift
+class Document {
+    var name: String?
+    // this initializer creates a document with a nil name value
+    init () {}
+    // this initializer creates a document with a nonempty name value
+    init?(name: String) {
+        if name.isEmpty { return nil }
+        self.name = name
+    }
+}
+```
 
+下一个例子了一个`Document`的子类`AutomaticallyNamedDocument`。`AutomaticallyNamedDocument`子类重写了`Document`中引入的两个指定初始化方法。这些重写在不用`name`初始化实例或给`init(name:)`传入空字符串的情况下，确保`AutomaticallyNamedDocument`实例有一个值为`[Untitled]`的初始`name`：
+```swift
+class AutomaticallyNamedDocument: Document {
+    override init() {
+        super.init()
+        self.name = "[Untitled]"
+    }
+    override init(name: String) {
+        super.init()
+        if name.isEmpty {
+            self.name = "[Untitled]"
+        } else {
+            self.name = name
+        }
+    }
+}
+```
 
+`AutomaticallyNamedDocument`用非可失败初始化方法`init(name:)`重写了其父类的可失败初始化方法`init?(name:)`。因为`AutomaticallyNamedDocument`用与父类不同的方式处理了空字符串的情况，其初始化方法不需要失败，所以作为替换提供了一个非可失败版本的初始化方法。
 
+可以把在初始化方法中，用强制解包的方式调用父类可失败初始化方法，作为子类非可失败初始化方法实现的一部分。举个例子，下面的`UntitledDocument`子类总是被命名为`"[Untitled]"`，它在初始化过程中，用父类的可失败初始化方法`init(name:)`：
+```swift
+class UntitledDocument {
+    override init() {
+        super.init(name: "[Untitled]")!
+    }
+}
+```
 
+在这个情况下，如果用空字符串作为名称调用父类的初始化方法`init(name:)`，强制解包操纵会导致运行时错误。但是，因为是用字符串常量调用，你可以看到初始化方法不会失败，所以这种情况下不会发生运行时错误。
+
+### `init!`可失败初始化方法
+
+一般通过在`init`关键字后面写上问号(`?`)来定义一个创建相应类型可选实例的可失败初始化方法。另外，你可以定义一个创建相应类型的隐式解包可选实例可初始化方法。要这么做，在`init`关键字后面写上感叹号(`!`)来替换问号(`?`)。
+
+你可以从`init?`委托给`init!`，反之亦然，你可以用`init!`重写`init?`，反之亦然。你也可以从`init`委托给`init!`，即使如果`init!`导致初始化失败这么做会触发断言。
+
+## 必须初始化方法
+
+将`required`修饰符写在类初始化方法的定义前，表明该类的每个子类必须实现该初始化方法：
+```swift
+class SomeClass {
+    required init() {
+        // initializer implementation goes here
+    }
+}
+```
+
+你必须也在必须初始化方法的子类实现前面写上`required`修饰符，用以表明初始化方法的要求进一步应用到了继承链中的子类上。当重写必须初始化方法时，不比写`override`修饰符：
+```swift
+class SomeSubClass: SomeClass {
+    required init() {
+        // subclass implementation of the required initializer goes here
+    }
+}
+```
+
+> 注意：
+> 如果你满足了一个必须初始化方法的要求，你不必提供一个必须初始化方法的显式实现。
+
+## 用闭包或函数设置默认属性值
+
+如果一个储存属性的默认值需要一些自定义或设置，你可以用一个闭包或全局函数为该属性提供自定义的默认值。任何时候当属性类型的实例被初始化时，会调用闭包或函数，然后把返回值赋值给属性当作默认值。
+
+一般这种类型的闭包或函数创建一个与属性类型一致的临时值，定制该值以表示所需的初始状态，然后返回该临时值以被用作属性的默认值。
+
+下面是如何用闭包为属性提供默认值的框架轮廓：
+```swift
+class SomeClass {
+    let someProperty: SomeType = {
+        // create a default value for someProperty inside this closure
+        // someValue must be of the same type as SomeType
+        return someValue
+    }()
+}
+```
+
+注意闭包的闭合大括号后面有一对小括号。这告诉Swift立即执行该闭包。如果省略了小括号，则变成你要把闭包而不是闭包的返回值赋值给该属性。
+
+> 注意：
+> 如果用闭包来初始化属性，记住当闭包被执行时，实例的其余部分尚未被初始化。这意味着你不能在闭包中访问任何其他属性，你是这些属性有默认值。你也不能使用隐藏属性`self`，或调用任何实例方法。
+
+下面的例子定义了一个结构体`Chessboard`，它模拟国际象棋的棋盘。国际象棋在8x8，黑白相间的棋盘上玩。
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/chessBoard_2x.png" alt="用闭包或函数设置默认属性值" width="200"/>
+</p>
+
+为了表示这个棋盘，结构体`Chessboard`有一个唯一的属性`boardColors`，该属性是一个包含64个`Bool`值的属性。数组中的`true`代表一个黑方块，`false`代表一个白方块。数组中的第一个项代表棋盘的左上方块，最后一个项代表右下的方块。
+
+使用闭包来初始化数组`boardColors`以设置其颜色值：
+```swift
+struct Chessboard {
+    let boardColors: [Bool] = {
+        var temporaryBoard = [Bool]()
+        var isBlack = false
+        for i in 1...8 {
+            for j in 1...8 {
+                temporaryBoard.append(isBlack)
+                isBlack = !.isBlack
+            }
+            isBlack = !isBlack
+        }
+        return temporaryBoard
+    }()
+    func squareIsBlackAt(row: Int, column: Int) -> Bool {
+        return boardColors[](row * 8) + column]
+    }
+}
+```
+
+任何时候创建`Chessboard`实例，闭包都会被调用，计算并返回`boardColors`的默认值。上面例子中的闭包计算并将每个方块设置适当的颜色设置到临时数组`temporaryBoard`中，然后，一旦设置完成，把这个临时数组作为闭包的返回值返回。返回的数组存放在`boardColors`中，可以被`squareIsBlackAt(row:column:)`工具函数查询：
+```swift
+let board = Chessboard()
+print(board.squareIsBlackAt(row: 0, column: 1))
+// Prints "true"
+print(board.squareIsBlackAt(row: 7, column: 7))
+// Prints "false"
+```
 
 [< 继承](Inheritance.md) || [反初始化 >](Deinitialization.md)
