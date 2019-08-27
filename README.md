@@ -49,4 +49,4 @@ THE SEIFT PROGRAMMING LANGUAGE SWIFT 5.1
 
 ### 协议
 
-本文档遵守[署名-非商业性使用-禁止演绎 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en)
+本文档遵守[署名-非商业性使用-禁止演绎 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en)协议。
