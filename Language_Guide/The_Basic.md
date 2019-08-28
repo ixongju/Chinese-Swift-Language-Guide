@@ -1,4 +1,4 @@
-## 基础
+# 基础
 Swift是iOS，macOS，watchOS和tvOS应用程序开发的新的编程语言。即便如此，Swift的大部分与你使用C语言和Objective-C的经验相同。
 
 Swift包含自身版本的C和Objective-C的基本类型，如`Int`是整数，`Double`和`Float`是浮点值，`Bool`是布尔值，`String`是文本数据。Swift同时提供强大的三个基本集合类型，`Array`，`Set`和`Dictionary`,详见[集合类型（Collection Types）](Collection_Types.md)。
@@ -15,7 +15,7 @@ Swift是类型安全语言，这意味着Swift能让你清楚地知道你的代�
 
 常量和变量将一个名称（如`maximumNunberOfLoginAttempts`或`welcomeMessage`）和特定类型的值（如数字`10`或字符串`"Hello"`）关联起来。常量的值一旦设定就不能再修改，变量则可以。
 
-#### 声明常量和变量
+### 声明常量和变量
 
 常量和变量必须在使用前声明。用`let`关键字声明常量，用`var`关键字声明变量。下面的例子说明如何使用常量和变量来跟踪用户尝试登录的次数：
 ```swift
@@ -33,7 +33,7 @@ var x = 0.0, y = 0.0, z = 0.0
 ```
 > 注意：如果一个储存值不会改变，请用`let`关键字声明为常量。用`var`关键字声明能够被改变的存储值。
 
-#### 类型说明
+### 类型说明
 
 你可以在声明常量或变量的时候提供类型说明，以清楚地表明常量或变量能储存什么类型的值。在常量或变量名后面接上冒号，冒号后面加上空格，空格后面加上类型名。
 
@@ -57,7 +57,7 @@ var red, green, blue: Double
 ```
 > 注意：在实践中，你很少需要写类型说明。如果你在定义变量或常量的时候提供一个初始值，Swift可以推导出该变量或常量的类型，就像[类型安全和类型推导]()中描述的样。上述例子中，`welcomeMessage`没有初始值，所以为其添加了类型说明，而不是从初始值中读取类型。
 
-#### 常量和变量命名
+### 常量和变量命名
 
 常量和变量的名称可以包括几乎所有的字符，包括Unicode字符：
 ```swift
@@ -86,7 +86,7 @@ languageName = "Swift++"
 // This is a compile-time error: languageName cannot be changed.
 ```
 
-#### 打印常量和变量
+### 打印常量和变量
 
 你可以用`print(_:separator:terminator:)`函数打印常量和变量。
 ```swift
@@ -102,7 +102,7 @@ print("The current value of friendlyWelcome is \(friendlyWelcome)")
 ```
 > 注意：[字符串插值]()中描述了所有可以插入到字符串中的选项。
 
-#### 注释
+### 注释
 用注释在代码中包含非执行代码，作为笔记或提醒。编译的时候Swift编译器会忽略注释。
 
 Swift中的注释跟C中的注释类似。单行注释以双斜杠开始。
