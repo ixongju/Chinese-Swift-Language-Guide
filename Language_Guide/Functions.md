@@ -266,15 +266,17 @@ someFunction(parameterWithoutDefault: 4) // parameterWithDefault is 12
 
 把没有默认值的参数放在函数参数列表的开头，在有默认值参数的前面。一般没有默认值的参数对函数有更重要的意义–––不管是否省略默认参数，这么写更容易识别调用是相同的函数（下面详细说明这句的意思）。
 > 译者：
-> 先看一个函数的两种写法：
+> 先看同一功能函数的两种写法：
 > ```
+> // 有默认值的参数在参数列表前面
 > func hello(a: String = "a", b: String, c: String) {}
 > hello(a: "000", b: "000")
 > hello(b: "000")
 > // 上面两个应该是同一函数，但是由于第一个参数不同，一下子很容易错误认为是不同的函数
 > // 写成下面就不会出错了
 >
-> > func hello(b: String, c: String, a: String = "a") {}
+> // 有默认值的参数在参数列表后面 
+> func hello(b: String, c: String, a: String = "a") {}
 > hello(b: "000", c: "000", a: "000")
 > hello(b: "000", c: "000")
 > // 函数调用的前两个参数相同，考虑到a有默认值，与上面相比，相对比较容易地就可以识别出这两个调用是同一个函数
