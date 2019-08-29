@@ -275,7 +275,7 @@ someFunction(parameterWithoutDefault: 4) // parameterWithDefault is 12
 > // 上面两个应该是同一函数，但是由于第一个参数不同，一下子很容易错误认为是不同的函数
 > // 写成下面就不会出错了
 >
-> // 有默认值的参数在参数列表后面 
+> // 有默认值的参数在参数列表后面
 > func hello(b: String, c: String, a: String = "a") {}
 > hello(b: "000", c: "000", a: "000")
 > hello(b: "000", c: "000")
@@ -284,19 +284,138 @@ someFunction(parameterWithoutDefault: 4) // parameterWithDefault is 12
 > 因为默认参数往往可以省略，为避免出现上面那种调用情况，将默认参数写在参数列表后面比较好
 > ```
 
-#### 可变参数
+### 可变参数
 
+*可变参数* 接受指定类型的零个或多个值。用可变参数表明，当调用函数时，可以传入不定数量的参数。通过在参数类型名后面插入三个点号(`...`)来编写可变参数。
 
+被传入给函数的可变参数，可以在函数体中以适当类型的数组形式被使用。例如，一个名为`numbers`，类型为`Double`的可变参数，在函数体中可以被当作一个`[Double]`类型的名为`numbers`的常量数组使用。
+
+下面的例子，为任意长的数字列表进行计算平均值：
+```swift
+func arithmeticMean(_ numbers: Double...) -> Double {
+    var total: Double = 0
+    for number in numbers {
+        total += number
+    }
+    return total / Double(numbers.count)
+}
+arithmeticMean(1, 2, 3, 4, 5)
+// returns 3.0, which is the arithmetic mean of these five numbers
+arithmeticMean(3, 8.25, 18.75)
+// returns 10.0, which is the arithmetic mean of these three numbers
+```
+
+> 注意：
+> 一个函数最多只能有一个可变参数。
 
 ### 输入输出实参
 
+函数实参默认是常量。尝试在函数体中改变实参的值会导致编译时错误。这意味着，你不能不会因为失误而改变实参的值。如果你希望函数能修改实参值，且想当函数结束时保持这个改变，将该实参定义为*输入输出参数*。
+
+在实参类型前面写上`inout`关键字来编写输入输出实参。一个输入输出实参有一个被传入给函数的值，该值被函数修改后，被传出函数替换原始值。更详细地关于输入输出参数的行为和相关编译优化的讨论，参见[输入输出实参](../Language_Reference/Declarations.md#输入输出实参)。
+
+你只能把变量作为输入输出参数。不能把常量或字面量用作输入输出参数，因为无法修改常量和字面量。当把参数当作输入输出参数传入时，在变量名前面写上(`&`)符号，表明参数可以被函数修改。
+
+> 注意：
+> 输入输出参数不可以有默认值，可变参数不能被标记为`inout`。
+
+下面是一个例子，函数`swapTwoInts(_:_:)`，接受两个输入输出参数`a`和`b`：
+```swift
+func swapTwoInts(_ a: inout Int, _ b: inout Int) {
+    let temporaryA = a
+    a = b
+    b = temporaryA
+}
+```
+
+`swapTwoInts(_:_:)`简单地交换`a`和`b`的值。函数通过把`a`的值存入临时常量`temporaryA`中，用`b`给`a`赋值，然后用`temporaryA`给`b`赋值执行交换。
+
+可以用两个`Int`类型的变量调用`swapTwoInts(_:_:)`函数。注意当传入给`swapTwoInts(_:_:)`函数时，`someInt`和`anotherInt`前面带上了`&`符号：
+```swift
+var someInt = 3
+var anotherInt = 107
+swapTwoInts(&someInt, &anotherInt)
+print("someInt is now \(someInt), and anotherInt is now \(anotherInt)")
+// Prints "someInt is now 107, and anotherInt is now 3"
+```
+
+上面的例子展示了，`someInt`和`anotherInt`的原始值被`swapTwoInts(_:_:)`修改，即使他们最初是被定义在函数外面。
+
+> 注意：
+> 输入输出参数与从函数返回的值不同。上面`swapTwoInts`的例子没有定义返回类型或返回值，但是仍然修改了`someInt`和`anotherInt`的值。输入输出实参是让函数影响外部的另一个方式。
+
 ## 函数类型
 
-### 使用函数类型
+每个函数都有一个由参数类型和返回类型组成的*函数类型*。
+
+举个例子：
+```swift
+func addTwoInts(_ a: Int, _ b: Int) -> Int {
+    return a + b
+}
+func multiplyTwoInts(_ a: Int, _ b: Int) -> Int {
+    return a * b
+}
+```
+
+这个例子定义了两个简单的算术函数`addTwoInts`和`multiplyTwoInts`。每个函数接受两个`Int`值，返回一个`Int`值，返回值是相应算术计算的结果。
+
+这两个函数的类型都是`(Int, Int) -> Int`。可以读作：
+
+“一个接受两个参数的函数，参数类型都是`Int`，且返回一个`Int`值。”
+
+举另一个例子，一个没有参数和返回值的函数：
+```swift
+func printHelloWorld() {
+    print("hello, world")
+}
+```
+
+这个函数的类型是`() -> Void`，或“一个没有参数和返回值的函数”。
+
+### 函数类型应用
+
+像使用Swift中其他类型一样使用函数类型。举个例子，可以定义一个函数类型的常量或变量，然后为该变量赋值一个适当的函数：
+```swift
+var mathFunction: (Int, Int) -> Int = addTwoInts
+```
+
+这可以读作：
+
+“定义一个变量`mathFunction`，其类型是接受两个`Int`值和返回一个`Int`值的函数类型，让这个变量引用函数`addTwoInts`。”
+
+函数`addTwoInts(_:_:)`与变量`mathFunction`有着相同的类型，所以Swift的类型检查允许这个赋值。
+
+可以用`mathFunction`调用被赋值的函数：
+```swift
+print("Result: \(mathFunction(2, 3))")
+// Prints "Result: 5"
+```
+
+有着相同类型的不同函数可以被赋值给同一个变量，与非函数类型一个样：
+```swift
+mathFunction = multiplyTwoInts
+print("Result: \(mathFunction(2, 3))")
+// Prints "Result: 6"
+```
+
+如其他类型，当用函数给常量或变量赋值时，可以把类型识别的工作交给Swift：
+```swift
+let anotherMathFunction = addTwoInts
+// anotherMathFunction is inferred to be of type (Int, Int) -> Int
+```
 
 ### 函数类型作为参数类型
 
+可以把诸如`(Int, Int) -> Int`的函数类型当作另一个函数的参数。
+
 ### 函数类型作为返回类型
+
+
+
+
+
+
 
 ## 嵌套函数
 
