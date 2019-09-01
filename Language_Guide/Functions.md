@@ -407,16 +407,95 @@ let anotherMathFunction = addTwoInts
 
 ### 函数类型作为参数类型
 
-可以把诸如`(Int, Int) -> Int`的函数类型当作另一个函数的参数。
+可以把诸如`(Int, Int) -> Int`的函数类型当作另一个函数的参数。这允许你可以把函数实现的某些方面留给函数的调用者提供。
+
+下面是一个例子，打印上面数学函数的结果：
+```swift
+func printMathResult(_ mathFunction: (Int, Int) -> Int, _ a: Int, _ b: Int) {
+    print("Result: \(mathFunction(a, b)")
+}
+printMathResult(addTwoInts, 3, 5)
+// Prints "Result: 8"
+```
+
+这个例子中定义了一个函数`printMathResult(_:_:_:)`，有三个参数。第一个参数`mathFunction`，类型为`(Int, Int) -> Int`。你可以传入任何该类型的函数当作第一个参数的实参。第二个和第三个参数`a`和`b`，都是`Int`类型。它们被用做数学函数的输入值。
+
+当`printMathResult(_:_:_:)`被调用，`addTwoInts(_:_:)`函数和整数值`3`和`5`被传入。该函数用值`3`和`5`调用提供的函数，然后打印结果`8`。
+
+`printMathResult(_:_:_:)`的功能是打印调用适当类型函数的结果。该函数实现了什么并不重要——重要的是该函数属于正确的类型。这允许`printMathResult(_:_:_:)`把一些功能以一种安全的方式交给其调用者。
 
 ### 函数类型作为返回类型
 
+可以把函数类型当作另一函数的返回类型。要这么做，在函数的返回箭头(`->`)后面写上完整的函数类型。
 
+下一个例子定义了两个简单函数`stepForward(_:)`和`stepBackward(_:)`。函数`stepForward(_:)`返回一个比输入值大一的值，函数`stepBackward(_:)`返回一个比输入值小一的值。两个函数的类型都是`(Int) -> Int`：
+```swift
+func stepForward(_ input: Int) -> Int {
+    return input + 1
+}
+func stepBackward(_ input: Int) -> Int {
+    return input - 1
+}
+```
 
+下面的函数`chooseStepFunction(backward:)`，返回类型为`(Int) -> Int`。该函数根据布尔值`backward`返回函数`stepForward(_:)`或`stepBackward(_:)`：
+```swift
+func chooseStepFunction(backward: Bool) -> (Int) -> Int {
+    return backward ? stepForward : stepBackward
+}
+```
 
+你现在可以用`chooseStepFunction(backward:)`来获取一个前进或后退的函数：
+```swift
+var currentValue = 3
+let moveNearerToZero = chooseStepFunction(backward: currentValue > 0)
+// moveNearerToZero now refers to the stepBackward() function
+```
 
+上面的例子决定为了使变量`currentValue`逐渐趋于零，是否需要一个加一或减一。`currentValue`初始值为`3`，意味着`currentValue > 0`返回`true`，从而导致`chooseStepFunction(backward:)`返回`stepBackward(_:)`函数。返回函数的引用被储存在常量`moveNearerToZero`中。
 
+现在`moveNearerToZero`引用了正确的函数，它可被用与计数到零：
+```swift
+print("Counting to zero:")
+// Counting to zero:
+while currentValue != 0 {
+    print("\(currentValue)... ")
+    currentValue = moveNearerToZero(currentValue)
+}
+print("zero!")
+// 3...
+// 2...
+// 1...
+// zero!
+```
 
 ## 嵌套函数
+
+你在本章节看到的所有函数都是*全局函数*，它们被定义在全局。你也可以把函数定义在另一个函数的函数体里面，这种函数被称为*嵌套函数*。
+
+嵌套函数默认对外部不可见，但是可以被封闭的函数调用。一个封闭函数可以返回一个嵌套函数，以允许该嵌套函数被其他作用域所用。
+
+可以用嵌套函数和返回嵌套函数重写上例中的`chooseStepFunction(backward:)`：
+
+```swift
+func chooseStepFunction(backward: Bool) -> (Int) -> Int {
+    func stepForward(input: Int) -> Int { return input + 1 }
+    func stepBackward(input: Int) -> Int { return input - 1 }
+    return backward ? stepBackward : stepForward
+}
+var currentValue = -4
+let moveNearerToZero = chooseStepFunction(backward: currentValue > 0)
+// moveNearerToZero now refers to the nested stepForward() function
+while currentValue != 0 {
+    print("\(currentValue)... ")
+    currentValue = moveNearerToZero(currentValue)
+}
+print("zero!")
+// -4...
+// -3...
+// -2...
+// -1...
+// zero!
+```
 
 [< 控制流](Control_Flow.md) || [闭包 >](Closures.md)
