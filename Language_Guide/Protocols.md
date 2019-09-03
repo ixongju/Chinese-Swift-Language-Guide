@@ -194,7 +194,61 @@ class SomeClass: SomeProtocol {
 > 注意：
 在被`final`修饰符标记的类中，不需要用`required`标记协议初始化方法的实现，因为最终类不能被继承。关于最终类，参见[防止重写](Inheritance.md#防止重写)。
 
+如果子类重写了父类的指定初始化方法，同时实现满足了协议初始化方法要求，用`required`和`override`修饰符标记初始化方法实现：
+```swift
+protocol SomeProtocol {
+    init()
+}
+class SomeSuperClass {
+    init() {
+        // initializer implementation goes here
+    }
+}
 
+class SomeSubClass: SomeSuperClass, SomeProtocol {
+    // "required" from SomeProtocol conformance; "override" from SomeSuperClass
+    required override init() {
+        // initializer implementation goes here
+    }
+}
+```
+
+### 可失败初始化方法要求
+
+协议可以为实现了协议的类型定义可失败初始化方法要求，如[可失败初始化方法](Initialization.md#可失败初始化方法)中所定义的。
+
+一个可失败初始化方法要求可以被实现了协议的类型中的一个可失败初始化方法或一个非可失败初始化方法满足。一个非可失败初始化方法要求可以被一个非可失败初始化方法或一个隐式解包可失败初始化方法满足。
+
+## 协议作为类型
+
+实际上，协议本身不实现任何功能。尽管如此，你可以在代码中把协议当作一个完整的类型来使用。有时候把协议用作类型可以称为*存在类型*([existential type](https://en.wikipedia.org/wiki/Type_system#Existential_types))，这种叫法源于这样的描述：“这里有一个实现了协议的类型*T*”。
+
+可以把协议用在其他类型允许的地方，包括：
+* 作为函数，方法或初始化方法的参数类型或返回类型
+* 作为常量，变量或属性的类型
+* 作为数组，字典或其他容器中元素的类型
+
+> 注意：
+因为协议就是类型，所以用名称开头字母用大写（如`FullyNamed`和`RandomNumberGenerator`）以与Swift中其他类型（如`Int`，`String`和`Double`）相匹配。
+
+下面是把协议用作类型的例子：
+```swift
+class Dice {
+    let sides: Int
+    let generator: RandomNumberGenerator
+    init(sides: Int, generator: RandomNumberGenerator) {
+        self.sides = sides
+        self.generator = generator
+    }
+    func roll() -> Int {
+        return Int(generator.random() * Double(sides)) + 1
+    }
+}
+```
+
+这个例子定义了一个类`Dice`，表示棋盘游戏中的一个n面的骰子。`Dice`实例有一个整数属性`sides`，代表骰子的面数，和一个属性`generator`，提供一个用于创建骰子结果的随机数。
+
+属性`generator`的类型是`RandomNumberGenerator`。因此，你可以把该属性设置为遵守了`RandomNumberGenerator`协议的任何类型。对于赋值给这个属性的实例，没有任何其他的要求，只需要该实例遵守了`RandomNumberGenerator`协议。以你为它是`RandomNumberGenerator`类型，`Dice`类中的代码只需通过应用在实现了协议的生成器上的方法与`generator`交互。这意味着它不能使用任何定义在底层生成器中的其他方法或属性。尽管如此，你可以用从父类向下转换为子类的方法，从协议类型向下转换成一个底层类型，如[向下转换](Type_Casting.md#向下转换)中所述。
 
 ## 检查协议一致性
 
