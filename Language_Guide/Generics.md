@@ -161,8 +161,265 @@ struct Stack<Element> {
 
 因为是泛型类型，`Stack`可以使用Swift中任何有效类型，与`Array`和`Dictionary`的方式类似。
 
+通过把要存放的类型写在尖括号内来创建新`Stack`实例。例如，要创建一个字符串堆，写作`Stack<String>()`：
+```swift
+var stackOfStrings = Stack<String>()
+stackOfStrings.push("uno")
+stackOfStrings.push("dos")
+stackOfStrings.push("tres")
+stackOfStrings.push("cuatro")
+// the stack now contains 4 strings
+```
 
-## 扩展一个泛型
+下面是押入了四个值之后的`stackOfStrings`：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/stackPushedFourStrings_2x.png" alt="泛型类型" width="500"/>
+</p>
+
+从堆中弹出一个值会移除并返回顶部的值`cuatro`：
+```swift
+let fromTheTop = stackOfStrings.pop()
+// fromTheTop is equal to "cuatro", and the stack now contains 3 strings
+```
+
+下面是弹出顶部值后的堆：
+
+<p align="center">
+<img src="https://docs.swift.org/swift-book/_images/stackPoppedOneString_2x.png" alt="泛型类型" width="500"/>
+</p>
+
+## 扩展一个泛型类型
+
+当你扩展一个泛型类型时，不需要为扩展定义提供类型参数列表。相反，在扩展体中，可以使用原始类型定义中的类型参数列表，原始类型参数名被用于推导原始定义中的类型参数。
+
+下面的例子扩展了泛型`Stack`，添加了一个只读计算属性`topItem`，该属性返回堆顶部的项而不会将其弹出：
+```swift
+extension Stack {
+    var topItem: Element? {
+        return items.isEmpty ? nil : items[items.count - 1]
+    }
+}
+```
+
+`topItem`属性返回一个`Element`类型的可选值。如果堆是空的，则`topItem`返回`nil`；如果堆非空，`topItem`返回`items`数组的最后一个项。
+
+注意这个扩展并没有定义类型参数列表。相反，在扩展中用`Stack`现有的类型参数名`Element`，来表示计算属性`topItem`的可选类型。
+
+现在`topItem`属性可用在`Stack`任何实例上，以访问和请求顶部的项，而不移除它：
+```swift
+if let topItem = stackOfStrings.topItem {
+    print("The top item on the stack is \(topItem).")
+}
+// Prints "The top item on the stack is tres."
+```
+
+泛型类型的扩展也可以包含为了获得扩展的功能扩展类型的实例必须满足的条件，如[用Where子句扩展泛型](#用Where子句扩展泛型)中所述。
+
+## 类型约束
+
+函数`swapTwoValues(_:_:)`和类型`Stack`可以使用任何类型。但是，有时候给泛型函数和泛型类型可用的类型增加某种*类型约束*比较有用。类型约束指明，类型参数必须继承自指定类或必须实现特定协议或协议组合。
+
+举个例子，Swift中的`Dictionary`类型给字典键的类型添加了限制。如[字典](Collection_Types.md#字典)中所述，字典键的类型必须可哈希(*hashable*)。也就是，它必须提供一个让自身具有独特变现性的方法。`Dictionary`需要键可哈希，所以它能检查对于特定的键是否已经包含对应的值。如果没有这个要求，`Dictionary`将无法确定是否要为特定的键插入或移除一个值，也不能为给定的键找到字典中现有的值。
+
+这个要求被`Dictionary`键类型的类型约束执行，该类型约束指定键类型必须实现了`Hashable`协议，`Hashable`协议是Swift标准库中的特殊协议。默认地，所有的Swift基本类型（如`String`，`Int`，`Double`和`Bool`）都可哈希。
+
+你可以在创建自定义泛型时定义自己的类型约束，这些约束提供了泛型编程的大部分能力。诸如`Hashable`这样的抽象概念，根据概念特征而不是具体类型来体现类型。
+
+### 类型约束语法
+
+通过在类型参数名后面写上单个类或协议约束来编写类型约束，(类型参数名与类或协议约束)用冒号隔开，作为类型参数列表的一部分。泛型函数类型约束的基本语法如下所示（泛型类型的语法相同）：
+```swift
+func someFunction<T: SomeClass, U: SomeProtocol>(someT: T, someU: U) {
+    // function body goes here
+}
+```
+
+上面的函数有两个类型参数。第一个类型参数`T`，有一个要求`T`是`SomeClass`的子类的约束。第二个类型参数`U`，有一个要求`U`实现`SomeProtocol`协议的约束。
+
+### 类型约束实践
+
+下面是一个非泛型函数`findIndex(ofString:in:)`，该函数接受一个需要查找的`String`值，和一个在其中寻找该`String`值的`String`数组。`findIndex(ofString:in:)`函数返回一个可选`Int`值，该可选`Int`值是数组中第一个匹配的字符串的索引，或`nil`，如果没有找到该字符串：
+```swift
+func findIndex(ofString valueToFind: String, in array: [String]) -> Int? {
+    for (index, value) in array.enumerated() {
+        if value == valueToFind {
+            return index
+        }
+    }
+    return nil
+}
+```
+
+可以用函数`findIndex(ofString:in:)`在字符串数组中查找某个字符串：
+```swift
+let strings = ["cat", "dog", "llama", "parakeet", "terrapin"]
+if let foundIndex = findIndex(ofString: "llama", in: strings) {
+    print("The index of llama is \(foundIndex)")
+}
+// Prints "The index of llama is 2"
+```
+
+然而，查找一个值在数组中索引的原理并不仅仅对字符串有用。可以通过用`T`类型的值替换出现的字符串，把这个函数改写为泛型函数。
+
+下面是`findIndex(ofString:in:)`的一个可能的泛型版本`findIndex(of:in:)`。注意函数的返回类型仍然是`Int?`，因为函数返回一个可选索引数，而不是数组中可选类型值。再注意，这个函数不会编译，原因在例子后面给出：
+```swift
+func findIndex<T>(of valueToFind: T, in array: [T]) -> Int? {
+    for (index, value) in array.enumerated() {
+        if value == valueToFind {
+            return index
+        }
+    }
+    return nil
+}
+```
+
+函数并不会如上面所写那样编译。问题在于相等检查`if value == valueToFind`。并不是Swift中的每个类型都能用等于操作符(`==`)进行比较。例如，如果你为复杂的数据结构创建自定义类或结构体，则对于该类或结构体，Swift并不能猜出“相等”的意义。因此，不可能保证代码对于所有可能类型`T`都正常工作，当你尝试编译代码的时候，会报相应的错误。
+
+但是，别慌！Swift标准库定义了一个协议`Equatable`，它要求任何遵守`Equatable`协议的类型实现等于操作符(`==`)和不等操作符(`!=`)，用以比较该类型的两个值。Swift所有的标准类型自动支持`Equatable`协议。
+
+所有实现了`Equatable`的类型可以安全地使用`findIndex(of:in:)`函数，因为它确保支持等于操作符。为了表明这个事实，当定义函数是，向类型参数定义中添加`Equatable`类型约束：
+```swift
+func findIndex<T: Equatable>(of valueToFind: T, in array: [T]) -> Int? {
+    for (index, value) in array.enumerated() {
+        if value == valueToFind {
+            return index
+        }
+    }
+    return nil
+}
+```
+
+`findIndex(of:in:)`唯一的类型参数写作`T: Equatable`，意思是“任何遵守`Equatable`协议的类型`T`”。
+
+函数`findIndex(of:in:)`现在能编译成功，并可被用于所有的`Equatable`类型，例如`Double`或`String`：
+```swift
+let doubleIndex = findIndex(of: 9.3, in: [3.14159, 0.1, 0.25])
+// doubleIndex is an optional Int witn no value, because 9.3 isn't in the array
+let stringIndex = findIndex(of: "Andrea", in: ["Mike", "Malcolm", "Andrea"])
+// stringIndex is an optional Int containing a value of 2
+```
+
+## 关联类型
+
+定义协议时，有时候声明一个或多个关联类型作为定义的一部分比较有用。*关联类型* 为协议中用到的类型提供一个占位名称。知道协议被实现，才会指定关联类型的实际类型。关联类型用`associatedtype`关键字指定。
+
+### 关联类型实践
+
+下面是一个协议`Container`，该协议声明了一个关联类型`Item`：
+```swift
+protocol Container {
+    associatedtype Item
+    mutating func append(_ item: Item)
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
+}
+```
+
+`Container`协议定义了任何容易必须提供的三个必备能力：
+* 必须可以用`append(_:)`方法为容器添加新项
+* 必须可以通过返回`Int`值的`count`属性访问容器中项的数量
+* 必须可以通过接受`Int`索引的下标获取容器中的每个项
+
+协议没有指明项如何被储存在容器中，或允许什么类型。协议只指定为了成为一个`Container`，类型必须提供的三个功能。只要满足了这三个要求，实现了协议的类型可以提供额外的功能。
+
+任何遵守`Container`协议的类型都必须能指定其储存的值的类型。特别地，必须确保正确类型的项才能被添加到容器中，并且必须明确下标返回的项的类型。
+
+为了定义这些要求，`Container`协议需要一个方式来推导容器储存元素的类型，同时不需知道特定容器的具体类型。`Container`协议需要指定任何传入到`append(_:)`方法的值必须有与容器元素类型相同的类型，且容器下标返回的值的类型与容器元素的类型相同。
+
+为了达到这个目的，`Container`协议声明了一个关联类型`Item`，写作`associatedtype Item`。协议没有定义`Item`具体是什么–––该信息留给实现协议的类型来提供。尽管如此，`Item`别名提供了一种方法来引用`Container`中项的类型，并定义了一个与`append(_:)`方法和下标一起使用的类型，以确保执行任何`Container`所预期的行为。
+
+下面是上面章节[泛型类型](#泛型类型)中`IntStack`的非泛型版本，遵守了`Container`协议：
+```swifts
+struct IntStack: Container {
+    // original IntStack implementation
+    var items = [Int]()
+    mutating func push(_ item: Int) {
+        items.append(item)
+    }
+    mutating func pop() -> Int {
+        return items.removeLast()
+    }
+    // conformance to the Container protocol
+    typealias Item = Int
+    mutating func append(_ item: Int) {
+        self.push(item)
+    }
+    var count: Int {
+        return items.count
+    }
+    subscript(i: Int) -> Int {
+        return items[i]
+    }
+}
+```
+
+`IntStack`类型实现了`Container`协议的三个要求，在各种情况下，包装`IntStack`类型现有的功能去满足这些要求。
+
+此外，`IntStack`指定，对于`Container`的这个实现，对应的`Item`类型用`Int`。定义`typealias Item = Int`将`Container`协议的实现中的抽象类型`Item`变成具体类型`Int`。
+
+得益于Swift的类型推导，实际上你不需要在`IntStack`定义中声明`Item`的具体类型`Int`。因为`IntStack`遵守了`Container`协议的所有要求，Swift可以通过查看`append(_:)`方法的参数和下标的返回类型来推导出合适的`Item`。确实，如果删除上面代码中的`typealias Item = Int`，也能正常工作，因为需要用什么类型已经很清晰了。
+
+你也可以让泛型类型`Stack`实现`Container`协议：
+```swift
+struct Stack<Element>: Container {
+    // original Stack<Element> implementation
+    var items = [Element]()
+    mutating func push(_ item: Element) {
+        items.append(item)
+    }
+    mutating func pop() -> Element {
+        return items.removeLast()
+    }
+    // conformance to the Container protocol
+   mutating func append(_ item: Element) {
+       self.push(item)
+   }
+   var count: Int {
+       return items.count
+   }
+   subscript(i: Int) -> Element {
+       return items[i]
+   }
+}
+```
+
+这次，类型参数`Element`被用于`append(_:)`方法的`item`参数类型和下标的返回类型。因此Swift可以推导出`Element`是适用于这个特定容器的`Item`的类型。
+
+### 扩展现有类型以指定关联类型
+
+可以扩展一个现有类型以添加协议一致性，如[用扩展添加协议一致性](Protocols.md#用扩展添加协议一致性)中所述。这包括有关联类型的协议。
+
+Swift的`Array`类型已经提供了一个`append(_:)`方法，一个`count`属性，和一个用`Int`索引获取元素的下标。这三个能力匹配的`Container`协议的要求。这意味着，你可以通过声明`Array`遵守`Container`协议来扩展`Array`实现`Container`协议。用空扩展来实现这个，如[用扩展声明遵守协议](Protocols.md#用扩展声明遵守协议)中所述：
+```swift
+extension Array: Container {}
+```
+
+`Array`现有的`append(_:)`方法和下标使Swift推导出适用于`Item`的类型，就如上面的泛型类型`Stack`一样。定义扩展之后，你就可以把任何`Array`当作`Container`使用。
+
+### 为关联类型添加约束
+
+给关联类型添加类型约束以要求实现类型满足这些约束。举个例子，下面的代码定义了一个要求容器中的项可以相等的`Container`版本。
+```swift
+protocol Container {
+    associatedtype Item: Equatable
+    mutating func append(_ item: Item)
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
+}
+```
+
+为了符合这个版本的协议，容器的`Item`类型必须符合`Equatable`协议。
+
+### 在协议的关联类型约束中使用协议
+
+一个协议可以作为自身要求的一部分出现。举个例子，下面的协议重新定义了`Container`协议，追加了`suffix(_:)`方法要求。`suffix(_:)`方法
+
+
+
+
+
+
 
 
 
