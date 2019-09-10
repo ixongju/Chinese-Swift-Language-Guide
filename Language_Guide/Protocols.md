@@ -322,15 +322,79 @@ class SnakesAndLadders: DiceGame {
 
 关于*蛇和梯子*游戏的描述，参见[Break](Control_Flow.md#Break)。
 
-这个版本的游戏被
+这个版本的游戏被包装成遵守了`DiceGame`协议的`SnakesAndLadders`类。为了实现协议它提供了一个可读属性`dice`和一个`play()`方法。（`dice`属性声明为常量属性，因为在初始化之后就不需要改变，且协议只要求其可读。）
+
+在类初始化方法`init()`中设置*蛇和梯子*游戏棋盘。所有的游戏逻辑移到协议方法`play()`中，该方法利用协议属性`dice`提供骰子点数。
+
+注意`delegate`属性被定义成可选`DiceGameDelegate`，因为委托对于玩游戏并不是必须的。由于是可选类型，`delegate`属性自动被设置成`nil`。之后，游戏的实例化者可以选择为该属性设置合适的委托。因为`DiceGameDelegate`协议是类专用，你可以将委托声明为`weak`以防止循环引用。
+
+`DiceGameDelegate`提供三个方法跟踪游戏进度。这三个方法与`play()`方法中的游戏逻辑相协调，在游戏开始，新回合开始或游戏结束时会被调用。
+
+因为`delegate`属性是*可选*`DiceGameDelegate`，每次`play()`调用委托的方法时，会使用可选链。如果`delegate`属性是空，这些委托方法会优雅地失败而不会报错。如果`delegate`属性是非空，委托方法被调用，将`SnakesAndLadders`实例当作参数传递。
+
+下一个例子展示了一个类`DiceGameTracker`，该类遵守`DiceGameDelegate`协议：
+```swift
+class DiceGameTracker: DiceGameDelegate {
+    var numberOfTurns = 0
+    func gameDidStart(_ game: DiceGame) {
+        numberOfTurns = 0
+        if game is SnakesAndLadders {
+            print("Started a new game of Snakes and Ladders")
+        }
+        print("The game is using a \(game.dice.sides)-sided dice")
+    }
+    func game(_ game: DiceGame, didStartNewTurnWithDiceRoll diceRoll: Int) {
+        numberOfTurns += 1
+        print("Rolled a \(diceRoll)")
+    }
+    func gameDidEnd(_ game: DiceGame) {
+      print("The game lasted for \(numberOfTurns) turns")
+    }
+}
+```
+
+`DiceGameTracker`实现了`DiceGameDelegate`所要求的三个方法。它用这些方法统计游戏回合次数。当游戏开始时，把`numberOfTurns`属性设置为零，新回合开始时增一，游戏结束时打印出回合总数。
+
+上面`gameDidStart(_:)`的实现中使用`game`参数打印即将开始的游戏的介绍性信息。`game`属性类型是`DiceGame`，而不是`SnakesAndLadders`，所以`gameDidStart(_:)`仅可以访问和使用实现作为`DiceGame`协议一部分的方法和属性。然而，该方法依然可以用类型转换查询底层实例的类型。在这个例子中，检查`game`底层是否是`SnakesAndLadders`的一个实例，如果是就打印相应信息。
+
+`gameDidStart(_:)`方法也访问了被传入的`game`参数的`dice`属性。因为已知`game`遵守了`DiceGame`协议，确保有`dice`属性，所以不管什么类型的游戏，`gameDidStart(_:)`方法都可以访问并且打印骰子的`sides`属性。
+
+下面是`DiceGameTracker`的应用：
+```swift
+let tracker = DiceGameTracker()
+let game = SnakesAndLadders()
+game.delegate = tracker
+game.play()
+// Started a new game of Snakes and Ladders
+// The game is using a 6-sided dice
+// Rolled a 3
+// Rolled a 5
+// Rolled a 4
+// Rolled a 5
+// The game lasted for 4 turns
+```
+
+## 用扩展添加协议一致性
+
+可以扩展一个现有类型遵循并实现一个新协议，即便你没有权限访问现有类型的源码。扩展可以给现有类型添加属性，方法和下标，因此可以添加可能的协议要求。更多关于扩展，参见[扩展](Extensions.md)。
+
+> 注意：
+当在扩展中给实例的类型添加了协议一致性时，类型的现有实例自动遵守和实现协议。
+
+举个例子，协议`TextRepresentable`，可以被任何能被呈现为文本的类型实现。这可能是关于自身的描述，或当前状态的文本版本：
+```swift
+protocol TextRepresentable {
+    var textualDescription: String { get }
+}
+```
+
+
 
 
 ## 类专用协议
 
 ## 检查协议一致性
 
-
-## 用扩展添加协议一致性
 
 ### 用扩展声明遵守协议
 
