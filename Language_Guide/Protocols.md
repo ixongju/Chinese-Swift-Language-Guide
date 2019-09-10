@@ -250,6 +250,83 @@ class Dice {
 
 属性`generator`的类型是`RandomNumberGenerator`。因此，你可以把该属性设置为遵守了`RandomNumberGenerator`协议的任何类型。对于赋值给这个属性的实例，没有任何其他的要求，只需要该实例遵守了`RandomNumberGenerator`协议。以你为它是`RandomNumberGenerator`类型，`Dice`类中的代码只需通过应用在实现了协议的生成器上的方法与`generator`交互。这意味着它不能使用任何定义在底层生成器中的其他方法或属性。尽管如此，你可以用从父类向下转换为子类的方法，从协议类型向下转换成一个底层类型，如[向下转换](Type_Casting.md#向下转换)中所述。
 
+`Dice`也有一个初始化方法，用来设置初始状态。这个初始化方法有一个参数`generator`，其类型是`RandomNumberGenerator`。当初始化`Dice`实例时，你可以传入任何一个实现了该协议的类型的值给这个参数。
+
+`Dice`提供一个实例方法`roll`，返回一个从1到骰子面数的整数。这个方法调用生成器的`random()`方法创建一个介于`0.0`到`1.0`的新随机数，然后用这个随机数创建正确范围内骰子的值。因为已知`generator`实现了`RandomNumberGenerator`协议，所以能确保`generator`有`random()`方法。
+
+下面是如何用`Dice`类，结合`LinearCongruentialGenerator`实例作为随机数生成器，创建一个六面骰子：
+```swift
+var d6 = Dice(sides: 6, generator: LinearCongruentialGenerator())
+for _ in 1...5 {
+    print("Random dice roll is \(d6.roll())")
+}
+// Random dice roll is 3
+// Random dice roll is 5
+// Random dice roll is 4
+// Random dice roll is 5
+// Random dice roll is 4
+```
+
+## 委托
+
+*委托* 是一种允许类或结构体将部分职责传递（或委托）给另一个类型的实例的设计模式。通过定义封装了委托责任的协议，确保实现了协议的类型（被称为委托）能提供被委托的功能，来实现这个设计模式。委托可被用于响应特定的动作，或从外部资源获取数据，而不需要知道该资源的底层类型。
+
+下面的例子为基于骰子的棋盘游戏定义了两个协议：
+```swift
+protocol DiceGame {
+    var dice: Dice { get }
+    func play()
+}
+protocol DiceGameDelegate: AnyObject {
+    func gameDidStart(_ game: DiceGame)
+    func game(_ game: DiceGame, didStartNewTurnWithDiceRoll diceRoll: Int)
+    func gameDidEnd(_ game: DiceGame)
+}
+```
+
+`DiceGame`协议可以被使用了骰子的任何游戏采用。为了防止强循环引用，委托被声明为弱引用，参见[类实例间的强循环引用](Automatic_Reference_Counting.md#类实例间的强循环引用)。将协议标记为类专用(class-only)，可以使本节稍后的`SnakesAndLadders`类声明其委托必须为弱引用。类专用(class-only)的协议在继承格式后面写上`AnyObject`，如[类专用协议](#类专用协议)中所述。
+
+下面是[控制流](Control_Flow.md)章节中引入的*蛇与梯子*游戏的一个版本。这个版本适合用`Dice`实例作为摇骰子；采用`DiceGame`协议；并通知`DiceGameDelegate`游戏进度：
+```swift
+class SnakesAndLadders: DiceGame {
+    let finalSquare = 25
+    let dice = Dice(sides: 6, generator: LinearCongruentialGenerator())
+    var square = 0
+    var board: [Int]
+    init() {
+      board = Array(repeating: 0, count: finalSquare + 1)
+      board[03] = +08; board[06] = +11; board[09] = +09; board[10] = +02
+      board[14] = -10; board[19] = -11; board[22] = -02; board[24] = -08
+    }
+    weak var delegate: DiceGameDelegate?
+    func play() {
+        square = 0
+        delegate?.gameDidStart(self)
+        gameLoop: while square != finalSquare {
+            let diceRoll = dice.roll()
+            delegate?.game(self, didStartNewTurnWithDiceRoll: diceRoll)
+            switch square + diceRoll {
+                case finalSquare:
+                  break gameLoop
+                case let newSquare where newSquare > finalSquare:
+                  continue gameLoop
+                default:
+                  square += diceRoll
+                  square += board[square]
+            }
+        }
+        delegate?.gameDidEnd(self)
+    }
+}
+```
+
+关于*蛇和梯子*游戏的描述，参见[Break](Control_Flow.md#Break)。
+
+这个版本的游戏被
+
+
+## 类专用协议
+
 ## 检查协议一致性
 
 
