@@ -413,13 +413,105 @@ protocol Container {
 
 ### 在协议的关联类型约束中使用协议
 
-一个协议可以作为自身要求的一部分出现。举个例子，下面的协议重新定义了`Container`协议，追加了`suffix(_:)`方法要求。`suffix(_:)`方法
+一个协议可以作为自身要求的一部分出现。举个例子，下面的协议重新定义了`Container`协议，追加了`suffix(_:)`方法要求。`suffix(_:)`方法从容器末尾返回给定数量的元素，并将它们储存在`Suffix`类型的实例中。
+```swift
+protocol SuffixableContainer: Container {
+    associatedtype Suffix: SuffixableContainer where Suffix.Item == Item
+    func suffix(_ size: Int) -> Suffix
+}
+```
 
+在这个协议中，`Suffix`是一个关联类型，如上面例子中`Container`中的`Item`类型。`Suffix`有两个约束：它必须遵循`SuffixableContainer`协议（当前定义的协议），其`Item`类型必须与容器的`Item`类型相同。`Item`的约束是泛型`where`子句，在[泛型Where子句的关联类型](#泛型Where子句的关联类型)中有述。
 
+下面是上面[泛型类型](#泛型类型)中`Stack`类型的一个扩展，该扩展添加`SuffixableContainer`协议的一致性：
+```swift
+extension Stack: SuffixableContainer {
+    func suffix(_ size: Int) -> Stack {
+        var result = Stack()
+        for index in (count-size)..<count {
+            result.append(self[index])
+        }
+        return result
+    }
+    // Inferred that Suffix is Stack.
+}
+var stackOfInts = Stack<Int>()
+stackOfInts.append(10)
+stackOfInts.append(20)
+stackOfInts.append(30)
+let suffix = stackOfInts.suffix(2)
+// suffix contains 20 and 30
+```
 
-
+在上面的例子中，`Stack`的关联类型`Suffix`也是`Stack`，所以`Stack`的后缀操作返回另一个`Stack`。另外，一个实现了`SuffixableContainer`协议的类型有一个与自身不同的`Suffix`类型———意味着后缀操作返回不同类型。举个例子，下面的扩展为非泛型`IntStack`类型添加`SuffixableContainer`一致性，用`Stack<Int>`作为其后缀类型，而不是`IntStack`：
+```swift
+extension IntStack: SuffixableContainer {
+    func suffix(_ size: Int) -> Stack<Int> {
+        var result =  Stack<Int>()
+        for index in (count-size)..<count {
+            result.append(self[index])
+        }
+        return result
+    }
+    // Inferred that Suffix is Stack<Int>
+}
+```
 
 ## 泛型Where子句
+
+类型约束，如[类型约束](#类型约束)中所述，允许你在与函数、下标或类型关联的类型参数上定义要求。
+
+为关联类型定义要求也很有用。通过定义*泛型where子句*来实现这个。泛型where子句允许你要求关联类型必须遵守某一个协议，或某个类型参数和关联类型必须相同。泛型where子句以`where`关键字开始，后面接关联类型约束或类型与关联类型的相等关系。在类型或函数体的开始大括号之前编写泛型where子句。
+
+下面的例子定义了泛型函数`allItemsMatch`，它检查两个`Container`实例是否以相同的顺序包含相同的项。如果项匹配，则函数返回布尔值`true`，如果不匹配，则返回`false`。
+
+被检查的两个容易不一定要是相同类型的容器（即使它们可以是相同的容器），但是它们不需要持有相同类型的项。这个要求通过联合类型约束与一个泛型`where`子句表达：
+```swift
+func allItemsMatch<C1: Container, C2: Container>
+    (_ someContainer: C1, _ anotherContainer: C2) -> Bool
+    where C1.Item == C2.Item, C1.Item: Equatable {
+
+    // Check that both containers contain the same number of items.
+    if someContainer.count != anotherContainer.count {
+        return false
+    }
+
+    // Check each pair of items to see if they're equivalent.
+    for i in 0..<someContainer.count {
+        if someContainer[i] != anotherContainer[i] {
+            return false
+        }
+    }
+
+    // All items match, so return true
+    return true
+}
+```
+
+这个函数接受两个参数`someContainer`和`anotherContainer`。参数`someContainer`的类型是`C1`，另一个参数`anotherContainer`的类型是`C2`。`C1`和`C2`都是调用函数时确定的两个容易类型的类型参数。
+
+给函数的两个类型参数添加了以下要求：
+* `C1`必须遵守`Container`协议（写作：`C1: Container`）
+* `C2`也必须遵守`Container`协议（写作：`C2: Container`）
+* `C1`的`Item`必须与`C2`的`Item`相同（写作：`C1.Item == C2.Item`）
+* `C1`的`Item`必须遵守`Equatable`协议（写作：`C1.Item: Equatable`）
+
+第一个和第二个要求定义在函数类型参数列表中，第三个和第四个要求定义在函数的泛型`where`子句中。
+
+这些要求的意思是：
+* `someContainer`是类型为`C1`的容器。
+* `anotherContainer`是类型为`C2`的容器。
+* `someContainer`和`anotherContainer`包含相同类型的项。
+* `someContainer`中的项可以用不等操作符(`!=`)检查其是否跟另一个不同。
+
+第三个和第四个要求结合起来意思是，`anotherContainer`中的项也能用不等操作符(`!=`)检查，因为它们与`someContainer`中项的类型相同。
+
+这些要求允许函数`allItemsMatch(_:_:)`比较两个容器，即便这两个容器类型不同。
+
+
+
+
+## 泛型Where子句的关联类型
 
 
 
