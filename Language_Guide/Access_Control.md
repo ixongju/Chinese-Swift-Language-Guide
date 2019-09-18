@@ -208,7 +208,24 @@ private var privateInstance = SomePrivateClass()
 
 ### Getters和Setters
 
+常量，变量，属性和下标的Getter方法和Setter方法自动拥有与该常量，变量，属性和下标相同的访问级别。
 
+你可以给setter方法设置比其对应的getter方法更低的访问级别，以限制该变量，属性或下标的读写权限范围。在`var`或`subscript`声明符前使用`fileprivate(set)`，`private(set)`或`internal(set)`来指定更低的访问级别。
+
+> 注意：
+> 这个规则适用于储存属性，也适用于计算属性。即使你没有为储存属性书写显式的getter和setter方法，Swift仍然会合成隐式getter和setter方法，以提供对储存属性底层储存的访问。用`fileprivate(set)`，`private(set)`和`internal(set)`改变合成的setter的访问级别，其方式与计算属性显式定义setter的方式完全相同，
+
+下面的例子定义了一个结构体`TrackedString`，该结构体统计一个字符串属性被修改的次数：
+```swift
+struct TrackedString {
+    private(set) var numberOfEdits = 0
+    var value: String = "" {
+        didSet {
+            numberOfEdits += 1
+        }
+    }
+}
+```
 
 ## 初始化方法
 
