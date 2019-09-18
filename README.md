@@ -42,7 +42,7 @@ THE SEIFT PROGRAMMING LANGUAGE SWIFT 5.1
 - [类型](Language_Reference/Types.md)
 - [表达式](Language_Reference/Expressions.md)
 - [声明](Language_Reference/Declarations.md)
-- [属性](Language_Reference/Attributes.md)
+- [特性](Language_Reference/Attributes.md)
 - [模式](Language_Reference/Patterns.md)
 - [通用形参和实参](Language_Reference/Generic_Parameters_and_Arguments.md)
 - [语法概述](Language_Reference/Summary_of_the_Grammar.md)

@@ -7,4 +7,4 @@
 
 
 
-[< 模式](Patterns.md) || [语法总结 >](Summary_of_the_Grammar.md)
+[< 模式](Patterns.md) || [语法概述 >](Summary_of_the_Grammar.md)
