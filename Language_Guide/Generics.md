@@ -508,6 +508,33 @@ func allItemsMatch<C1: Container, C2: Container>
 
 这些要求允许函数`allItemsMatch(_:_:)`比较两个容器，即便这两个容器类型不同。
 
+函数`allItemsMatch(_:_:)`的开始会检查两个容器是否含有相同数量的项。如果项的数量不同，则肯定不匹配，函数返回`false`。
+
+做完这个检查之后，函数用`for-in`循环和半开范围操作符(`..<`)遍历`someContainer`中的所有项。对于每一个项，函数检查`someContainer`中的项是否等于`anotherContainer`中对应的项。如果两者不等，则两个容易不匹配，函数返回`false`。
+
+如果循环结束时没有找到不匹配的，则两个容器匹配，函数返回`true`。
+
+下面是函数`allItemsMatch(_:_:)`的运作方式：
+```swift
+var stackOfStrings = Stack<String>()
+stackOfStrings.push("uno")
+stackOfStrings.push("dos")
+stackOfStrings.push("tres")
+
+var arrayOfStrings = ["uno", "dos", "tres"]
+
+if allItemsMatch(stackOfStrings, arrayOfStrings) {
+    print("All items match.")
+} else {
+    print("Not all items match.")
+}
+// Prints "All items match."
+```
+
+上面的例子创建一个`Stack`实例存放`String`值，然后押入三个字符串。例子中也创建了一个数组实例，该实例被一个数组字面量初始化，数组字面量中包含的字符串与`Stack`实例中的相同。即使堆和数组属于不同的类型，他们都遵循了`Container`协议，且都包含相同类型的值。因此可以把这两个容器用作调用`allItemsMatch(_:_:)`函数的参数。在上面的例子中，`allItemsMatch(_:_:)`函数正确地报告出这两个容器中的项都匹配。
+
+## 有泛型where子句的扩展
+
 
 
 
