@@ -225,7 +225,7 @@ let sunsetDirection = CompassPoint.west.rawValue
 // sunsetDirection is "west"
 ```
 
-#### 从原始值初始化
+### 从原始值初始化
 
 如果你定义了一个原始值类型的枚举，则枚举自动拥有一个接受原始值类型参数（该参数名为`rawValue`）的初始化方法，该方法返回枚举实例或`nil`。你可以用这个初始化方法穿件枚举的实例。
 
