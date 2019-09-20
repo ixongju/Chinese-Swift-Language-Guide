@@ -18,7 +18,7 @@ enum SomeEnumeration {
 }
 ```
 
-指南针四个方向的枚举：
+表示指南针四个方向的枚举：
 ```swift
 enum CompassPoint {
   case north
@@ -124,7 +124,7 @@ for beverage in Beverage.allCases {
 其余的产品使用二维码，可以用ISO-8859-1字符，最长长度为2953个字符。
 
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/barcode_QR_2x.png" alt="关联值" width="280"/>
+<img src="https://docs.swift.org/swift-book/_images/barcode_QR_2x.png" alt="关联值" width="250"/>
 </p>
 
 库存跟踪系统可以方便地将条形码存储为四个整数的元组，将二维码存储为一个字符串。
@@ -191,7 +191,7 @@ enum ASCIIControlCharacter: Character {
 
 > 注意：原始值与关联值不同。像上面的例子一样，首次定义枚举的时候原始值设置成预设值。枚举中每个值的原始值是相同的。关联值在你用枚举创建新的常量或变量的时候被设定，并且每次这样做的时候，关联值可以不同。
 
-#### 隐式指定原始值
+### 隐式指定原始值
 
 当使用储存整数或字符串原始值的枚举时，你不必为每一个值指定原始值。当你不指定原始值时，Swift会自动帮你指定。
 

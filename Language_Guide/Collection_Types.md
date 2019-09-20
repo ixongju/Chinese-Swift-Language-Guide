@@ -353,13 +353,14 @@ for genre in favoriteGenres.sorted() {
 下面的插图描绘了两个无序集合---`a`和`b`---图形区域代表无序集合操作的结果。
 
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/setVennDiagram_2x.png" alt="无序集合基本操作" width="600"/>
+<img src="https://docs.swift.org/swift-book/_images/setVennDiagram_2x.png" alt="无序集合基本操作" width="400"/>
 </p>
 
 * 用`intersection(_:)`方法创建一个包含两个无序集合共同部分的新无序集合。
 * 用`symmetricDifference(_:) `方法创建一个包含在任何一个无序集合中，但不同时在两个无序集合中元素的新无序集合。
 * 用`union(_:)`方法创建包含两个无序集合中所有元素的新无序集合。
 * 用`subtracting(_:)`方法创建一个不包含某个无序集合中所有元素的新无序集合。
+
 ```swift
 let oddDigits: Set = [1, 3, 5, 7, 9]
 let evenDigits: Set = [0, 2, 4, 6, 8]
@@ -380,7 +381,7 @@ oddDigits.symmetricDifference(singleDigitPrimeNumbers).sorted()
 下面的插图描绘了单个无序集合---`a`，`b`和`c`---重合部分表示无序集合共有的元素。集合`a`是集合`b`的超集，因为`a`包含`b`中所有的元素。相反，集合`b`是集合`a`的子集，因为`b`中所有的元素都在`a`中。集合`b`和集合`c`互不相交，因为他们没有共同的元素。
 
 <p align="center">
-<img src="https://docs.swift.org/swift-book/_images/setEulerDiagram_2x.png" alt="无序集合基本操作" width="600"/>
+<img src="https://docs.swift.org/swift-book/_images/setEulerDiagram_2x.png" alt="无序集合基本操作" width="300"/>
 </p>
 
 * 用等于运算符(`==`)判断两个集合是否包含全部相同元素。

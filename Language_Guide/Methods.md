@@ -13,16 +13,16 @@
 下例中，定义一个简单的类`Counter`，可以用来统计动作发生的次数：
 ```swift
 class Counter {
-  var count = 0
-  func increment() {
-    count += 1
-  }
-  func increment(by amount: Int) {
-    count += amount
-  }
-  func reset() {
-    count = 0
-  }
+    var count = 0
+    func increment() {
+        count += 1
+    }
+    func increment(by amount: Int) {
+        count += amount
+    }
+    func reset() {
+        count = 0
+    }
 }
 ```
 
@@ -65,14 +65,14 @@ func increment() {
 这里，`self`区分一个名为`x`方法参数和名为`x`的实例属性：
 ```swift
 struct Point {
-  var x = 0.0, y = 0.0
-  func isToTheRightOf(x: Double) -> Bool {
-    return self.x = x
-  }
+    var x = 0.0, y = 0.0
+    func isToTheRightOf(x: Double) -> Bool {
+        return self.x = x
+    }
 }
 let somePoint = Point(x: 4.0, y: 5.0)
 if somePoint.isToTheRightOf(x: 1.0) {
-  print("This point is to the right of the line where x == 1.0")
+    print("This point is to the right of the line where x == 1.0")
 }
 // Prints "This point is to the right of the line where x == 1.0"
 ```
@@ -88,11 +88,11 @@ if somePoint.isToTheRightOf(x: 1.0) {
 可以在`func`关键字前面写上`mutating`关键字，来选择此行为：
 ```swift
 struct Point {
-  var x = 0.0, y = 0.0
-  mutating func moveBy(x deltaX: Double, y deltaY: Double) {
-    x += deltaX
-    y += deltaY
-  }
+    var x = 0.0, y = 0.0
+    mutating func moveBy(x deltaX: Double, y deltaY: Double) {
+        x += deltaX
+        y += deltaY
+    }
 }
 var somePoint = Point(x: 1.0, y: 1.0)
 somePoint.moveBy(x: 2.0, y: 3.0)
@@ -177,11 +177,11 @@ struct LevelTracker {
     var currentLevel = 1
 
     static func unlock(_ level: Int) {
-      if level > highestUnlockedLevel { highestUnlockedLevel = level }
+        if level > highestUnlockedLevel { highestUnlockedLevel = level }
     }
 
     static func isUnlocked(_ level: Int) -> Bool {
-      return level <= highestUnlockedLevel
+        return level <= highestUnlockedLevel
     }
 
     @discardableResult
@@ -207,15 +207,15 @@ struct LevelTracker {
 如下所示，`LevelTracker`结构体与`Player`类配合，跟踪与更新单个玩家的进度：
 ```swift
 class Player {
-  var tracker = LevelTracker()
-  let playerName: String
-  func complete(level: Int) {
-    LevelTracker.unlock(level + 1)
-    tracker.advance(to: level + 1)
-  }
-  init(name: String) {
-    playerName = name
-  }
+    var tracker = LevelTracker()
+    let playerName: String
+    func complete(level: Int) {
+        LevelTracker.unlock(level + 1)
+        tracker.advance(to: level + 1)
+    }
+    init(name: String) {
+        playerName = name
+    }
 }
 ```
 
@@ -233,9 +233,9 @@ print("highest unlock level is now \(LevelTracker.highestUnlockedLevel)")
 ```swift
 player = Player(name: "Beto")
 if player.tracker.advance(to: 6) {
-  print("player is now on level 6")
+    print("player is now on level 6")
 } else {
-  print("level 6 has not yet been unlocked")
+    print("level 6 has not yet been unlocked")
 }
 // Prints "level 6 has not yet been unlocked"
 ```

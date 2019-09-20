@@ -66,10 +66,10 @@ struct Fahrenheit {
 struct Celsius {
     var temperatureInCelsius: Double
     init(fromFahrenheit fahrenheit: Double) {
-      temperatureInCelsius = (fahrenheit - 32.0) / 1.8
+        temperatureInCelsius = (fahrenheit - 32.0) / 1.8
     }
     init(fromKelvin kelvin: Double) {
-      temperatureInCelsius = kelvin - 273.15
+        temperatureInCelsius = kelvin - 273.15
     }
 }
 let boilingPointOfWater = Celsius(fromFahrenheit: 212.0)
@@ -151,10 +151,10 @@ class SurveyQuestion {
   var text: String
   var response: String?
   init(text: String) {
-    self.text = text
+      self.text = text
   }
   func ask() {
-    print(text)
+      print(text)
   }
 }
 let cheeseQuestion = SurveyQuestion(text: "Do you like cheese?")。
@@ -178,10 +178,10 @@ class SurveyQuestion {
   let text: String
   var response: String?
   init(text: String) {
-    self.text = text
+      self.text = text
   }
   func ask() {
-    print(text)
+      print(text)
   }
 }
 let beetsQuestion = SurveyQuestion(text: "How about beets?")
@@ -197,9 +197,9 @@ Swift为任何为自身属性提供默认值，且没有任何初始化方法的
 下面的例子定义个一个类`ShoppingListItem`，封装了购物清单中一个项的名称，数量和购买状态：
 ```swift
 class ShoppingListItem {
-  var name: String?
-  var quantity = 1
-  var purchased = false
+    var name: String?
+    var quantity = 1
+    var purchased = false
 }
 var item = ShoppingListItem()
 ```
@@ -217,7 +217,7 @@ var item = ShoppingListItem()
 `Size`结构体自动拥有一个成员初始化方法`init(width:height:)`，你可以用它初始化一个新`Size`实例：
 ```swift
 struct Size {
-  var width = 0.0, height = 0.0
+    var width = 0.0, height = 0.0
 }
 let twoByTwo = Size(width: 2.0, height: 2.0)
 ```
@@ -263,13 +263,13 @@ struct Rect {
     var size = Size()
     init() {}
     init(origin: Point, size: Size) {
-      self.origin = origin
-      self.size = size
+        self.origin = origin
+        self.size = size
     }
     init(center: Point, size: Size) {
-      let originX = center.x - (size.width / 2)
-      let originY = center.y - (size.height / 2)
-      self.init(origin: Point(x: originX, y: originY), size: size)
+        let originX = center.x - (size.width / 2)
+        let originY = center.y - (size.height / 2)
+        self.init(origin: Point(x: originX, y: originY), size: size)
     }
 }
 ```
@@ -452,10 +452,10 @@ Swift编译器执行四个有用的安全检查，以确保两步初始化完成
 下面的例子定义了一个基础类`Vehicle`。这个基础类声明了一个储存属性`numberOfWheels`，默认值是`Int`值`0`。`numberOfWheels`属性被一个计算属性`description`用来创建车辆属性的`String`描述：
 ```swift
 class Vehicle {
-  var numberOfWheels = 0
-  var description: String {
-    return "\(numberOfWheels) wheel(s)"
-  }
+    var numberOfWheels = 0
+    var description: String {
+        return "\(numberOfWheels) wheel(s)"
+    }
 }
 ```
 
@@ -469,10 +469,10 @@ print("Vehicle: \(vehicle.description)")
 下一个例子定义了`Vehicle`的子类`Bicycle`：
 ```swift
 class Bicycle: Vehicle {
-  override init() {
-    super.init()
-    numberOfWheels = 2
-  }
+    override init() {
+        super.init()
+        numberOfWheels = 2
+    }
 }
 ```
 
@@ -492,14 +492,14 @@ print("Bicycle: \(bicycle.description)")
 这个例子定义了另外一个`Vehicle`的子类`Hoverboard`。在其初始化方法中，`Hoverboard`类只设置其`color`属性。初始化方法依赖隐式调用父类初始化方法来完成初始化过程，而不是显示调用`super.init()`。
 ```swift
 class Hoverboard: Vehicle {
-  var color: String
-  init(color: String) {
-    self.color = color
-    // super.init() implicitly called here
-  }
-  override var description: String {
-    return "\(super.description) in a beautiful \(color)"
-  }
+    var color: String
+    init(color: String) {
+        self.color = color
+        // super.init() implicitly called here
+    }
+    override var description: String {
+        return "\(super.description) in a beautiful \(color)"
+    }
 }
 ```
 
@@ -537,13 +537,13 @@ print("Hoverboard: \(hoverboard.description)")
 结构图中的基础类是`Food`，它是食物名称的简单封装。`Food`类引入了唯一的`String`属性`name`，然后提供了两个创建`Food`实例的初始化方法：
 ```swift
 class Food {
-  var name: String
-  init(name: String) {
-    self.name = name
-  }
-  convenience init() {
-    self.init(name: "[Unnamed]")
-  }
+    var name: String
+    init(name: String) {
+        self.name = name
+    }
+    convenience init() {
+        self.init(name: "[Unnamed]")
+    }
 }
 ```
 
@@ -570,14 +570,14 @@ let mysteryMeat = Food()
 类结构图中的第二个类是`Food`的子类`RecipeIngredient`。`RecipeIngredient`类为烹饪食谱中的一种成分建模。它引入了一个`Int`属性`quantity`（除了从`Food`继承而来的`name`属性），然后定义了两个创建`RecipeIngredient`实例的初始化方法：
 ```swift
 class RecipeIngredient: Food {
-  var quantity: Int
-  init(name: String, quantity: Int) {
-    self.quantity = quantity
-    super.init(name: name)
-  }
-  override convenience init(name: String) {
-    self.init(name: name, quantity: 1)
-  }
+    var quantity: Int
+    init(name: String, quantity: Int) {
+        self.quantity = quantity
+        super.init(name: name)
+    }
+    override convenience init(name: String) {
+        self.init(name: name, quantity: 1)
+    }
 }
 ```
 
@@ -609,12 +609,12 @@ let sixEggs = RecipeIngredient(name: "Eggs", quantity: 6)
 购物单中的每个项一开始为"未买单"。为表示这个，`ShoppingListItem`引入了一个布尔属性`purchased`，默认值是`false`。`ShoppingListItem`也引入了一个计算属性`description`，该属性提供`ShoppingListItem`实例的文本描述：
 ```swift
 class ShoppingListItem: RecipeIngredient {
-  var purchased = false
-  var description: String {
-    var output = "\(quantity) x \(name)"
-    output += purchased ? " ✔" : " ✘"
-    return output
-  }
+    var purchased = false
+    var description: String {
+        var output = "\(quantity) x \(name)"
+        output += purchased ? " ✔" : " ✘"
+        return output
+    }
 }
 ```
 
@@ -668,7 +668,7 @@ let wholeNumber: Double = 12345.0
 let pi = 3.14159
 
 if let valueMaintained = Int(exactly: wholeNumber) {
-  print("\(wholeNumber) conversion to Int maintains value of \(valueMaintained)")
+    print("\(wholeNumber) conversion to Int maintains value of \(valueMaintained)")
 }
 // Prints "12345.0 conversion to Int maintains value of 12345"
 
@@ -676,7 +676,7 @@ let valueChanged = Int(exactly: pi)
 // valueChanged is of type Int?, not Int
 
 if valueChanged == nil {
-  print("\(pi) conversion to Int does not maintain value")
+    print("\(pi) conversion to Int does not maintain value")
 }
 // Prints "3.14159 conversion to Int does not maintain value"
 ```
@@ -684,11 +684,11 @@ if valueChanged == nil {
 下面的例子定义了一个结构体`Animal`，有一个`String`常量属性`species`。`Animal`结构体也定义了一个接受单个参数`species`的可失败初始化方法。如果发现了一个空字符串，就会触发初始化失败。否则，为`species`属性赋值，初始化成功：
 ```swift
 struct Animal {
-  let species: String
-  init?(species: String) {
-    if species.isEmpty { return nil }
-    self.species = species
-  }
+    let species: String
+    init?(species: String) {
+        if species.isEmpty { return nil }
+        self.species = species
+    }
 }
 ```
 
@@ -724,19 +724,19 @@ if anonymousCreature == nil {
 下面的例子定义了一个枚举`TemperatureUnit`，有三个可能状态（`kelvin`，`celsius`和`fahrenheit`）。用一个可失败初始化方法为代表温度符号的字符(`Character`)值寻找一个合适的枚举分支：
 ```swift
 enum TemperatureUnit {
-  case kelvin, celsius, fahrenheit
-  init?(symbol: Character) {
-    switch symbol {
-      case "K":
-        self = .kelvin
-      case "C":
-        self = .celsius
-      case "F":
-        self = .fahrenheit
-      default:
-        return nil
+    case kelvin, celsius, fahrenheit
+    init?(symbol: Character) {
+        switch symbol {
+          case "K":
+            self = .kelvin
+          case "C":
+            self = .celsius
+          case "F":
+            self = .fahrenheit
+          default:
+            return nil
+        }
     }
-  }
 }
 ```
 
@@ -790,20 +790,20 @@ if unknownUnit == nil {
 下面的例子定义了`Product`的子类`CartItem`。`CartItem`类模拟一个在线购物车中的项。`CartItem`引入了一个储存常量属性`quantity`，并确保这个属性总是有最小为`1`的值：
 ```swift
 class Product {
-  let name: String
-  init?(name: String) {
-    if name.isEmpty { return nil }
-    self.name = name
-  }
+    let name: String
+    init?(name: String) {
+        if name.isEmpty { return nil }
+        self.name = name
+    }
 }
 
 class CartItem: Product {
-  let quantity: Int
-  init?(name: String, quantity: Int) {
-    if quantity < 1 { return nil }
-    self.quantity = quantity
-    super.init(name: name)
-  }
+    let quantity: Int
+    init?(name: String, quantity: Int) {
+        if quantity < 1 { return nil }
+        self.quantity = quantity
+        super.init(name: name)
+    }
 }
 ```
 
