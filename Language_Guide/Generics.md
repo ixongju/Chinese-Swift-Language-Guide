@@ -608,19 +608,46 @@ print([1260.0, 1200.0, 98.6, 37.0].average())
 
 ## 泛型Where子句的关联类型
 
+可以在关联类型中包含泛型`where`子句。例如，假如你想写一个版本的`Container`，该版本包含一个如标准库中`Sequence`协议的迭代器。你会这么写：
+```swift
+protocol Container {
+    associatedtype Item
+    mutating func append(_ item: Item)
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
 
+    associatedtype Iterator: IteratorProtocol where Iterator.Element == Item
+    func makeIterator() -> Iterator
+}
+```
 
+`Iterator`的泛型`where`子句要求迭代器穿过与容器项类型相同的元素，而不管迭代器的类型。`makeIterator()`函数提供了堆容器迭代器的访问。
 
+对于一个继承自另一个协议的协议，通过在协议声明中添加泛型`where`子句以给继承而来的关联类型添加约束。例如，下面的代码声明了一个`ComparableContainer`协议，该协议要求`Item`实现了`Comparable`协议：
+```swift
+protocol ComparableContainer: Container where Item: Comparable { }
+```
 
+## 泛型下标
 
+下标也可以是泛型，它们可以包含泛型`where`子句。在下标后面的尖括号中编写类型名占位符，在下标体开始大括号前编写泛型`where`子句。例如：
+```swift
+extension Container {
+    subscript<Indices: Sequence>(indices: Indices) -> [Item] where Indices.Iterator.Element == Int {
+        var result = [Item]()
+        for index in indices {
+            result.append(self[index])
+        }
+        return result
+    }
+}
+```
 
+这个扩展添加了一个下标，该下标接受一个索引序列，然后返回一个包含给定索引项的数组。这个泛型下标约束如下：
++ 尖括号中的泛型参数`Indices`必须是一个实现了标准库中`Sequence`协议的类型。
++ 下标接受单个参数，`indices`，是一个`Indices`实例。
++ 泛型`where`子句要求序列的迭代器必须穿过`Int`类型元素。这确保序列中索引的类型与容器使用的索引类型相同。
 
-
-
-
-
-
-
-
+这些约束放在一起，意思是：传递给`indices`参数的值是一个整形序列。
 
 [< 协议](Protocols.md) || [不透明类型 >](Opaque_Types.md)
