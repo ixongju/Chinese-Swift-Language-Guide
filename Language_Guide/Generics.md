@@ -535,22 +535,119 @@ if allItemsMatch(stackOfStrings, arrayOfStrings) {
 
 ## 有泛型where子句的扩展
 
+你也可以在扩展中使用泛型`where`子句。下面的例子扩展了前例中的泛型`Stack`结构体，以向其中添加一个`isTop(_:)`方法。
+```swift
+extension Stack where Element: Equatable {
+    func isTop(_ item: Element) -> Bool {
+        guard let topItem = items.last else {
+            return false
+        }
+        return topItem == item
+    }
+}
+```
+这个新的`isTop(_:)`方法首先检查`Stack`是否为空，然后把给定的项与`Stack`的顶部项进行比较。如果你不用泛型`where`子句这么做，你将会面临一个问题：`isTop(_:)`方法的实现中用到了相等操作符`==`，但是，`Stack`的定义并没有要求其项必须可相等，所以使用相等操作符`==`会引发编译时错误。用泛型`where`子句可以让你为扩展添加新新要求，使扩展在只有`Stack`中的项可进行相等比较时，才添加`isTop(_:)`方法。
 
+下面是`isTop(_:)`方法的应用：
+```swift
+if stackOfStrings.isTop("tres") {
+    print("Top element is tres.")
+} else {
+    print("Top element is something else.")
+}
+// Prints "Top element is tres."
+```
 
+如果你尝试在项不能进行相等比较的`Stack`上调用`isTop(_:)`方法，将会得到编译时错误。
+
+```swift
+struct NotEquatable {}
+var NotEquatableStack = Stack<NotEquatable>()
+let NotEquatableValue = NotEquatable()
+notEquatableStack.push(notEquatableValue)
+notEquatableStack.isTop(notEquatableValue) // Error
+```
+
+可以将泛型`where`子句应用于协议的扩展。下面的例子扩展前例中的`Container`协议，以向其中添加`startsWith(_:)`方法。
+```swift
+extension Container where Item: Equatable {
+    func startsWith(_ item: Item) -> Bool {
+        return count >= 1 && self[0] == item
+    }
+}
+```
+
+`startsWith(_:)`方法首先确保容器有至少一个项，让后检查容器的第一个项是否匹配给定的项。这个新`startsWith(_:)`方法可被用于实现了`Container`协议的任何类型，包括上面用到的堆和数组，因为这里容器的项可进行相等比较。
+```swift
+if [9, 9, 9].startsWith(42) {
+    print("Starts with 42.")
+} else {
+    print("Starts with something else.")
+}
+// Prints "Starts with something else."
+```
+
+上面例子中的泛型`where`子句要求项实现一个协议，你可以编写要求项是特定类型的泛型`where`子句。例如：
+```swift
+extension Container where Item == Double {
+    func average() -> Double {
+        var sum = 0.0
+        for index in 0..<count {
+            sum += self[index]
+        }
+        return sum / Double(count)
+    }
+}
+print([1260.0, 1200.0, 98.6, 37.0].average())
+// Prints "648.9"
+```
+
+这个例子为`Item`类型为`Double`的容器添加了一个`average()`方法。它遍历容器中的项后相加，然后被容器的长度相除以计算平均值。为了能计算浮点出发，它显式地将长度从`Int`类型转换为`Double`类型。
+
+可以在扩展中的泛型`where`子句中包含多个要求，就像你能在任何地方为扩展编写泛型`where`子句。用都好分隔列表中的每个要求。
 
 ## 泛型Where子句的关联类型
 
+可以在关联类型中包含泛型`where`子句。例如，假如你想写一个版本的`Container`，该版本包含一个如标准库中`Sequence`协议的迭代器。你会这么写：
+```swift
+protocol Container {
+    associatedtype Item
+    mutating func append(_ item: Item)
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
 
+    associatedtype Iterator: IteratorProtocol where Iterator.Element == Item
+    func makeIterator() -> Iterator
+}
+```
 
+`Iterator`的泛型`where`子句要求迭代器穿过与容器项类型相同的元素，而不管迭代器的类型。`makeIterator()`函数提供了堆容器迭代器的访问。
 
+对于一个继承自另一个协议的协议，通过在协议声明中添加泛型`where`子句以给继承而来的关联类型添加约束。例如，下面的代码声明了一个`ComparableContainer`协议，该协议要求`Item`实现了`Comparable`协议：
+```swift
+protocol ComparableContainer: Container where Item: Comparable { }
+```
 
+## 泛型下标
 
+下标也可以是泛型，它们可以包含泛型`where`子句。在下标后面的尖括号中编写类型名占位符，在下标体开始大括号前编写泛型`where`子句。例如：
+```swift
+extension Container {
+    subscript<Indices: Sequence>(indices: Indices) -> [Item] where Indices.Iterator.Element == Int {
+        var result = [Item]()
+        for index in indices {
+            result.append(self[index])
+        }
+        return result
+    }
+}
+```
 
+这个扩展添加了一个下标，该下标接受一个索引序列，然后返回一个包含给定索引项的数组。这个泛型下标约束如下：
++ 尖括号中的泛型参数`Indices`必须是一个实现了标准库中`Sequence`协议的类型。
++ 下标接受单个参数，`indices`，是一个`Indices`实例。
++ 泛型`where`子句要求序列的迭代器必须穿过`Int`类型元素。这确保序列中索引的类型与容器使用的索引类型相同。
 
-
-
-
-
-
+这些约束放在一起，意思是：传递给`indices`参数的值是一个整形序列。
 
 [< 协议](Protocols.md) || [不透明类型 >](Opaque_Types.md)
